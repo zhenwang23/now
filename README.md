@@ -23,7 +23,26 @@ Furthermore, NOW fulfills the need of use-case-specific requirements.
 
 🌐 **Democratization of Neural Search**: empowers everyone to use neural search - even people who noramlly would not have access to AI
 
-🔋 **Bateries included**: simple deaults allow you to just provide the data and get your search case up and running
+🔋 **Batteries included**: simple deaults allow you to just provide the data and get your search case up and running
+
+## Quick start
+### Docker
+```bash
+docker run -it --rm \
+--name jina-now \
+--network="host" \
+-v /var/run/docker.sock:/var/run/docker.sock \
+-v $HOME/.kube:/root/.kube \
+-v $PWD/jina-now:/root/data \
+jina-now
+jinaaitmp/now
+```
+
+### Pip
+```bash
+pip install now
+(TBD)
+```
 
 ## Supported Modalities
 - [x] text

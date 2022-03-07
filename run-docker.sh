@@ -9,4 +9,3 @@ docker run -it --rm \
 -v $HOME/.kube:/root/.kube \
 -v $PWD/jina-now:/root/data \
 jina-now
-
