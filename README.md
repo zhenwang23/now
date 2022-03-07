@@ -58,7 +58,12 @@ pip install now
 
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157021773-edca90da-ce38-481b-86e7-7fe8d52cfb59.png">
 
-### NFT
+### Chest X-Ray
+<img src="https://user-images.githubusercontent.com/11627845/157067695-59851a77-5c43-4f68-80c4-403fec850776.png" width="400">
 
+### Birds
+<img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157069954-615a5cb6-dda0-4a2f-9442-ea807ad4a8d5.png">
+
+### NFT
 <img src="https://user-images.githubusercontent.com/11627845/157019002-573cc101-e23b-4020-825c-f37ec66c6ccf.jpeg" width="400">
 
