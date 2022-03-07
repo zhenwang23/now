@@ -27,6 +27,7 @@ Furthermore, NOW fulfills the need of use-case-specific requirements.
 
 ## Quick start
 ### Docker
+One line to host them all.
 ```bash
 docker run -it --rm \
 --name jina-now \
