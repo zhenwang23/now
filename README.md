@@ -56,7 +56,7 @@ pip install now
 ## Examples
 
 ### Fashion
-<img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157021773-edca90da-ce38-481b-86e7-7fe8d52cfb59.png">
+<img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157079335-8f36fc73-d826-4c0a-b1f3-ed5d650a1af1.png">
 
 ### Chest X-Ray
 <img src="https://user-images.githubusercontent.com/11627845/157067695-59851a77-5c43-4f68-80c4-403fec850776.png" width="400">
