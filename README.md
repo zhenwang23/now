@@ -1,14 +1,13 @@
 <p align="center">
-<img src="https://user-images.githubusercontent.com/11627845/157017285-21dd8b01-e3c0-4812-8695-68f06664cc87.png" alt="DocArray logo: The data structure for unstructured data" width="150px">
+<img src="https://user-images.githubusercontent.com/11627845/157017285-21dd8b01-e3c0-4812-8695-68f06664cc87.png" alt="Jina NOW logo: The data structure for unstructured data" width="150px">
 <br>
 <b>Democratization of neural search. Bootstrap your search case within minutes.</b>
 </p>
 
 
 <p align=center>
-<a href="https://pypi.org/project/docarray/"><img src="https://github.com/jina-ai/jina/blob/master/.github/badges/python-badge.svg?raw=true" alt="Python 3.7 3.8 3.9 3.10" title="DocArray supports Python 3.7 and above"></a>
-<a href="https://pypi.org/project/docarray/"><img src="https://img.shields.io/pypi/v/docarray?color=%23099cec&amp;label=PyPI&amp;logo=pypi&amp;logoColor=white" alt="PyPI"></a>
-<a href="https://codecov.io/gh/jina-ai/docarray"><img src="https://codecov.io/gh/jina-ai/docarray/branch/main/graph/badge.svg?token=9WGcGyyqtI"/></a>
+<a href="https://pypi.org/project/jina-now/"><img src="https://github.com/jina-ai/jina/blob/master/.github/badges/python-badge.svg?raw=true" alt="Python 3.7 3.8 3.9 3.10" title="Jina NOW supports Python 3.7 and above"></a>
+<a href="https://pypi.org/project/jina-now/"><img src="https://img.shields.io/pypi/v/jina-now?color=%23099cec&amp;label=PyPI&amp;logo=pypi&amp;logoColor=white" alt="PyPI"></a>
 </p>
 
 <!-- start elevator-pitch -->
@@ -41,7 +40,7 @@ jinaaitmp/now
 
 ### Pip
 ```bash
-pip install now
+pip install jina-now
 (TBD)
 ```
 
