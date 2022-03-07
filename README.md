@@ -25,6 +25,14 @@ Furthermore, NOW fulfills the need of use-case-specific requirements.
 
 🔋 **Bateries included**: simple deaults allow you to just provide the data and get your search case up and running
 
+## Supported Modalities
+- [x] text
+- [x] image
+- [ ] audio
+- [ ] 3d
+- [ ] pdf 
+- [ ] ...
+
 ## Examples
 
 ### Fashion

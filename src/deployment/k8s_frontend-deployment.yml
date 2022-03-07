@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: now-frontend
+  namespace: visionapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: now-frontend
+  template:
+    metadata:
+      labels:
+        app: now-frontend
+    spec:
+      containers:
+        - name: now-frontend
+          image: gcr.io/jina-showcase/now-frontend
+          imagePullPolicy: Always
+          command: ["streamlit"]
+          args: ["run", "frontend.py", "--server.port", "80", "{gateway_host}", "{gateway_port}", "{data}"]
+          ports:
+            - containerPort: 80
