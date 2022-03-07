@@ -56,11 +56,13 @@ pip install now
 ## Examples
 
 ### Fashion
-
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157021773-edca90da-ce38-481b-86e7-7fe8d52cfb59.png">
 
 ### Chest X-Ray
 <img src="https://user-images.githubusercontent.com/11627845/157067695-59851a77-5c43-4f68-80c4-403fec850776.png" width="400">
+
+### Art
+<img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157074453-721c0f2d-3f7d-4839-b6ff-bbccbdba2e5f.png">
 
 ### Birds
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157069954-615a5cb6-dda0-4a2f-9442-ea807ad4a8d5.png">
