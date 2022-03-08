@@ -1,1 +1,0 @@
-while [[ $(kubectl  get pods -n visionapi -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True True True True True True True" ]]; do echo "waiting for pod" && sleep 1; done

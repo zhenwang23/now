@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: now-frontend
-  namespace: visionapi
+  namespace: nowapi
 spec:
   selector:
     app: now-frontend

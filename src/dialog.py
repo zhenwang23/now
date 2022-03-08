@@ -42,7 +42,7 @@ class UserInput:
 def headline():
     f = Figlet(font='slant')
     print('Welcome to:')
-    print(f.renderText('Jina-NOW'))
+    print(f.renderText('Jina NOW'))
     print('Get your search case up and running - end to end.')
     print(
         'We take your images and texts, train a model, push it to the jina hub, '
@@ -167,7 +167,7 @@ def ask_data_custom(user_input: UserInput):
             {
                 'type': 'input',
                 'name': 'url',
-                'message': 'Please paste in your URL for the docarray',
+                'message': 'Please paste in your URL for the docarray:',
             },
         ]
         user_input.dataset_url = prompt_plus(questions, 'url')

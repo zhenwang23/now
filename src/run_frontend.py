@@ -4,17 +4,8 @@ from time import sleep
 import requests
 from yaspin import yaspin
 
+from src.deployment.deployment import apply_replace
 from src.deployment.flow import cmd, wait_for_lb
-
-def apply_replace(f_in, replace_dict):
-    with open(f_in, "r") as fin:
-        with tempfile.NamedTemporaryFile(mode='w') as fout:
-            for line in fin.readlines():
-                for key, val in replace_dict.items():
-                    line = line.replace('{' + key + '}', str(val))
-                fout.write(line)
-            fout.flush()
-            cmd(f'kubectl apply -f {fout.name}')
 
 def run(data, gateway_host, gateway_port, gateway_host_internal, gateway_port_internal):
     # deployment
@@ -41,7 +32,7 @@ def run(data, gateway_host, gateway_port, gateway_host_internal, gateway_port_in
             frontend_port = '30080'
         else:
             cmd(f'kubectl apply -f src/deployment/k8s_frontend-svc-lb.yml')
-            frontend_host = f'http://{wait_for_lb("frontend-lb")}'
+            frontend_host = f'http://{wait_for_lb("frontend-lb", "nowapi")}'
             frontend_port = '80'
 
         spinner.ok('🚀')
@@ -49,5 +40,5 @@ def run(data, gateway_host, gateway_port, gateway_host_internal, gateway_port_in
 
 
 if __name__ == '__main__':
-    run('best-artworks', 'remote', None, 'gateway.visionapi.svc.cluster.local', '8080')
+    run('best-artworks', 'remote', None, 'gateway.nowapi.svc.cluster.local', '8080')
     # 31080

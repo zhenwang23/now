@@ -40,7 +40,7 @@ def run(user_input: UserInput, is_debug):
         'val_query_image': None,
         'val_index_image': None,
     }
-    add_clip_embeddings(dataset, user_input.model_variant, user_input.cluster)
+    add_clip_embeddings(dataset, user_input.model_variant, user_input.cluster, user_input.new_cluster_type)
     fill_missing(dataset, train_val_split_ratio, num_default_val_queries, is_debug)
 
     # if False:

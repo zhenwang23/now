@@ -21,12 +21,12 @@ def _text_collate_fn(batch: DocumentArray):
 
 
 class _ImageCollateFn:
-    def __init__(self, vision_preprocess: Callable):
-        self._vision_preprocess = vision_preprocess
+    def __init__(self, now_preprocess: Callable):
+        self._now_preprocess = now_preprocess
 
     def __call__(self, batch: DocumentArray):
         return torch.stack(
-            [self._vision_preprocess(Image.fromarray(doc.tensor)) for doc in batch], dim=0
+            [self._now_preprocess(Image.fromarray(doc.tensor)) for doc in batch], dim=0
         )
 
 

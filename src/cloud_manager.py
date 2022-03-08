@@ -7,7 +7,6 @@ from yaspin import yaspin
 from src.dialog import prompt_plus
 from src.gke_deploy import create_gke_cluster
 from src.deployment.flow import cmd
-from PyInquirer.prompt import prompt
 
 def create_local_cluster():
     out, _ = cmd('kind get clusters')
@@ -54,7 +53,7 @@ def setup_cluster(cluster_name: Optional[str], provider: str):
 def ask_existing():
     config.load_kube_config()
     v1 = client.CoreV1Api()
-    if 'visionapi' in [item.metadata.name for item in v1.list_namespace().items]:
+    if 'nowapi' in [item.metadata.name for item in v1.list_namespace().items]:
         questions = [
             {
                 'type': 'list',
@@ -77,7 +76,7 @@ def ask_existing():
         remove = prompt_plus(questions, 'proceed')
         if remove:
             with yaspin(text="remove old deployment", color="green") as spinner:
-                cmd('kubectl delete ns visionapi', output=False, error=False)
+                cmd('kubectl delete ns nowapi', output=False, error=False)
                 spinner.ok('💀')
         else:
             cowsay.cow('see you soon 👋')
