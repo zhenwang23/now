@@ -34,8 +34,7 @@ docker run -it --rm \
 -v /var/run/docker.sock:/var/run/docker.sock \
 -v $HOME/.kube:/root/.kube \
 -v $PWD/jina-now:/root/data \
-jina-now
-jinaaitmp/now
+jinaaitmp/now:0.0.1
 ```
 
 ### Pip

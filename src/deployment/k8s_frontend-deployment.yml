@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: now-frontend
-          image: gcr.io/jina-showcase/now-frontend
+          image: jinaaitmp/now-frontend:{docker_frontend_tag}
           imagePullPolicy: Always
           command: ["streamlit"]
           args: ["run", "frontend.py", "--server.port", "80", "{gateway_host}", "{gateway_port}", "{data}"]

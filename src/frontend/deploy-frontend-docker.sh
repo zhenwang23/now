@@ -1,10 +1,7 @@
 docker build -t now-frontend .
 
-docker tag now-frontend gcr.io/jina-showcase/now-frontend
-docker push gcr.io/jina-showcase/now-frontend
-
-docker tag now-frontend jinaaitmp/now-frontend
-docker push jinaaitmp/now-frontend
+docker tag now-frontend jinaaitmp/now-frontend:0.0.1
+docker push jinaaitmp/now-frontend:0.0.1
 
 #docker run -it --rm \
 #--name jina-now-frontend \

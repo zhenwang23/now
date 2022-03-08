@@ -7,7 +7,7 @@ from yaspin import yaspin
 from src.deployment.deployment import apply_replace
 from src.deployment.flow import cmd, wait_for_lb
 
-def run(data, gateway_host, gateway_port, gateway_host_internal, gateway_port_internal):
+def run(data, gateway_host, gateway_port, gateway_host_internal, gateway_port_internal, docker_frontend_tag):
     # deployment
     with yaspin(text="deploy frontend", color="green") as spinner:
         apply_replace(
@@ -15,7 +15,8 @@ def run(data, gateway_host, gateway_port, gateway_host_internal, gateway_port_in
             {
                 'data': data,
                 'gateway_host': gateway_host_internal,
-                'gateway_port': gateway_port_internal
+                'gateway_port': gateway_port_internal,
+                'docker_frontend_tag': docker_frontend_tag,
             }
         )
 
@@ -40,5 +41,5 @@ def run(data, gateway_host, gateway_port, gateway_host_internal, gateway_port_in
 
 
 if __name__ == '__main__':
-    run('best-artworks', 'remote', None, 'gateway.nowapi.svc.cluster.local', '8080')
+    run('best-artworks', 'remote', None, 'gateway.nowapi.svc.cluster.local', '8080', docker_frontend_tag='0.0.1')
     # 31080
