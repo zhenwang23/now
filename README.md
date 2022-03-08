@@ -1,6 +1,8 @@
 <p align="center">
 <img src="https://user-images.githubusercontent.com/11627845/157017285-21dd8b01-e3c0-4812-8695-68f06664cc87.png" alt="Jina NOW logo: The data structure for unstructured data" width="150px">
 <br>
+(placeholder - design is working on the real logo)
+
 <b>Democratization of neural search. Bootstrap your search case within minutes.</b>
 </p>
 
