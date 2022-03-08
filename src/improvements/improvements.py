@@ -4,7 +4,7 @@ from collections import defaultdict
 from finetuner.tuner.evaluation import Evaluator
 from jina import DocumentArray
 from src.hub.head_encoder.head_encoder import FineTunedLinearHeadEncoder
-from src.utils import get_pr_curve, visual_result, save_before_after_image, plot_metrics
+from src.utils import visual_result, save_before_after_image, plot_metrics
 import numpy as np
 
 np.seterr(divide='ignore', invalid='ignore')
@@ -69,9 +69,9 @@ def show_improvement(
     finetuned_docs = finetuned_encoder.encode(filtered_doc)
     finetuned_embed = finetuned_docs.embeddings
 
-    # Step 3: Calling SVM on finetuned & pretrained embed
-    get_pr_curve(pretrained_embed, labels, title='pretrained_pr')
-    get_pr_curve(finetuned_embed, labels, title='finetuned_pr')
+    # # Step 3: Calling SVM on finetuned & pretrained embed
+    # get_pr_curve(pretrained_embed, labels, title='pretrained_pr')
+    # get_pr_curve(finetuned_embed, labels, title='finetuned_pr')
 
     # 2. Get search results/metric and plot together
     # Step 1: Pre-trained
@@ -92,4 +92,3 @@ def show_improvement(
 
     # saving all the before-after images side-by-side
     save_before_after_image(path=f'/root/data/before_after_comparison_{data}.png')
-    print('   before-after comparison files are saved at jina-now/visualization')

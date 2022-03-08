@@ -66,6 +66,7 @@ def run(user_input: UserInput, is_debug):
         except Exception as e:
             pass
         spinner.ok('🖼')
+    print('   before-after comparison files are saved at jina-now/visualization')
     executor_name = push_to_hub()
     # executor_name = 'FineTunedLinearHeadEncoder:93ea59dbd1ee3fe0bdc44252c6e86a87/
     # linear_head_encoder_2022-02-20_20-35-15'

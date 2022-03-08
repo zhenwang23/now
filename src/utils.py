@@ -38,98 +38,100 @@ def get_device():
     return "cuda" if torch.cuda.is_available() else "cpu"
 
 
-def multi_class_svm(embed, labels, title):
-    # multi-label setting for ROC curve
-    classes = np.arange(start=0, stop=len(set(labels)))
-    Y = label_binarize(labels, classes=classes)
-
-    n_classes = Y.shape[1]
-
-    # split the dataset
-    X_train, X_test, Y_train, Y_test = train_test_split(
-        embed, Y, test_size=0.25, random_state=42
-    )
-
-    # define the classifier
-    clf = OneVsRestClassifier(
-        make_pipeline(StandardScaler(), LinearSVC(max_iter=5000, random_state=42))
-    )
-
-    clf.fit(X_train, Y_train)
-    y_score = clf.decision_function(X_test)
-
-    # For each class
-    precision = dict()
-    recall = dict()
-    average_precision = dict()
-    for i in range(n_classes):
-        precision[i], recall[i], _ = precision_recall_curve(Y_test[:, i], y_score[:, i])
-        average_precision[i] = average_precision_score(Y_test[:, i], y_score[:, i])
-
-    _, ax = plt.subplots()
-
-    for i, color in zip(range(n_classes), colors):
-        display = PrecisionRecallDisplay(
-            recall=recall[i],
-            precision=precision[i],
-            average_precision=average_precision[i],
-        )
-        display.plot(ax=ax, color=color)
-
-    # add the legend for the iso-f1 curves
-    handles, labels = display.ax_.get_legend_handles_labels()
-    # set the legend and the axes
-    ax.set_xlim([0.0, 1.0])
-    ax.set_ylim([0.0, 1.05])
-    ax.legend(handles=handles, labels=labels, loc="best")
-    ax.set_title("Precision-recall curve for top-10 class")
-    plt.tight_layout()
-    plt.savefig(title + '.png')
-    plt.close()
-
-
-def binary_svm(embed, labels, title):
-    # split the dataset
-    X_train, X_test, Y_train, Y_test = train_test_split(
-        embed, labels, test_size=1, random_state=42
-    )
-
-    classifier = make_pipeline(StandardScaler(), LinearSVC(random_state=42))
-    classifier.fit(X_train, Y_train)
-
-    y_score = classifier.decision_function(X_test)
-
-    display = PrecisionRecallDisplay.from_predictions(Y_test, y_score)
-    ax = display.ax_.set_title("Binary Precision-Recall curve")
-    _, ax = plt.subplots()
-
-    display.plot(ax=ax, name=f"LinearSVC")
-    handles, labels = display.ax_.get_legend_handles_labels()
-    # set the legend and the axes
-    ax.set_xlim([0.0, 1.0])
-    ax.set_ylim([0.0, 1.05])
-    ax.legend(handles=handles, labels=labels, loc="best")
-    plt.tight_layout()
-    plt.savefig(title + '.png')
-    plt.close()
+# TODO needs to be fixed
+# def multi_class_svm(embed, labels, title):
+#     # multi-label setting for ROC curve
+#     classes = np.arange(start=0, stop=len(set(labels)))
+#     Y = label_binarize(labels, classes=classes)
+#
+#     n_classes = Y.shape[1]
+#
+#     # split the dataset
+#     X_train, X_test, Y_train, Y_test = train_test_split(
+#         embed, Y, test_size=0.25, random_state=42
+#     )
+#
+#     # define the classifier
+#     clf = OneVsRestClassifier(
+#         make_pipeline(StandardScaler(), LinearSVC(max_iter=5000, random_state=42))
+#     )
+#
+#     clf.fit(X_train, Y_train)
+#     y_score = clf.decision_function(X_test)
+#
+#     # For each class
+#     precision = dict()
+#     recall = dict()
+#     average_precision = dict()
+#     for i in range(n_classes):
+#         precision[i], recall[i], _ = precision_recall_curve(Y_test[:, i], y_score[:, i])
+#         average_precision[i] = average_precision_score(Y_test[:, i], y_score[:, i])
+#
+#     _, ax = plt.subplots()
+#
+#     for i, color in zip(range(n_classes), colors):
+#         display = PrecisionRecallDisplay(
+#             recall=recall[i],
+#             precision=precision[i],
+#             average_precision=average_precision[i],
+#         )
+#         display.plot(ax=ax, color=color)
+#
+#     # add the legend for the iso-f1 curves
+#     handles, labels = display.ax_.get_legend_handles_labels()
+#     # set the legend and the axes
+#     ax.set_xlim([0.0, 1.0])
+#     ax.set_ylim([0.0, 1.05])
+#     ax.legend(handles=handles, labels=labels, loc="best")
+#     ax.set_title("Precision-recall curve for top-10 class")
+#     plt.tight_layout()
+#     plt.savefig(title + '.png')
+#     plt.close()
 
 
-def get_pr_curve(embed, labels, title='finetuned'):
-    # check the number of class
-    num_class = len(set(labels))
-    if num_class <= 2:
-        binary_svm(embed, labels, title)
-    else:
-        multi_class_svm(embed, labels, title)
+# TODO for now it does not add value since we don't use class labels
+# def binary_svm(embed, labels, title):
+#     # split the dataset
+#     X_train, X_test, Y_train, Y_test = train_test_split(
+#         embed, labels, test_size=1, random_state=42
+#     )
+#
+#     classifier = make_pipeline(StandardScaler(), LinearSVC(random_state=42))
+#     classifier.fit(X_train, Y_train)
+#
+#     y_score = classifier.decision_function(X_test)
+#
+#     display = PrecisionRecallDisplay.from_predictions(Y_test, y_score)
+#     ax = display.ax_.set_title("Binary Precision-Recall curve")
+#     _, ax = plt.subplots()
+#
+#     display.plot(ax=ax, name=f"LinearSVC")
+#     handles, labels = display.ax_.get_legend_handles_labels()
+#     # set the legend and the axes
+#     ax.set_xlim([0.0, 1.0])
+#     ax.set_ylim([0.0, 1.05])
+#     ax.legend(handles=handles, labels=labels, loc="best")
+#     plt.tight_layout()
+#     plt.savefig(title + '.png')
+#     plt.close()
+
+
+# def get_pr_curve(embed, labels, title='finetuned'):
+#     # check the number of class
+#     num_class = len(set(labels))
+#     if num_class <= 2:
+#         binary_svm(embed, labels, title)
+#     else:
+#         multi_class_svm(embed, labels, title)
 
 
 def save_before_after_image(path):
     figs = [
         ['pretrained.png', 'finetuned.png'],
-        ['pretrained_pr.png', 'finetuned_pr.png'],
+        # ['pretrained_pr.png', 'finetuned_pr.png'],
         ['pretrained_m.png', 'finetuned_m.png'],
     ]
-    imgs = [im1, im2, im3, im4, im5, im6] = [
+    [im1, im2, im3, im4] = [
         Image.open(img) for imgs in figs for img in imgs
     ]
 
@@ -147,20 +149,20 @@ def save_before_after_image(path):
     im4 = im4.resize(
         (big_w, int(im4.height * big_w / im4.width)), resample=Image.BICUBIC
     )
-    im5 = im5.resize(
-        (big_w, int(im5.height * big_w / im5.width)), resample=Image.BICUBIC
-    )
-    im6 = im6.resize(
-        (big_w, int(im6.height * big_w / im6.width)), resample=Image.BICUBIC
-    )
+    # im5 = im5.resize(
+    #     (big_w, int(im5.height * big_w / im5.width)), resample=Image.BICUBIC
+    # )
+    # im6 = im6.resize(
+    #     (big_w, int(im6.height * big_w / im6.width)), resample=Image.BICUBIC
+    # )
 
     width = (
-        max(im1.width + im2.width, im3.width + im4.width, im5.width + im6.width) + 200
+        max(im1.width + im2.width, im3.width + im4.width) + 200
     )
     height = (
         max(
-            im1.height + im3.height + im5.height,
-            im2.height + im4.height + im6.height,
+            im1.height + im3.height,
+            im2.height + im4.height,
         )
         + 300
     )
@@ -171,8 +173,6 @@ def save_before_after_image(path):
     dst.paste(im2, (im1.width + 150, 150))
     dst.paste(im3, (10, im1.height + 250))
     dst.paste(im4, (im1.width + 120, im1.height + 250))
-    dst.paste(im5, (50, im3.height + im1.height + 300))
-    dst.paste(im6, (im1.width + 200, im3.height + im1.height + 300))
     draw = ImageDraw.Draw(dst)
     font = ImageFont.truetype(
         'src/fonts/arial.ttf', 50

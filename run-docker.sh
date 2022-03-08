@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker build -t jina-now .
+docker build -t jina-now:0.0.1 .
 
 docker run -it --rm \
 --name jina-now \
