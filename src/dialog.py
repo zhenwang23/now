@@ -51,6 +51,9 @@ def headline():
     print(
         'If you want learn more about our framework please visit: https://docs.jina.ai/'
     )
+    print(
+        '💡 Make sure you assign give enough memory to your Docker daemon. 5GB - 8GB should be okay.'
+    )
     print()
 
 
