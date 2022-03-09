@@ -25,6 +25,17 @@ def _fetch_da_from_url(url: str) -> DocumentArray:
     return da
 
 
+def remove_duplicates(da):
+    """Some da"""
+    known_docs = set()
+    new_da = DocumentArray()
+    for i, d in enumerate(da):
+        if d.id not in known_docs:
+            new_da.append(d)
+            known_docs.add(d.id)
+    return new_da
+
+
 def load_data(
     dataset: str,
     model_quality: str,
@@ -60,7 +71,7 @@ def load_data(
                 d.tags['finetuner_label'] = os.path.dirname(d.uri).split('/')[-1]
 
     da = da.shuffle(seed=42)
-
+    da = remove_duplicates(da)
     return da
 
 

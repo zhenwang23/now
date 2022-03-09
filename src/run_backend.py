@@ -1,5 +1,6 @@
 import warnings
 
+import numpy as np
 from yaspin import yaspin
 
 from src.dialog import UserInput
@@ -9,6 +10,16 @@ from src.finetuning.finetuning import add_clip_embeddings, finetune_layer
 from src.hub.hub import push_to_hub
 from src.improvements.improvements import show_improvement
 
+
+def extend_embeddings(dataset):
+    for d in dataset:
+        emb = d.embedding
+        zeros = np.zeros(emb.shape)
+        if d.text:
+            order = (zeros, emb)
+        else:
+            order = (emb, zeros)
+        d.embedding = np.concatenate(order)
 
 def run(user_input: UserInput, is_debug):
     """
@@ -41,6 +52,7 @@ def run(user_input: UserInput, is_debug):
         'val_index_image': None,
     }
     add_clip_embeddings(dataset, user_input.model_variant, user_input.cluster, user_input.new_cluster_type)
+    extend_embeddings(dataset['index'])
     fill_missing(dataset, train_val_split_ratio, num_default_val_queries, is_debug)
 
     # if False:
@@ -96,10 +108,10 @@ def parse_user_input(quality, is_debug):
     num_default_val_queries = 10
 
     if quality == 'ViT-L14':
-        final_layer_output_dim = 768
+        final_layer_output_dim = 768*2
     else:
-        final_layer_output_dim = 512
-    embedding_size = 128
+        final_layer_output_dim = 512*2
+    embedding_size = 256
 
     return (
         final_layer_output_dim,
