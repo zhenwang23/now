@@ -115,6 +115,7 @@ def deploy_flow(executor_name, index, infrastructure, vision_model, cluster_type
         uses_with={
             'pretrained_model_name_or_path': vision_model
         },
+        env={'JINA_LOG_LEVEL': 'DEBUG'},
         **flow_kwargs
     ).add(
         name='linear_head',
@@ -123,6 +124,7 @@ def deploy_flow(executor_name, index, infrastructure, vision_model, cluster_type
             'final_layer_output_dim': final_layer_output_dim,
             'embedding_size': embedding_size
         },
+        env={'JINA_LOG_LEVEL': 'DEBUG'},
     ).add(
         name='indexer',
         uses=f'jinahub{docker_prefix}://PQLiteIndexer/v0.2.3-rc',
@@ -131,6 +133,7 @@ def deploy_flow(executor_name, index, infrastructure, vision_model, cluster_type
             'metric': 'cosine'
         },
         uses_metas={'workspace': 'pq_workspace'},
+        env={'JINA_LOG_LEVEL': 'DEBUG'},
     )
     f.plot('/root/data/deployed_flow.png', vertical_layout=True)
 

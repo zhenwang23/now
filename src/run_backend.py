@@ -7,19 +7,10 @@ from src.dialog import UserInput
 from src.data_loading.data_loading import load_data, fill_missing
 from src.deployment.flow import deploy_flow
 from src.finetuning.finetuning import add_clip_embeddings, finetune_layer
+from src.hub.head_encoder.head_encoder import extend_embeddings
 from src.hub.hub import push_to_hub
 from src.improvements.improvements import show_improvement
 
-
-def extend_embeddings(dataset):
-    for d in dataset:
-        emb = d.embedding
-        zeros = np.zeros(emb.shape)
-        if d.text:
-            order = (zeros, emb)
-        else:
-            order = (emb, zeros)
-        d.embedding = np.concatenate(order)
 
 def run(user_input: UserInput, is_debug):
     """
@@ -52,7 +43,7 @@ def run(user_input: UserInput, is_debug):
         'val_index_image': None,
     }
     add_clip_embeddings(dataset, user_input.model_variant, user_input.cluster, user_input.new_cluster_type)
-    extend_embeddings(dataset['index'])
+    extend_embeddings(dataset['index'], final_layer_output_dim)
     fill_missing(dataset, train_val_split_ratio, num_default_val_queries, is_debug)
 
     # if False:

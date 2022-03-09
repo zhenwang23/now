@@ -1,5 +1,3 @@
-import os
-import time
 from pathlib import Path
 from typing import Optional
 
@@ -10,6 +8,23 @@ from jina import DocumentArray, Executor, requests
 
 import torch.nn.functional as F
 from torch.nn import Linear, Module
+
+
+def get_extended_embedding_if_needed(d, target_dim):
+    emb = d.embedding
+    if emb.shape[0] == target_dim:
+        return emb
+
+    zeros = np.zeros(emb.shape)
+    if d.text:
+        order = (zeros, emb)
+    else:
+        order = (emb, zeros)
+    return np.concatenate(order)
+
+def extend_embeddings(da, target_dim):
+    for d in da:
+        d.embedding = get_extended_embedding_if_needed(d, target_dim)
 
 
 class LinearHead(Module):
@@ -28,6 +43,7 @@ class FineTunedLinearHeadEncoder(Executor):
     def __init__(self, final_layer_output_dim, embedding_size, model_path='best_model_ndcg', *args, **kwargs):
         super().__init__(**kwargs)
         model_path = Path(__file__).parent / 'best_model_ndcg'
+        self.final_layer_output_dim = final_layer_output_dim
         self.model = LinearHead(final_layer_output_dim, embedding_size)
         self.model.load_state_dict(
             torch.load(model_path, map_location='cpu'))
@@ -39,7 +55,7 @@ class FineTunedLinearHeadEncoder(Executor):
         for d in docs:
             blobs.append(d.blob)
             texts.append(d.text)
-            d.tensor = d.embedding
+            d.tensor = get_extended_embedding_if_needed(d, self.final_layer_output_dim)
         docs.embed(self.model)
         for d, blob, text in zip(docs, blobs, texts):
             if type(d.embedding) != np.ndarray:

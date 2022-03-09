@@ -1,6 +1,7 @@
 import base64
 import os
 import random
+import uuid
 from copy import deepcopy
 from typing import Optional
 
@@ -27,12 +28,11 @@ def _fetch_da_from_url(url: str) -> DocumentArray:
 
 def remove_duplicates(da):
     """Some da"""
-    known_docs = set()
     new_da = DocumentArray()
     for i, d in enumerate(da):
-        if d.id not in known_docs:
-            new_da.append(d)
-            known_docs.add(d.id)
+        new_doc = deepcopy(d)
+        new_doc.id = str(uuid.uuid4())
+        new_da.append(new_doc)
     return new_da
 
 
