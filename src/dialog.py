@@ -222,7 +222,7 @@ def ask_deployment(user_input: UserInput, contexts, active_context):
     questions = [{
         'type': 'list',
         'name': 'cluster',
-        'message': 'Where do you want to deploy it?',
+        'message': 'Where do you want to deploy your search engine?',
         'choices': choices,
         'filter': lambda val: val.lower()
     }]

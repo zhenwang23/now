@@ -20,7 +20,7 @@ def push_to_hub():
     secret = '93ea59dbd1ee3fe0bdc44252c6e86a87'
     class_name = 'FineTunedLinearHeadEncoder'
     bashCommand = f"jina hub push --private src/hub/head_encoder -t {name} --force-update {class_name} --secret {secret}"
-    with yaspin(text="push fine-tuned model to hub", color="green") as spinner:
+    with yaspin(text="Push fine-tuned model to Jina Hub", color="green") as spinner:
         with open("NUL", "w") as fh:
             process = subprocess.Popen(bashCommand.split(), stdout=fh)
         output, error = process.communicate()

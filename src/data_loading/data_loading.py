@@ -19,7 +19,7 @@ def _fetch_da_from_url(url: str) -> DocumentArray:
     if not os.path.exists(data_path):
         download(url, data_path)
 
-    with yaspin(text="extracting dataset", color="green") as spinner:
+    with yaspin(text="Extracting dataset", color="green") as spinner:
         da = DocumentArray.load_binary(data_path)
         spinner.ok("📂")
     return da

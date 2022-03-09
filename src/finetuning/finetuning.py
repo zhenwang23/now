@@ -75,13 +75,13 @@ def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size):
         callbacks=callbacks,
         tag_key=finetuner.__default_tag_key__
     )
-    print('  🧠 perfect! Early stopping triggered since the accuracy is great already')
+    print('  🧠 Perfect! Early stopping triggered since accuracy is great already')
     return f'{save_dir}/best_model_ndcg'
 
 
 def add_clip_embeddings(dataset, vision_model, infrastructure, cluster_type):
     need_to_add_embeddings = False
-    with yaspin(text="check if embeddings are there already", color="green") as spinner:
+    with yaspin(text="Check if embeddings already exist", color="green") as spinner:
         for k, da in dataset.items():
             if da is None:
                 continue
