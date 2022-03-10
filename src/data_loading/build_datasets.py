@@ -96,9 +96,13 @@ def _build_deepfashion(root: str, num_workers: int = 8) -> DocumentArray:
         if len(labels) > 0:
             for label in set(labels):
                 _, gender, category, _, color = label.split('/')
-                text = f'{category} {gender} {color}'.lower().replace(
+                text_elements = [category, gender, color]
+                shuffle(text_elements)
+                text = f'{" ".join(text_elements)}'.lower().replace(
                     '-', ' '
-                ).replace('_', ' ')
+                ).replace(
+                    '_', ' '
+                )
                 data.append(
                     _DataPoint(
                         id=rootdir,

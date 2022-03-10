@@ -66,7 +66,7 @@ def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size):
         loss=TripletLoss(
             # Todo maybe cosine
             distance='euclidean',
-            margin=0.5,
+            # margin=0.5,
             miner=TripletEasyHardMiner(pos_strategy='hard', neg_strategy='hard'),
         ),
         device=get_device(),

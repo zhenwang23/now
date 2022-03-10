@@ -150,6 +150,7 @@ def deploy_flow(executor_name, index, infrastructure, vision_model, cluster_type
 
     client = Client(host=gateway_host, port=gateway_port)
     for x in tqdm(batch(index, 50), total=math.ceil(len(index) / 50)):
+        # first request takes soooo long
         client.post('/index', request_size=50, inputs=x)
 
     print('⭐  success - your data is indexed')
