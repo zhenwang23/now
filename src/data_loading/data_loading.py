@@ -28,22 +28,22 @@ def _fetch_da_from_url(url: str) -> DocumentArray:
 
 def remove_duplicates(da):
     """Some da"""
-    known_set = set()
-    unique_dataset = DocumentArray()
-    for i, d in enumerate(da):
-        d.id = str(uuid.uuid4())
-        l = d.tags['finetuner_label']
-        if d.text and l in known_set:
-            continue
-        unique_dataset.append(d)
-        known_set.add(l)
-    return unique_dataset
-    # new_da = DocumentArray()
+    # known_set = set()
+    # unique_dataset = DocumentArray()
     # for i, d in enumerate(da):
-    #     new_doc = deepcopy(d)
-    #     new_doc.id = str(uuid.uuid4())
-    #     new_da.append(new_doc)
-    # return new_da
+    #     d.id = str(uuid.uuid4())
+    #     l = d.tags['finetuner_label']
+    #     if d.text and l in known_set:
+    #         continue
+    #     unique_dataset.append(d)
+    #     known_set.add(l)
+    # return unique_dataset
+    new_da = DocumentArray()
+    for i, d in enumerate(da):
+        new_doc = deepcopy(d)
+        new_doc.id = str(uuid.uuid4())
+        new_da.append(new_doc)
+    return new_da
 
 
 def load_data(

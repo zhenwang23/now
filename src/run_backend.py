@@ -102,7 +102,7 @@ def parse_user_input(quality, is_debug):
         final_layer_output_dim = 768*2
     else:
         final_layer_output_dim = 512*2
-    embedding_size = 256
+    embedding_size = 128
 
     return (
         final_layer_output_dim,
