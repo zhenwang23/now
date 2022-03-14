@@ -1,4 +1,9 @@
 NUL
 jina-now-k8s
 k8s
-best_model_ndcg
+src/hub/best_model_ndcg
+
+*.idea
+*.png
+
+data/

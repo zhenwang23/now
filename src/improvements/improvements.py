@@ -18,7 +18,6 @@ def show_improvement(
     index,
     query_all,
     index_all,
-
     final_layer_output_dim,
     embedding_size,
     finetuned_model_path,
@@ -65,21 +64,24 @@ def show_improvement(
     filtered_doc = DocumentArray(subset)
 
     # Step 2: Get pretrained and finetuned embeddings
-    pretrained_embed = filtered_doc.embeddings
+    # pretrained_embed = filtered_doc.embeddings
     finetuned_encoder = FineTunedLinearHeadEncoder(
         final_layer_output_dim, embedding_size, model_path=finetuned_model_path
     )
-    finetuned_docs = finetuned_encoder.encode(filtered_doc)
-    finetuned_embed = finetuned_docs.embeddings
+    # finetuned_docs = finetuned_encoder.encode(filtered_doc)
+    # finetuned_embed = finetuned_docs.embeddings
 
     # # Step 3: Calling SVM on finetuned & pretrained embed
     # get_pr_curve(pretrained_embed, labels, title='pretrained_pr')
     # get_pr_curve(finetuned_embed, labels, title='finetuned_pr')
 
     # 2. Get search results/metric and plot together
+    # If all `finetuner_label` are unique then do not highlight with any color
+    unique_labels = set([doc.tags[class_label] for doc in index])
+    unique = len(unique_labels) == len(index)
     # Step 1: Pre-trained
     query.match(index, limit=9, exclude_self=True)
-    visual_result(data, query, output='pretrained.png', label=class_label)
+    visual_result(data, query, output='pretrained.png', label=class_label, unique=unique)
     evaluator = Evaluator(query_data=query_all, index_data=index_all)
     ev = evaluator.evaluate()
     plot_metrics(ev, 'pretrained_m.png')
@@ -88,8 +90,10 @@ def show_improvement(
     new_query = finetuned_encoder.encode(query)
     new_index = finetuned_encoder.encode(index)
     new_query.match(new_index, limit=9, exclude_self=True)
-    visual_result(data, new_query, output='finetuned.png', label=class_label)
-    evaluator = Evaluator(query_data=query, index_data=index)
+    visual_result(data, new_query, output='finetuned.png', label=class_label, unique=unique)
+    new_query_all = finetuned_encoder.encode(query_all)
+    new_index_all = finetuned_encoder.encode(index_all)
+    evaluator = Evaluator(query_data=new_query_all, index_data=new_index_all)
     ev = evaluator.evaluate()
     plot_metrics(ev, 'finetuned_m.png')
 
