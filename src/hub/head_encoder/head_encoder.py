@@ -67,6 +67,8 @@ class FineTunedLinearHeadEncoder(Executor):
         for d, blob, text in zip(docs, blobs, texts):
             if type(d.embedding) != np.ndarray:
                 d.embedding = d.embedding.numpy()
+            # TODO why is this working? blob can never be None
+            # if blob != b'':
             if blob is not None:
                 d.blob = blob
             elif text:
