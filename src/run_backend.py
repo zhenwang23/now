@@ -58,6 +58,8 @@ def run(user_input: UserInput, is_debug):
                     user_input.dataset,
                     dataset['val_query_image'],
                     dataset['val_index_image'],
+                    dataset['val_query'],
+                    dataset['val_index'],
                     final_layer_output_dim,
                     embedding_size,
                     finetuned_model_path,

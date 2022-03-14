@@ -220,6 +220,7 @@ def visual_result(
     channel_axis: int = -1,
     img_per_row=11,
     label='finetuner_label',
+    unique=False,
 ):
     img_size = int(canvas_size / img_per_row)
     img_h, img_w = img_size, img_size
@@ -263,17 +264,23 @@ def visual_result(
 
             match_img = np.ones([img_h, img_w, 3], dtype='uint8')
             match_img[5:-5, 5:-5] = _d.tensor  # center the match results image
-            # apply green if it is same class else red
-            if q.tags[label] == _d.tags[label]:
-                match_img[0:5, ...] = (0, 255, 0)
-                match_img[-5:-1, ...] = (0, 255, 0)
-                match_img[:, 0:5, ...] = (0, 255, 0)
-                match_img[:, -5:-1, ...] = (0, 255, 0)
+            if not unique:
+                # apply green if it is same class else red
+                if q.tags[label] == _d.tags[label]:
+                    match_img[0:5, ...] = (0, 255, 0)
+                    match_img[-5:-1, ...] = (0, 255, 0)
+                    match_img[:, 0:5, ...] = (0, 255, 0)
+                    match_img[:, -5:-1, ...] = (0, 255, 0)
+                else:
+                    match_img[0:5, ...] = (255, 0, 0)
+                    match_img[-5:-1, ...] = (255, 0, 0)
+                    match_img[:, 0:5, ...] = (255, 0, 0)
+                    match_img[:, -5:-1, ...] = (255, 0, 0)
             else:
-                match_img[0:5, ...] = (255, 0, 0)
-                match_img[-5:-1, ...] = (255, 0, 0)
-                match_img[:, 0:5, ...] = (255, 0, 0)
-                match_img[:, -5:-1, ...] = (255, 0, 0)
+                match_img[0:5, ...] = (0, 0, 0)
+                match_img[-5:-1, ...] = (0, 0, 0)
+                match_img[:, 0:5, ...] = (0, 0, 0)
+                match_img[:, -5:-1, ...] = (0, 0, 0)
 
             # paste it on the main canvas
             col_id = j + 1

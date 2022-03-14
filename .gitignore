@@ -1,2 +1,7 @@
 NUL
 jina-now-k8s
+
+*.idea
+*.png
+
+data/

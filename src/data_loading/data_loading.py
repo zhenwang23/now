@@ -96,7 +96,7 @@ def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
 
     if ds['val_index_image'] is None:
         ds['val_index_image'] = deepcopy(
-            DocumentArray(d for d in ds['val'] if d.blob is not None)
+            DocumentArray(d for d in ds['val'] if d.text == '' or d.blob == b'')
         )
     if ds['val_query_image'] is None:
         ds['val_query_image'] = DocumentArray(
