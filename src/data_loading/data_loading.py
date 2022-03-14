@@ -1,6 +1,7 @@
 import base64
 import os
 import random
+import uuid
 from copy import deepcopy
 from typing import Optional
 
@@ -23,6 +24,31 @@ def _fetch_da_from_url(url: str) -> DocumentArray:
         da = DocumentArray.load_binary(data_path)
         spinner.ok("📂")
     return da
+
+
+def remove_duplicates(da: DocumentArray):
+    """Some da"""
+    # known_set = set()
+    # unique_dataset = DocumentArray()
+    # for i, d in enumerate(da):
+    #     d.id = str(uuid.uuid4())
+    #     l = d.tags['finetuner_label']
+    #     if d.text and l in known_set:
+    #         continue
+    #     unique_dataset.append(d)
+    #     known_set.add(l)
+    # return unique_dataset
+    # da_text = DocumentArray(d for d in da if d.text)
+    # da_img = DocumentArray(d for d in da if not d.text)
+    # da_text.embeddings = da_text.embeddings - da_text.embeddings.mean(0)
+    # da_img.embeddings = da_img.embeddings - da_img.embeddings.mean(0)
+
+    new_da = DocumentArray()
+    for i, d in enumerate(da):
+        new_doc = deepcopy(d)
+        new_doc.id = str(uuid.uuid4())
+        new_da.append(new_doc)
+    return new_da
 
 
 def load_data(
@@ -60,14 +86,14 @@ def load_data(
                 d.tags['finetuner_label'] = os.path.dirname(d.uri).split('/')[-1]
 
     da = da.shuffle(seed=42)
-
+    da = remove_duplicates(da)
     return da
 
 
-def load_all_data(dataset):
-    for k, v in dataset.items():
-        if v is not None:
-            dataset[k] = load_data(v)
+# def load_all_data(dataset):
+#     for k, v in dataset.items():
+#         if v is not None:
+#             dataset[k] = load_data(v)
 
 
 def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
@@ -86,7 +112,7 @@ def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
         if is_debug:
             num_queries = 10
         else:
-            num_queries = 50
+            num_queries = 100
 
         ds['val_query'] = DocumentArray(
             [deepcopy(doc) for doc in random.sample(ds['val_index'], num_queries)]
@@ -96,6 +122,7 @@ def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
 
     if ds['val_index_image'] is None:
         ds['val_index_image'] = deepcopy(
+            # DocumentArray(d for d in ds['val'] if d.blob is not None)
             DocumentArray(d for d in ds['val'] if d.blob != b'')
         )
     if ds['val_query_image'] is None:

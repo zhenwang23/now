@@ -3,8 +3,14 @@ data/
 test/
 env/
 deployed_flow.png
+finetuned.png
+finetuned_m.png
+NUL
+pretrained.png
+pretrained_m.png
 before_after_comparison.png
 Dockerfile
 filename.pickle
-jina-now-k8s/
 jina-now/
+k8s/
+src/hub/head_encoder/best_model_ndcg

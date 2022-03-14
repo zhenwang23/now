@@ -61,12 +61,12 @@ def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size):
         train_data=train_embedding,
         eval_data=validation_embedding,
         epochs=epochs,
-        learning_rate=1e-4,
+        learning_rate=5e-4,
         batch_size=batch_size,
         loss=TripletLoss(
-            # Todo maybe cosine
-            distance='euclidean',
-            margin=0.5,
+            # Todo maybe cosine worked as good as euclidean
+            # margin seems to have no effect on the art dataset
+            margin=0,
             miner=TripletEasyHardMiner(pos_strategy='hard', neg_strategy='hard'),
         ),
         device=get_device(),
