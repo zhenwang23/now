@@ -1,6 +1,7 @@
 NUL
-jina-now-k8s
-
+k8s
+src/hub/head_encoder/best_model_ndcg
+src/hub/head_encoder/mean.bin
 *.idea
 *.png
 
