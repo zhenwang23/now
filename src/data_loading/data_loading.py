@@ -26,7 +26,7 @@ def _fetch_da_from_url(url: str) -> DocumentArray:
     return da
 
 
-def remove_duplicates(da):
+def remove_duplicates(da: DocumentArray):
     """Some da"""
     # known_set = set()
     # unique_dataset = DocumentArray()
@@ -38,6 +38,11 @@ def remove_duplicates(da):
     #     unique_dataset.append(d)
     #     known_set.add(l)
     # return unique_dataset
+    # da_text = DocumentArray(d for d in da if d.text)
+    # da_img = DocumentArray(d for d in da if not d.text)
+    # da_text.embeddings = da_text.embeddings - da_text.embeddings.mean(0)
+    # da_img.embeddings = da_img.embeddings - da_img.embeddings.mean(0)
+
     new_da = DocumentArray()
     for i, d in enumerate(da):
         new_doc = deepcopy(d)
@@ -85,10 +90,10 @@ def load_data(
     return da
 
 
-def load_all_data(dataset):
-    for k, v in dataset.items():
-        if v is not None:
-            dataset[k] = load_data(v)
+# def load_all_data(dataset):
+#     for k, v in dataset.items():
+#         if v is not None:
+#             dataset[k] = load_data(v)
 
 
 def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
@@ -107,7 +112,7 @@ def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
         if is_debug:
             num_queries = 10
         else:
-            num_queries = 50
+            num_queries = 100
 
         ds['val_query'] = DocumentArray(
             [deepcopy(doc) for doc in random.sample(ds['val_index'], num_queries)]

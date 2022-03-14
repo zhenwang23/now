@@ -135,7 +135,7 @@ def deploy_flow(executor_name, index, infrastructure, vision_model, cluster_type
         uses_metas={'workspace': 'pq_workspace'},
         env={'JINA_LOG_LEVEL': 'DEBUG'},
     )
-    f.plot('/root/data/deployed_flow.png', vertical_layout=True)
+    f.plot('data/deployed_flow.png', vertical_layout=True)
 
     index = [x for x in index if x.text is '']
 

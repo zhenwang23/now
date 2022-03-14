@@ -1,6 +1,8 @@
+import pickle
 import warnings
 
 import numpy as np
+from docarray import DocumentArray
 from yaspin import yaspin
 
 from src.dialog import UserInput
@@ -10,6 +12,12 @@ from src.finetuning.finetuning import add_clip_embeddings, finetune_layer
 from src.hub.head_encoder.head_encoder import extend_embeddings
 from src.hub.hub import push_to_hub
 from src.improvements.improvements import show_improvement
+
+
+def save_mean(da):
+    mean = da.embeddings.mean(0)
+    with open('src/hub/head_encoder/mean.bin', 'wb') as f:
+        pickle.dump(mean, f)
 
 
 def run(user_input: UserInput, is_debug):
@@ -44,6 +52,7 @@ def run(user_input: UserInput, is_debug):
     }
     add_clip_embeddings(dataset, user_input.model_variant, user_input.cluster, user_input.new_cluster_type)
     extend_embeddings(dataset['index'], final_layer_output_dim)
+    save_mean(dataset['index'])
     fill_missing(dataset, train_val_split_ratio, num_default_val_queries, is_debug)
 
     # if False:
@@ -61,12 +70,15 @@ def run(user_input: UserInput, is_debug):
                     user_input.dataset,
                     dataset['val_query_image'],
                     dataset['val_index_image'],
+                    dataset['val_query'],
+                    dataset['val_index'],
                     final_layer_output_dim,
                     embedding_size,
                     finetuned_model_path,
                     class_label='finetuner_label'
                 )
         except Exception as e:
+            # raise e
             pass
         spinner.ok('🖼')
     print('   before-after comparison files are saved at jina-now/visualization')

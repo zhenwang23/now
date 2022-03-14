@@ -1,3 +1,4 @@
+import pickle
 from pathlib import Path
 from typing import Optional
 
@@ -31,13 +32,19 @@ class LinearHead(Module):
     def __init__(self, final_layer_output_dim, embedding_size):
         super(LinearHead, self).__init__()
         self.linear1 = Linear(final_layer_output_dim, embedding_size, bias=False)
+        mean_path = Path(__file__).parent / 'mean.bin'
+        self.mean = load_mean(mean_path)
 
     def forward(self, x):
+        x -= self.mean
         x = x.float()
         x = self.linear1(x)
         normalized_embedding = F.normalize(x, p=2, dim=1)  # L2 normalize
         return normalized_embedding
 
+def load_mean(mean_path):
+    with open(mean_path, 'rb') as f:
+        return pickle.load(f)
 
 class FineTunedLinearHeadEncoder(Executor):
     def __init__(self, final_layer_output_dim, embedding_size, model_path='best_model_ndcg', *args, **kwargs):

@@ -16,6 +16,9 @@ def show_improvement(
     data,
     query,
     index,
+    query_all,
+    index_all,
+
     final_layer_output_dim,
     embedding_size,
     finetuned_model_path,
@@ -77,7 +80,7 @@ def show_improvement(
     # Step 1: Pre-trained
     query.match(index, limit=9, exclude_self=True)
     visual_result(data, query, output='pretrained.png', label=class_label)
-    evaluator = Evaluator(query_data=query, index_data=index)
+    evaluator = Evaluator(query_data=query_all, index_data=index_all)
     ev = evaluator.evaluate()
     plot_metrics(ev, 'pretrained_m.png')
 
@@ -91,4 +94,4 @@ def show_improvement(
     plot_metrics(ev, 'finetuned_m.png')
 
     # saving all the before-after images side-by-side
-    save_before_after_image(path=f'/root/data/before_after_comparison_{data}.png')
+    save_before_after_image(path=f'data/before_after_comparison_{data}.png')
