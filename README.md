@@ -43,6 +43,7 @@ jinaaitmp/now:0.0.1
 ### Pip
 ```bash
 pip install jina-now
+jina-now --data [pushpullid | localpath | url
 (TBD)
 ```
 
