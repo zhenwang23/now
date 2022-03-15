@@ -1,6 +1,6 @@
 import copy
 from collections import defaultdict
-
+from copy import deepcopy
 from finetuner.tuner.evaluation import Evaluator
 from jina import DocumentArray
 from src.hub.head_encoder.head_encoder import FineTunedLinearHeadEncoder
@@ -80,6 +80,8 @@ def show_improvement(
     # If all `finetuner_label` are unique then do not highlight with any color
     unique_labels = set([doc.tags[class_label] for doc in index])
     unique = len(unique_labels) == len(index)
+    new_query = finetuned_encoder.encode(deepcopy(query))
+    new_index = finetuned_encoder.encode(deepcopy(index))
     # Step 1: Pre-trained
     query.match(index, limit=9, exclude_self=True)
     visual_result(data, query, output='pretrained.png', label=class_label, unique=unique)
@@ -88,8 +90,6 @@ def show_improvement(
     plot_metrics(ev, 'pretrained_m.png')
 
     # Fine-tuned
-    new_query = finetuned_encoder.encode(query)
-    new_index = finetuned_encoder.encode(index)
     new_query.match(new_index, limit=9, exclude_self=True)
     visual_result(data, new_query, output='finetuned.png', label=class_label, unique=unique)
     new_query_all = finetuned_encoder.encode(query_all)
