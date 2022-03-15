@@ -14,6 +14,7 @@ random_state = 42
 
 def show_improvement(
     data,
+    quality,
     query,
     index,
     query_all,
@@ -98,4 +99,4 @@ def show_improvement(
     plot_metrics(ev, 'finetuned_m.png')
 
     # saving all the before-after images side-by-side
-    save_before_after_image(path=f'data/before_after_comparison_{data}.png')
+    save_before_after_image(path=f'data/preview-{data}-{quality}.png')

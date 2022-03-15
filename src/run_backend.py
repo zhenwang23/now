@@ -68,6 +68,7 @@ def run(user_input: UserInput, is_debug):
                 warnings.simplefilter("ignore")
                 show_improvement(
                     user_input.dataset,
+                    user_input.model_quality,
                     dataset['val_query_image'],
                     dataset['val_index_image'],
                     dataset['val_query'],
