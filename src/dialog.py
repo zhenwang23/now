@@ -219,6 +219,8 @@ def ask_deployment(user_input: UserInput, contexts, active_context):
         choices.remove(active_context['name'])
         choices = [active_context['name']] + choices
 
+    choices = [c for c in choices if 'minikube' not in c]
+
     questions = [{
         'type': 'list',
         'name': 'cluster',
