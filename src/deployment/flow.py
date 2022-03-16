@@ -62,7 +62,7 @@ def deploy_k8s(f, ns, infrastructure, cluster_type, num_pods):
             f.block()
         return 'localhost'
     else:
-        with yaspin(text="convert flow to kubernetes yaml", color="green") as spinner:
+        with yaspin(text="Convert Flow to Kubernetes YAML", color="green") as spinner:
             f.to_k8s_yaml(f'k8s/{ns}')
             spinner.ok('🔄')
 
@@ -71,7 +71,7 @@ def deploy_k8s(f, ns, infrastructure, cluster_type, num_pods):
 
         # deploy flow
         with yaspin(Spinners.earth,
-                    text="deploy jina flow (might take some time depending on the internet connection and selected quality)") as spinner:
+                    text="Deploy Jina Flow (might take some time depending on internet connection and selected quality)") as spinner:
             cmd(f'kubectl apply -R -f k8s/{ns}')
             gateway_host_internal = f'gateway.{ns}.svc.cluster.local'
             gateway_port_internal = 8080
@@ -153,7 +153,7 @@ def deploy_flow(executor_name, index, infrastructure, vision_model, cluster_type
         # first request takes soooo long
         client.post('/index', request_size=50, inputs=x)
 
-    print('⭐  success - your data is indexed')
+    print('⭐ Success - your data is indexed')
     return gateway_host, gateway_port, gateway_host_internal, gateway_port_internal
 
 if __name__ == '__main__':

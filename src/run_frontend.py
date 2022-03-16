@@ -9,7 +9,7 @@ from src.deployment.flow import cmd, wait_for_lb
 
 def run(data, gateway_host, gateway_port, gateway_host_internal, gateway_port_internal, docker_frontend_tag):
     # deployment
-    with yaspin(text="deploy frontend", color="green") as spinner:
+    with yaspin(text="Deploy frontend", color="green") as spinner:
         apply_replace(
             'src/deployment/k8s_frontend-deployment.yml',
             {

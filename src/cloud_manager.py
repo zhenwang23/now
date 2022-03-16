@@ -29,13 +29,13 @@ def create_local_cluster():
         ]
         recreate = prompt_plus(questions, 'proceed')
         if recreate:
-            with yaspin(text="remove local cluster", color="green") as spinner:
+            with yaspin(text="Remove local cluster", color="green") as spinner:
                 cmd(f'/usr/local/bin/kind delete clusters jina-now', output=False)
                 spinner.ok('💀')
         else:
             cowsay.cow('see you soon 👋')
             exit(0)
-    with yaspin(text="setup local cluster", color="green") as spinner:
+    with yaspin(text="Setup local cluster", color="green") as spinner:
         cmd(f'/usr/local/bin/kind create cluster --name jina-now --config src/kind.yml', output=False)
         spinner.ok("📦")
 
@@ -75,7 +75,7 @@ def ask_existing():
         ]
         remove = prompt_plus(questions, 'proceed')
         if remove:
-            with yaspin(text="remove old deployment", color="green") as spinner:
+            with yaspin(text="Remove old deployment", color="green") as spinner:
                 cmd('kubectl delete ns nowapi', output=False, error=False)
                 spinner.ok('💀')
         else:
