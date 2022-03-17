@@ -137,7 +137,7 @@ def deploy_flow(executor_name, index, infrastructure, vision_model, cluster_type
     )
     f.plot('data/deployed_flow.png', vertical_layout=True)
 
-    index = [x for x in index if x.text is '']
+    index = [x for x in index if x.text == '']
 
     gateway_host, gateway_port, gateway_host_internal, gateway_port_internal = deploy_k8s(
         f,

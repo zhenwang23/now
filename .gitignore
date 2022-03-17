@@ -6,3 +6,9 @@ src/hub/head_encoder/mean.bin
 *.png
 
 data/
+jina-now/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
