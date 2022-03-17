@@ -1,12 +1,12 @@
 from typing import Optional
 
 import cowsay
-from kubernetes import config, client
-from yaspin import yaspin
-
+from kubernetes import client, config
+from src.deployment.flow import cmd
 from src.dialog import prompt_plus
 from src.gke_deploy import create_gke_cluster
-from src.deployment.flow import cmd
+from yaspin import yaspin
+
 
 def create_local_cluster():
     out, _ = cmd('kind get clusters')
@@ -15,29 +15,29 @@ def create_local_cluster():
             {
                 'type': 'list',
                 'name': 'proceed',
-                'message': 'The local cluster is running already. Should it be recreated?',
+                'message': 'The local cluster is running already. '
+                'Should it be recreated?',
                 'choices': [
-                    {
-                        'name': '⛔ no - stop',
-                        'value': False
-                    }, {
-                        'name': '✅ yes - recreate',
-                        'value': True
-                    },
-                ]
+                    {'name': '⛔ no - stop', 'value': False},
+                    {'name': '✅ yes - recreate', 'value': True},
+                ],
             },
         ]
         recreate = prompt_plus(questions, 'proceed')
         if recreate:
             with yaspin(text="Remove local cluster", color="green") as spinner:
-                cmd(f'/usr/local/bin/kind delete clusters jina-now', output=False)
+                cmd('/usr/local/bin/kind delete clusters jina-now', output=False)
                 spinner.ok('💀')
         else:
             cowsay.cow('see you soon 👋')
             exit(0)
     with yaspin(text="Setup local cluster", color="green") as spinner:
-        cmd(f'/usr/local/bin/kind create cluster --name jina-now --config src/kind.yml', output=False)
+        cmd(
+            '/usr/local/bin/kind create cluster --name jina-now --config src/kind.yml',
+            output=False,
+        )
         spinner.ok("📦")
+
 
 def setup_cluster(cluster_name: Optional[str], provider: str):
     if cluster_name is not None:
@@ -63,14 +63,9 @@ def ask_existing():
                     'current data?'
                 ),
                 'choices': [
-                    {
-                        'name': '⛔ no - stop',
-                        'value': False
-                    }, {
-                        'name': '✅ yes - remove',
-                        'value': True
-                    },
-                ]
+                    {'name': '⛔ no - stop', 'value': False},
+                    {'name': '✅ yes - remove', 'value': True},
+                ],
             },
         ]
         remove = prompt_plus(questions, 'proceed')

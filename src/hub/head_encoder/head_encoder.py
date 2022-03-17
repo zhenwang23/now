@@ -4,10 +4,8 @@ from typing import Optional
 
 import numpy as np
 import torch
-from jina import DocumentArray, Executor, requests
-
-
 import torch.nn.functional as F
+from jina import DocumentArray, Executor, requests
 from torch.nn import Linear, Module
 
 
@@ -22,6 +20,7 @@ def get_extended_embedding_if_needed(d, target_dim):
     else:
         order = (emb, zeros)
     return np.concatenate(order)
+
 
 def extend_embeddings(da, target_dim):
     for d in da:
@@ -42,18 +41,26 @@ class LinearHead(Module):
         normalized_embedding = F.normalize(x, p=2, dim=1)  # L2 normalize
         return normalized_embedding
 
+
 def load_mean(mean_path):
     with open(mean_path, 'rb') as f:
         return pickle.load(f)
 
+
 class FineTunedLinearHeadEncoder(Executor):
-    def __init__(self, final_layer_output_dim, embedding_size, model_path='best_model_ndcg', *args, **kwargs):
+    def __init__(
+        self,
+        final_layer_output_dim,
+        embedding_size,
+        model_path='best_model_ndcg',
+        *args,
+        **kwargs
+    ):
         super().__init__(**kwargs)
         model_path = Path(__file__).parent / 'best_model_ndcg'
         self.final_layer_output_dim = final_layer_output_dim
         self.model = LinearHead(final_layer_output_dim, embedding_size)
-        self.model.load_state_dict(
-            torch.load(model_path, map_location='cpu'))
+        self.model.load_state_dict(torch.load(model_path, map_location='cpu'))
 
     @requests
     def encode(self, docs: Optional[DocumentArray], **kwargs):

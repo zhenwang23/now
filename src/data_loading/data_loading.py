@@ -6,17 +6,14 @@ from copy import deepcopy
 from typing import Optional
 
 from docarray import DocumentArray
-from yaspin import yaspin
-
 from src.utils import download
+from yaspin import yaspin
 
 
 def _fetch_da_from_url(url: str) -> DocumentArray:
     if not os.path.exists('data/tmp'):
         os.makedirs('data/tmp')
-    data_path = (
-        f"data/tmp/{base64.b64encode(bytes(url, 'utf-8')).decode('utf-8')}.bin"
-    )
+    data_path = f"data/tmp/{base64.b64encode(bytes(url, 'utf-8')).decode('utf-8')}.bin"
     if not os.path.exists(data_path):
         download(url, data_path)
 
@@ -74,8 +71,10 @@ def load_data(
         if custom_type == 'docarray':
             try:
                 da = DocumentArray.pull(token=secret, show_progress=True)
-            except:
-                print('💔 oh no, the secret of your docarray is wrong, or it was deleted after 14 days')
+            except Exception:
+                print(
+                    '💔 oh no, the secret of your docarray is wrong, or it was deleted after 14 days'
+                )
                 exit(1)
         elif custom_type == 'url':
             da = _fetch_da_from_url(url)
@@ -102,7 +101,9 @@ def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
         ds['train'] = ds['index']
     if ds['val'] is None:
         # TODO makes split based on classes rather than instances
-        split_index = max(int(len(ds['train']) * train_val_split_ratio), len(ds['train']) - 5000)
+        split_index = max(
+            int(len(ds['train']) * train_val_split_ratio), len(ds['train']) - 5000
+        )
         train = ds['train']
         ds['train'], ds['val'] = train[:split_index], train[split_index:]
 

@@ -1,5 +1,4 @@
-from docarray import DocumentArray, Document
-import os
+from docarray import DocumentArray
 
 da = DocumentArray.from_files('../../data/deepfashion/**')
 

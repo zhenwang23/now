@@ -1,6 +1,5 @@
 import numpy as np
-from docarray import DocumentArray, Document
-
+from docarray import Document, DocumentArray
 from src.data_loading.embed_datasets import to_jpg
 
 

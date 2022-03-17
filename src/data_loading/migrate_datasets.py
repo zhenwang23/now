@@ -7,7 +7,8 @@ from docarray import Document, DocumentArray
 # $ pip install jina==2.6.4
 # $ mv .venv/lib/python3.8/site-packages/docaarray .venv/lib/python3.8/site-packages/old
 # $ pip install docarray
-from old import Document as OldDocument, DocumentArray as OldDocumentArray
+from old import Document as OldDocument
+from old import DocumentArray as OldDocumentArray
 from tqdm import tqdm
 
 
@@ -32,7 +33,7 @@ def convert_dataset(dataset: str, num_workers: int = 8):
     old_docs = OldDocumentArray.load_binary(path)
     print(f'  Old dataset size: {len(old_docs)}')
 
-    print(f'  Converting docs ...')
+    print('  Converting docs ...')
     with mp.Pool(processes=num_workers) as pool:
         new_docs = list(tqdm(pool.imap(_convert_doc, old_docs)))
 
@@ -40,7 +41,7 @@ def convert_dataset(dataset: str, num_workers: int = 8):
 
     print(f'  New dataset size: {len(new_docs)}')
 
-    print(f'  Saving new docs ...')
+    print('  Saving new docs ...')
     out = f'new.{dataset}.bin'
     new_docs.save_binary(out, compress='gzip')
     print(f'  Saved new docs to {out} ...')

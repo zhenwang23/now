@@ -1,11 +1,11 @@
 import copy
 from collections import defaultdict
 from copy import deepcopy
-from finetuner.tuner.evaluation import Evaluator
-from jina import DocumentArray
-from src.hub.head_encoder.head_encoder import FineTunedLinearHeadEncoder
-from src.utils import visual_result, save_before_after_image, plot_metrics
+
 import numpy as np
+from finetuner.tuner.evaluation import Evaluator
+from src.hub.head_encoder.head_encoder import FineTunedLinearHeadEncoder
+from src.utils import plot_metrics, save_before_after_image, visual_result
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -62,7 +62,7 @@ def show_improvement(
         if not doc_to_classes[cat] > 2000:
             subset.append(copy.deepcopy(d))
             labels.append(label_dict[cat])
-    filtered_doc = DocumentArray(subset)
+    # filtered_doc = DocumentArray(subset)
 
     # Step 2: Get pretrained and finetuned embeddings
     # pretrained_embed = filtered_doc.embeddings
@@ -84,14 +84,18 @@ def show_improvement(
     new_index = finetuned_encoder.encode(deepcopy(index))
     # Step 1: Pre-trained
     query.match(index, limit=9, exclude_self=True)
-    visual_result(data, query, output='pretrained.png', label=class_label, unique=unique)
+    visual_result(
+        data, query, output='pretrained.png', label=class_label, unique=unique
+    )
     evaluator = Evaluator(query_data=query_all, index_data=index_all)
     ev = evaluator.evaluate()
     plot_metrics(ev, 'pretrained_m.png')
 
     # Fine-tuned
     new_query.match(new_index, limit=9, exclude_self=True)
-    visual_result(data, new_query, output='finetuned.png', label=class_label, unique=unique)
+    visual_result(
+        data, new_query, output='finetuned.png', label=class_label, unique=unique
+    )
     new_query_all = finetuned_encoder.encode(query_all)
     new_index_all = finetuned_encoder.encode(index_all)
     evaluator = Evaluator(query_data=new_query_all, index_data=new_index_all)

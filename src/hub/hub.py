@@ -1,6 +1,6 @@
 # from jina.hubble.hubio import HubIO
-from datetime import datetime
 import subprocess
+from datetime import datetime
 
 from yaspin import yaspin
 

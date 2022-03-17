@@ -9,11 +9,8 @@ import torch
 from docarray import Document
 from jina import DocumentArray
 from PIL import Image
-from joblib._multiprocessing_helpers import mp
-from tqdm import tqdm
-
-
 from src.data_loading.utils import upload_to_gcloud_bucket
+from tqdm import tqdm
 
 
 def _text_collate_fn(batch: DocumentArray):
@@ -65,9 +62,7 @@ def to_jpg(image_docs):
         d.blob = pil2bytes(im)
         return d
 
-
     image_docs.apply(convert_to_jpeg)
-
 
 
 def embed_dataset(
@@ -77,7 +72,7 @@ def embed_dataset(
     bucket: str,
     location: str,
     batch_size: int = 128,
-    num_workers: int = 8
+    num_workers: int = 8,
 ):
     path = f'{dataset}.bin'
 

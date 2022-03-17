@@ -26,9 +26,9 @@ def deploy_streamlit():
     DATA_DIR = "../data/images/"
 
     if data in ds_set:
-        da_img, da_txt = load_data(
-            root_data_dir + data + '.img10.bin'
-        ), load_data(root_data_dir + data + '.txt10.bin')
+        da_img, da_txt = load_data(root_data_dir + data + '.img10.bin'), load_data(
+            root_data_dir + data + '.txt10.bin'
+        )
 
     class UI:
         about_block = """
@@ -96,11 +96,10 @@ def deploy_streamlit():
 
         return doc
 
-
     matches = []
 
     # Layout
-    st.set_page_config(page_title="NOW", page_icon ='https://jina.ai/favicon.ico')
+    st.set_page_config(page_title="NOW", page_icon='https://jina.ai/favicon.ico')
 
     st.markdown(
         body=UI.css,
@@ -196,7 +195,7 @@ def load_data(data_path: str) -> DocumentArray:
 
     try:
         da = DocumentArray.load_binary(data_path)
-    except Exception as e:
+    except Exception:
         da = DocumentArray.load_binary(data_path, compress='gzip')
     return da
 

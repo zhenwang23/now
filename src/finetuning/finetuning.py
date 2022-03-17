@@ -1,18 +1,22 @@
-from copy import deepcopy
 import math
+from copy import deepcopy
+
 import finetuner
 from docarray import DocumentArray
 from docarray.math.evaluation import ndcg_at_k
-from finetuner.tuner.callback import EvaluationCallback, BestModelCheckpoint, EarlyStopping
+from finetuner.tuner.callback import (
+    BestModelCheckpoint,
+    EarlyStopping,
+    EvaluationCallback,
+)
 from finetuner.tuner.pytorch.losses import TripletLoss
 from finetuner.tuner.pytorch.miner import TripletEasyHardMiner
-from jina import Flow, Client
-from tqdm import tqdm
-from yaspin import yaspin
-
-from src.deployment.flow import batch, deploy_k8s, cmd
+from jina import Client, Flow
+from src.deployment.flow import batch, cmd, deploy_k8s
 from src.hub.head_encoder.head_encoder import LinearHead
 from src.utils import get_device
+from tqdm import tqdm
+from yaspin import yaspin
 
 epochs = 50  # use early stopping
 
@@ -29,15 +33,23 @@ def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size):
             d.tensor = d.embedding
             # d.embedding = None
             embedding_ds.append(d)
-    train_embedding, validation_embedding, query_embedding, index_embedding = embedding_datasets
+    (
+        train_embedding,
+        validation_embedding,
+        query_embedding,
+        index_embedding,
+    ) = embedding_datasets
     # print(
     #     f'data size: (train, {len(train_embedding)}), (val, {len(validation_embedding)}), (query, {len(query_embedding)}), (index, {len(index_embedding)})')
     save_dir = 'src/hub/head_encoder'
     callbacks = [
         EvaluationCallback(
             # TODO parameterize limit based on dataset
-            query_embedding, index_embedding, limit=20, num_workers=8, metrics={
-                'ndcg': (ndcg_at_k, {})}
+            query_embedding,
+            index_embedding,
+            limit=20,
+            num_workers=8,
+            metrics={'ndcg': (ndcg_at_k, {})},
         ),
         BestModelCheckpoint(monitor='ndcg', save_dir=save_dir),
         EarlyStopping(monitor='ndcg', verbose=False, patience=5),
@@ -73,7 +85,7 @@ def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size):
         # configure_optimizer=configure_optimizer,
         num_items_per_class=4,
         callbacks=callbacks,
-        tag_key=finetuner.__default_tag_key__
+        tag_key=finetuner.__default_tag_key__,
     )
     print('  🧠 Perfect! Early stopping triggered since accuracy is great already')
     return f'{save_dir}/best_model_ndcg'
@@ -95,24 +107,17 @@ def add_clip_embeddings(dataset, vision_model, infrastructure, cluster_type):
         spinner.fail('👎')
 
     ns = 'nowtmp'
-    f = Flow(
-        name=ns,
-        port_expose=8080,
-        cors=True,
-    ).add(
-            name='clip',
-            uses='jinahub+docker://CLIPEncoder/v0.2.1',
-            uses_with={
-                'pretrained_model_name_or_path': vision_model
-            },
+    f = Flow(name=ns, port_expose=8080, cors=True,).add(
+        name='clip',
+        uses='jinahub+docker://CLIPEncoder/v0.2.1',
+        uses_with={'pretrained_model_name_or_path': vision_model},
     )
-    gateway_host, gateway_port, gateway_host_internal, gateway_port_internal =deploy_k8s(
-        f,
-        ns,
-        infrastructure,
-        cluster_type,
-        3
-    )
+    (
+        gateway_host,
+        gateway_port,
+        gateway_host_internal,
+        gateway_port_internal,
+    ) = deploy_k8s(f, ns, infrastructure, cluster_type, 3)
     for k, da in dataset.items():
         if da is not None:
             # this is just to save computation in case we have the embeddings already
@@ -126,7 +131,10 @@ def add_clip_embeddings(dataset, vision_model, infrastructure, cluster_type):
                     embedding_dataset.append(d)
             client = Client(host=gateway_host, port=gateway_port)
             print(f'▶ create embeddings for {len(no_embedding_dataset)} documents')
-            for x in tqdm(batch(no_embedding_dataset, 16), total=math.ceil(len(no_embedding_dataset) / 16)):
+            for x in tqdm(
+                batch(no_embedding_dataset, 16),
+                total=math.ceil(len(no_embedding_dataset) / 16),
+            ):
                 response = client.post('/index', request_size=16, inputs=x)
                 results.extend(response)
             dataset[k] = (embedding_dataset + results).shuffle(42)

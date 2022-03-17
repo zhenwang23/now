@@ -3,21 +3,10 @@ import os
 import pkgutil
 from collections import namedtuple
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from PIL import Image, ImageDraw, ImageFont
 from docarray import Document
-from sklearn.metrics import (
-    precision_recall_curve,
-    average_precision_score,
-    PrecisionRecallDisplay,
-)
-from sklearn.model_selection import train_test_split
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler, label_binarize
-from sklearn.svm import LinearSVC
+from PIL import Image, ImageDraw, ImageFont
 
 colors = [
     "navy",
@@ -64,7 +53,8 @@ def get_device():
 #     recall = dict()
 #     average_precision = dict()
 #     for i in range(n_classes):
-#         precision[i], recall[i], _ = precision_recall_curve(Y_test[:, i], y_score[:, i])
+#         precision[i], recall[i], _ = \
+#         precision_recall_curve(Y_test[:, i], y_score[:, i])
 #         average_precision[i] = average_precision_score(Y_test[:, i], y_score[:, i])
 #
 #     _, ax = plt.subplots()
@@ -131,9 +121,7 @@ def save_before_after_image(path):
         # ['pretrained_pr.png', 'finetuned_pr.png'],
         ['pretrained_m.png', 'finetuned_m.png'],
     ]
-    [im1, im2, im3, im4] = [
-        Image.open(img) for imgs in figs for img in imgs
-    ]
+    [im1, im2, im3, im4] = [Image.open(img) for imgs in figs for img in imgs]
 
     big_w = im1.width if im1.width > im3.width else im3.width
 
@@ -156,9 +144,7 @@ def save_before_after_image(path):
     #     (big_w, int(im6.height * big_w / im6.width)), resample=Image.BICUBIC
     # )
 
-    width = (
-        max(im1.width + im2.width, im3.width + im4.width) + 200
-    )
+    width = max(im1.width + im2.width, im3.width + im4.width) + 200
     height = (
         max(
             im1.height + im3.height,
@@ -179,7 +165,12 @@ def save_before_after_image(path):
     )  # this font does not work in docker currently
     # font = ImageFont.load_default()
     draw.line(
-        (im1.width + 80, 0, im1.width + 80, im1.height + im2.height + im3.height + 250),
+        (
+            im1.width + 80,
+            0,
+            im1.width + 80,
+            im1.height + im2.height + im3.height + 250,
+        ),
         width=10,
         fill='black',
     )  # vertical line
@@ -199,7 +190,12 @@ def save_before_after_image(path):
         fill='black',
     )  # horizontal line
     draw.text(((im1.width - 150) // 2, 0), "Pre-trained Results", 0, font=font)
-    draw.text((im1.width + 50 + (im2.width // 2), 0), "Finetuned Results", 0, font=font)
+    draw.text(
+        (im1.width + 50 + (im2.width // 2), 0),
+        "Finetuned Results",
+        0,
+        font=font,
+    )
     font = ImageFont.truetype('src/fonts/arial.ttf', 30)
     draw.text((20, 100), "Query", 0, font=font)
     draw.text((im1.width + 150, 100), "Query", 0, font=font)
@@ -314,6 +310,7 @@ def plot_metrics(metrics_dict, title):
 
     dst.save(title)
 
+
 def custom_spinner():
     SPINNERS_DATA = pkgutil.get_data(__name__, "custom-spinners.json").decode("utf-8")
 
@@ -322,10 +319,12 @@ def custom_spinner():
 
     return json.loads(SPINNERS_DATA, object_hook=_hook)
 
+
 def download(url, filename):
     import functools
     import pathlib
     import shutil
+
     import requests
     from tqdm.auto import tqdm
 
@@ -339,7 +338,9 @@ def download(url, filename):
     path.parent.mkdir(parents=True, exist_ok=True)
 
     desc = "(Unknown total file size)" if file_size == 0 else ""
-    r.raw.read = functools.partial(r.raw.read, decode_content=True)  # Decompress if needed
+    r.raw.read = functools.partial(
+        r.raw.read, decode_content=True
+    )  # Decompress if needed
     with tqdm.wrapattr(r.raw, "read", total=file_size, desc=desc) as r_raw:
         with path.open("wb") as f:
             shutil.copyfileobj(r_raw, f)

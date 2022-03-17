@@ -1,11 +1,9 @@
 # from __future__ import print_function
 #
 import platform
-import re
 import sys
 
 import cpuinfo
-
 from src.deployment.flow import cmd
 
 # from .characters import CHARS
@@ -70,5 +68,4 @@ def main():
 
 if __name__ == '__main__':
     print(' Iam here')
-    cli()
     print('done')

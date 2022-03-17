@@ -8,9 +8,8 @@ from random import shuffle
 from typing import Any, Dict, Optional
 
 from jina import Document, DocumentArray
-from tqdm import tqdm
-
 from src.data_loading.utils import upload_to_gcloud_bucket
+from tqdm import tqdm
 
 IMAGE_SHAPE = (224, 224)
 
@@ -88,7 +87,7 @@ def _build_deepfashion(root: str, num_workers: int = 8) -> DocumentArray:
                         image_path=path,
                         label=label,
                         split=split,
-                        tags={'color': color}
+                        tags={'color': color},
                     )
                 )
 
@@ -98,10 +97,10 @@ def _build_deepfashion(root: str, num_workers: int = 8) -> DocumentArray:
                 _, gender, category, _, color = label.split('/')
                 text_elements = [category, gender, color]
                 shuffle(text_elements)
-                text = f'{" ".join(text_elements)}'.lower().replace(
-                    '-', ' '
-                ).replace(
-                    '_', ' '
+                text = (
+                    f'{" ".join(text_elements)}'.lower()
+                    .replace('-', ' ')
+                    .replace('_', ' ')
                 )
                 data.append(
                     _DataPoint(
@@ -109,7 +108,7 @@ def _build_deepfashion(root: str, num_workers: int = 8) -> DocumentArray:
                         text=text,
                         content_type='text',
                         label=label,
-                        tags={'color': color}
+                        tags={'color': color},
                     )
                 )
 
@@ -176,9 +175,10 @@ def _build_nih_chest_xrays(root: str, num_workers: int = 8) -> DocumentArray:
         data.append(
             _DataPoint(
                 id=label,
-                text=label.lower().replace('|', ' ').replace('_', ' ').replace(
-                    '-', ' '
-                ),
+                text=label.lower()
+                .replace('|', ' ')
+                .replace('_', ' ')
+                .replace('-', ' '),
                 content_type='text',
                 label=label,
             )
@@ -414,6 +414,7 @@ def create_file_to_text_map(dict_list):
         file_to_text[file] = text.lower()
     return file_to_text
 
+
 def _build_nft(root: str, num_workers: int = 8) -> DocumentArray:
     """
     Build the nft dataset.
@@ -429,13 +430,20 @@ def _build_nft(root: str, num_workers: int = 8) -> DocumentArray:
     # read artists.csv
     with open(f_labels, 'r') as f:
         lines = f.readlines()
-    dict_list = [json.loads(l) for l in lines]
+    dict_list = [json.loads(line) for line in lines]
     file_to_text = create_file_to_text_map(dict_list)
 
     data = []
     for file, text in file_to_text.items():
         data.append(_DataPoint(id=file, image_path=f'{contentdir}/{file}', label=file))
-        data.append(_DataPoint(id=file + '_text', text=file_to_text[file], label=file, content_type='text'))
+        data.append(
+            _DataPoint(
+                id=file + '_text',
+                text=file_to_text[file],
+                label=file,
+                content_type='text',
+            )
+        )
 
     # build docs
     with mp.Pool(processes=num_workers) as pool:
@@ -445,13 +453,13 @@ def _build_nft(root: str, num_workers: int = 8) -> DocumentArray:
 
 
 def process_dataset(
-        datadir: str,
-        name: str,
-        project: str,
-        bucket: str,
-        location: str,
-        sample_k: bool = True,
-        k: int = 10,
+    datadir: str,
+    name: str,
+    project: str,
+    bucket: str,
+    location: str,
+    sample_k: bool = True,
+    k: int = 10,
 ) -> None:
     """
     Build, save and upload a dataset.

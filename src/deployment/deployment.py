@@ -20,6 +20,7 @@ def cmd(command, output=True, error=True, wait=True):
         output, error = process.communicate()
         return output, error
 
+
 def apply_replace(f_in, replace_dict):
     with open(f_in, "r") as fin:
         with tempfile.NamedTemporaryFile(mode='w') as fout:
