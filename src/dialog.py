@@ -109,7 +109,9 @@ def ask_data(user_input: UserInput, **kwargs):
     ]
     if kwargs['dataset_type']:
         user_input.dataset = 'custom'
+        print('Dataset selected: custom')
     elif kwargs['dataset']:
+        print('Dataset selected: ', kwargs['dataset'])
         user_input.dataset = kwargs['dataset']
     else:
         user_input.dataset = prompt_plus(questions, 'dataset')
@@ -146,11 +148,12 @@ def ask_data_custom(user_input: UserInput, **kwargs):
             ],
         },
     ]
-    if kwargs['dataset_type']:
+    if not kwargs['dataset_type']:
         custom_dataset_type = prompt_plus(questions, 'custom_dataset_type')
         user_input.custom_dataset_type = custom_dataset_type
     else:
         custom_dataset_type = kwargs['dataset_type']
+        print('Dataset type for custom dataset: ', kwargs['dataset_type'])
 
     if custom_dataset_type == 'docarray' and not kwargs['secret']:
         questions = [
@@ -193,14 +196,16 @@ def ask_quality(user_input: UserInput, **kwargs):
     ]
     if kwargs['quality']:
         quality = kwargs['quality']
+        print('Selected quality: ', quality)
     else:
         quality = prompt_plus(questions, 'quality')
-        if quality == 'medium':
-            print('  🚀 you trade-off a bit of quality for having the best speed')
-        elif quality == 'good':
-            print('  ⚖️ you have the best out of speed and quality')
-        elif quality == 'excellent':
-            print('  ✨ you trade-off speed to having the best quality')
+
+    if quality == 'medium':
+        print('  🚀 you trade-off a bit of quality for having the best speed')
+    elif quality == 'good':
+        print('  ⚖️ you have the best out of speed and quality')
+    elif quality == 'excellent':
+        print('  ✨ you trade-off speed to having the best quality')
 
     user_input.model_quality, user_input.model_variant = QUALITY_MAP[quality]
 
