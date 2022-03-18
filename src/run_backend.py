@@ -1,5 +1,7 @@
+import os
 import pickle
 import warnings
+from os.path import join as osp
 
 from src.data_loading.data_loading import fill_missing, load_data
 from src.deployment.flow import deploy_flow
@@ -11,13 +13,15 @@ from src.improvements.improvements import show_improvement
 from yaspin import yaspin
 
 
-def save_mean(da):
+def save_mean(da, tmpdir):
     mean = da.embeddings.mean(0)
-    with open('src/hub/head_encoder/mean.bin', 'wb') as f:
+    if not os.path.exists(osp(tmpdir, 'src/hub/head_encoder/')):
+        os.makedirs(osp(tmpdir, 'src/hub/head_encoder/'))
+    with open(osp(tmpdir, 'src/hub/head_encoder/mean.bin'), 'wb') as f:
         pickle.dump(mean, f)
 
 
-def run(user_input: UserInput, is_debug):
+def run(user_input: UserInput, is_debug, tmpdir):
     """
     Args:
         user_input: User input arguments
@@ -40,6 +44,7 @@ def run(user_input: UserInput, is_debug):
         user_input.dataset_secret,
         user_input.dataset_url,
         user_input.dataset_path,
+        tmpdir,
     )
     dataset = {
         'index': dataset,
@@ -57,14 +62,14 @@ def run(user_input: UserInput, is_debug):
         user_input.new_cluster_type,
     )
     extend_embeddings(dataset['index'], final_layer_output_dim)
-    save_mean(dataset['index'])
+    save_mean(dataset['index'], tmpdir)
     fill_missing(dataset, train_val_split_ratio, num_default_val_queries, is_debug)
 
     # if False:
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
         finetuned_model_path = finetune_layer(
-            dataset, batch_size, final_layer_output_dim, embedding_size
+            dataset, batch_size, final_layer_output_dim, embedding_size, tmpdir
         )
 
     with yaspin(text="Create overview", color="green") as spinner:
@@ -88,7 +93,7 @@ def run(user_input: UserInput, is_debug):
             pass
         spinner.ok('🖼')
     print('   before-after comparison files are saved at jina-now/visualization')
-    executor_name = push_to_hub()
+    executor_name = push_to_hub(tmpdir)
     # executor_name = 'FineTunedLinearHeadEncoder:93ea59dbd1ee3fe0bdc44252c6e86a87/
     # linear_head_encoder_2022-02-20_20-35-15'
     # print('###executor_name', executor_name)
@@ -108,6 +113,7 @@ def run(user_input: UserInput, is_debug):
         user_input.new_cluster_type,
         final_layer_output_dim,
         embedding_size,
+        tmpdir,
     )
     return gateway_host, gateway_port, gateway_host_internal, gateway_port_internal
 

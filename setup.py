@@ -9,8 +9,8 @@ if sys.version_info < (3, 7, 0):
     raise OSError(f'Jina NOW requires Python >=3.7, but yours is {sys.version}')
 
 try:
-    pkg_name = 'jina_now'
-    libinfo_py = path.join(pkg_name, '__init__.py')
+    pkg_name = 'jina-now'
+    libinfo_py = path.join('src', '__init__.py')
     libinfo_content = open(libinfo_py, 'r', encoding='utf8').readlines()
     version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][
         0
@@ -35,7 +35,7 @@ with pathlib.Path('requirements_pip.txt').open() as requirements_txt:
     ]
 
 setup(
-    name="jina-now",
+    name=pkg_name,
     packages=find_packages(),
     version=__version__,
     include_package_data=True,
@@ -50,7 +50,7 @@ setup(
     zip_safe=False,
     setup_requires=['setuptools>=18.0', 'wheel'],
     install_requires=install_requires,
-    entry_points={"console_scripts": ["now = now.main:cli"]},
+    entry_points={"console_scripts": ["jina-now = src.cli:cli"]},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

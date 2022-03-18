@@ -9,7 +9,10 @@ from yaspin import yaspin
 
 
 def create_local_cluster():
-    out, _ = cmd('kind get clusters')
+    out, error = cmd('kind get clusters')
+    if error != b'' and 'failed to list clusters' in error:
+        print(error.decode('utf-8'))
+        exit(0)
     if out == b'jina-now\n':
         questions = [
             {

@@ -4,7 +4,9 @@ import tempfile
 
 def cmd(command, output=True, error=True, wait=True):
     if output:
-        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+        process = subprocess.Popen(
+            command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
     else:
         with open("NUL", "w") as fh:
             if output:

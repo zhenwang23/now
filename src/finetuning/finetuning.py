@@ -1,4 +1,5 @@
 import math
+import os
 from copy import deepcopy
 
 import finetuner
@@ -18,10 +19,10 @@ from src.utils import get_device
 from tqdm import tqdm
 from yaspin import yaspin
 
-epochs = 50  # use early stopping
+epochs = 1  # use early stopping
 
 
-def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size):
+def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size, tmpdir):
     embedding_datasets = []
     for da in [ds['train'], ds['val'], ds['val_query'], ds['val_index']]:
         embedding_ds = DocumentArray()
@@ -41,7 +42,7 @@ def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size):
     ) = embedding_datasets
     # print(
     #     f'data size: (train, {len(train_embedding)}), (val, {len(validation_embedding)}), (query, {len(query_embedding)}), (index, {len(index_embedding)})')
-    save_dir = 'src/hub/head_encoder'
+    save_dir = os.path.join(tmpdir, 'src/hub/head_encoder')
     callbacks = [
         EvaluationCallback(
             # TODO parameterize limit based on dataset
@@ -65,8 +66,8 @@ def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size):
     #     return optimizer, scheduler
 
     print('💪 fine-tuning:')
-
-    head = LinearHead(final_layer_output_dim, embedding_size)
+    mean_path = os.path.join(tmpdir, 'src/hub/head_encoder')
+    head = LinearHead(final_layer_output_dim, embedding_size, mean_path=mean_path)
     # noinspection PyTypeChecker
     finetuner.fit(
         head,

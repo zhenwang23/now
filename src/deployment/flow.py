@@ -1,4 +1,5 @@
 import math
+import os.path
 from time import sleep
 
 from jina import Flow
@@ -56,7 +57,7 @@ def wait_for_all_pods_in_ns(ns, num_pods, max_wait=1800):
         sleep(1)
 
 
-def deploy_k8s(f, ns, infrastructure, cluster_type, num_pods):
+def deploy_k8s(f, ns, infrastructure, cluster_type, num_pods, tmpdir):
     if infrastructure == 'local':
         with f:
             print('start indexing', len(index))
@@ -67,11 +68,15 @@ def deploy_k8s(f, ns, infrastructure, cluster_type, num_pods):
         return 'localhost'
     else:
         with yaspin(text="Convert Flow to Kubernetes YAML", color="green") as spinner:
-            f.to_k8s_yaml(f'k8s/{ns}')
+            f.to_k8s_yaml(os.path.join(tmpdir, f'k8s/{ns}'))
             spinner.ok('🔄')
 
         # create namespace
         cmd(f'kubectl create namespace {ns}', output=False, error=False)
+        cmd(
+            f'wget https://storage.googleapis.com/jina-fashion-data/data/deployment.zip -P {tmpdir}'
+        )
+        cmd(f'tar -xf {tmpdir}/deployment.zip -C {tmpdir}')
 
         # deploy flow
         with yaspin(
@@ -82,12 +87,15 @@ def deploy_k8s(f, ns, infrastructure, cluster_type, num_pods):
             gateway_host_internal = f'gateway.{ns}.svc.cluster.local'
             gateway_port_internal = 8080
             if cluster_type == 'local':
-                apply_replace('src/deployment/k8s_backend-svc-node.yml', {'ns': ns})
+                apply_replace(
+                    f'{tmpdir}/deployment/k8s_backend-svc-node.yml', {'ns': ns}
+                )
                 gateway_host = 'localhost'
                 gateway_port = 31080
             else:
                 apply_replace(
-                    'kubectl apply -f src/deployment/k8s_backend-svc-lb.yml', {'ns': ns}
+                    f'kubectl apply -f {tmpdir}/deployment/k8s_backend-svc-lb.yml',
+                    {'ns': ns},
                 )
                 gateway_host = wait_for_lb('gateway-lb', ns)
                 gateway_port = 8080
@@ -106,6 +114,7 @@ def deploy_flow(
     cluster_type,
     final_layer_output_dim,
     embedding_size,
+    tmpdir,
 ):
     flow_kwargs = {}
     docker_prefix = '+docker'
@@ -153,7 +162,7 @@ def deploy_flow(
         gateway_port,
         gateway_host_internal,
         gateway_port_internal,
-    ) = deploy_k8s(f, ns, infrastructure, cluster_type, 7)
+    ) = deploy_k8s(f, ns, infrastructure, cluster_type, 7, tmpdir)
     print(f'▶ indexing {len(index)} documents')
 
     client = Client(host=gateway_host, port=gateway_port)

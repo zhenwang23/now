@@ -1,3 +1,4 @@
+import os.path
 import pickle
 from pathlib import Path
 from typing import Optional
@@ -28,10 +29,10 @@ def extend_embeddings(da, target_dim):
 
 
 class LinearHead(Module):
-    def __init__(self, final_layer_output_dim, embedding_size):
+    def __init__(self, final_layer_output_dim, embedding_size, mean_path=None):
         super(LinearHead, self).__init__()
         self.linear1 = Linear(final_layer_output_dim, embedding_size, bias=False)
-        mean_path = Path(__file__).parent / 'mean.bin'
+        mean_path = (mean_path if mean_path else Path(__file__).parent) + '/mean.bin'
         self.mean = load_mean(mean_path)
 
     def forward(self, x):
@@ -52,12 +53,16 @@ class FineTunedLinearHeadEncoder(Executor):
         self,
         final_layer_output_dim,
         embedding_size,
+        tmpdir: str = None,
         model_path='best_model_ndcg',
         *args,
         **kwargs
     ):
         super().__init__(**kwargs)
-        model_path = Path(__file__).parent / 'best_model_ndcg'
+        if tmpdir:
+            model_path = os.path.join(tmpdir, 'src/hub/head_encoder/best_model_ndcg')
+        else:
+            model_path = Path(__file__).parent / 'best_model_ndcg'
         self.final_layer_output_dim = final_layer_output_dim
         self.model = LinearHead(final_layer_output_dim, embedding_size)
         self.model.load_state_dict(torch.load(model_path, map_location='cpu'))

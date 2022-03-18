@@ -3,6 +3,7 @@ import os
 import random
 import uuid
 from copy import deepcopy
+from os.path import join as osp
 from typing import Optional
 
 from docarray import DocumentArray
@@ -10,10 +11,13 @@ from src.utils import download
 from yaspin import yaspin
 
 
-def _fetch_da_from_url(url: str) -> DocumentArray:
-    if not os.path.exists('data/tmp'):
-        os.makedirs('data/tmp')
-    data_path = f"data/tmp/{base64.b64encode(bytes(url, 'utf-8')).decode('utf-8')}.bin"
+def _fetch_da_from_url(url: str, tmpdir: str) -> DocumentArray:
+    if not os.path.exists(osp(tmpdir, 'data/tmp')):
+        os.makedirs(osp(tmpdir, 'data/tmp'))
+    data_path = (
+        tmpdir
+        + f"/data/tmp/{base64.b64encode(bytes(url, 'utf-8')).decode('utf-8')}.bin"
+    )
     if not os.path.exists(data_path):
         download(url, data_path)
 
@@ -56,6 +60,7 @@ def load_data(
     secret: Optional[str],
     url: Optional[str],
     path: Optional[str],
+    tmpdir: str,
 ) -> DocumentArray:
 
     print('⬇  download data')
@@ -65,7 +70,7 @@ def load_data(
             'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
             f'jpeg/{dataset}.{model_quality}.bin'
         )
-        da = _fetch_da_from_url(url)
+        da = _fetch_da_from_url(url, tmpdir)
 
     else:
         if custom_type == 'docarray':
@@ -77,7 +82,7 @@ def load_data(
                 )
                 exit(1)
         elif custom_type == 'url':
-            da = _fetch_da_from_url(url)
+            da = _fetch_da_from_url(url, tmpdir)
         else:
             da = DocumentArray.from_files(path + '/**')
             da.apply(lambda d: d.load_uri_to_image_tensor())
@@ -102,7 +107,8 @@ def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
     if ds['val'] is None:
         # TODO makes split based on classes rather than instances
         split_index = max(
-            int(len(ds['train']) * train_val_split_ratio), len(ds['train']) - 5000
+            int(len(ds['train']) * train_val_split_ratio),
+            len(ds['train']) - 5000,
         )
         train = ds['train']
         ds['train'], ds['val'] = train[:split_index], train[split_index:]

@@ -8,6 +8,7 @@ import cowsay
 from pyfiglet import Figlet
 from PyInquirer import Separator
 from PyInquirer.prompt import prompt
+from src.deployment.deployment import cmd
 from src.system_information import get_system_state
 
 NEW_CLUSTER = '🐣 create new'
@@ -22,9 +23,9 @@ QUALITY_MAP = {
 @dataclass
 class UserInput:
     # data related
-    dataset: str = 'deepfashion'
-    is_custom_dataset: bool = False
-    custom_dataset_type: str = 'docarray'
+    dataset: Optional[str] = 'deepfashion'
+    is_custom_dataset: Optional[bool] = False
+    custom_dataset_type: Optional[str] = None
     dataset_secret: Optional[str] = None
     dataset_url: Optional[str] = None
     dataset_path: Optional[str] = None
@@ -56,12 +57,12 @@ def headline():
     print()
 
 
-def get_user_input(contexts, active_context) -> UserInput:
+def get_user_input(contexts, active_context, os_type, arch, **kwargs) -> UserInput:
     headline()
     user_input = UserInput()
-    ask_data(user_input)
-    ask_quality(user_input)
-    ask_deployment(user_input, contexts, active_context)
+    ask_data(user_input, **kwargs)
+    ask_quality(user_input, **kwargs)
+    ask_deployment(user_input, contexts, active_context, os_type, arch)
     return user_input
 
 
@@ -75,7 +76,7 @@ def prompt_plus(questions, attribute):
         exit(0)
 
 
-def ask_data(user_input: UserInput):
+def ask_data(user_input: UserInput, **kwargs):
     questions = [
         {
             'type': 'list',
@@ -89,9 +90,15 @@ def ask_data(user_input: UserInput):
                 },
                 {'name': '🦆 birds (≈12K docs)', 'value': 'bird-species'},
                 {'name': '🚗 cars (≈16K docs)', 'value': 'stanford-cars'},
-                {'name': '🏞 geolocation (≈50K docs)', 'value': 'geolocation-geoguessr'},
+                {
+                    'name': '🏞 geolocation (≈50K docs)',
+                    'value': 'geolocation-geoguessr',
+                },
                 {'name': '👕 fashion (≈53K docs)', 'value': 'deepfashion'},
-                {'name': '☢️ chest x-ray (≈100K docs)', 'value': 'nih-chest-xrays'},
+                {
+                    'name': '☢️ chest x-ray (≈100K docs)',
+                    'value': 'nih-chest-xrays',
+                },
                 Separator(),
                 {
                     'name': '✨ custom',
@@ -100,15 +107,21 @@ def ask_data(user_input: UserInput):
             ],
         },
     ]
-    user_input.dataset = prompt_plus(questions, 'dataset')
+    if 'dataset_type' in kwargs.keys():
+        user_input.dataset = 'custom'
+    elif 'dataset' in kwargs.keys():
+        user_input.dataset = kwargs['dataset']
+    else:
+        user_input.dataset = prompt_plus(questions, 'dataset')
+
     if user_input.dataset == 'custom':
         user_input.is_custom_dataset = True
-        ask_data_custom(user_input)
+        ask_data_custom(user_input, **kwargs)
     else:
         user_input.is_custom_dataset = False
 
 
-def ask_data_custom(user_input: UserInput):
+def ask_data_custom(user_input: UserInput, **kwargs):
     questions = [
         {
             'type': 'list',
@@ -133,10 +146,13 @@ def ask_data_custom(user_input: UserInput):
             ],
         },
     ]
-    custom_dataset_type = prompt_plus(questions, 'custom_dataset_type')
-    user_input.custom_dataset_type = custom_dataset_type
+    if 'dataset_type' not in kwargs.keys():
+        custom_dataset_type = prompt_plus(questions, 'custom_dataset_type')
+        user_input.custom_dataset_type = custom_dataset_type
+    else:
+        custom_dataset_type = kwargs['dataset_type']
 
-    if custom_dataset_type == 'docarray':
+    if custom_dataset_type == 'docarray' and 'secret' not in kwargs.keys():
         questions = [
             {
                 'type': 'password',
@@ -145,7 +161,7 @@ def ask_data_custom(user_input: UserInput):
             },
         ]
         user_input.dataset_secret = prompt_plus(questions, 'secret')
-    elif custom_dataset_type == 'url':
+    elif custom_dataset_type == 'url' and 'url' not in kwargs.keys():
         questions = [
             {
                 'type': 'input',
@@ -158,7 +174,7 @@ def ask_data_custom(user_input: UserInput):
         pass
 
 
-def ask_quality(user_input: UserInput):
+def ask_quality(user_input: UserInput, **kwargs):
     questions = [
         {
             'type': 'list',
@@ -167,24 +183,29 @@ def ask_quality(user_input: UserInput):
             'choices': [
                 {'name': '🦊 medium (≈3GB mem, 15q/s)', 'value': 'medium'},
                 {'name': '🐻 good (≈3GB mem, 2.5q/s)', 'value': 'good'},
-                {'name': '🦄 excellent (≈4GB mem, 0.5q/s)', 'value': 'excellent'},
+                {
+                    'name': '🦄 excellent (≈4GB mem, 0.5q/s)',
+                    'value': 'excellent',
+                },
             ],
             'filter': lambda val: val.lower(),
         }
     ]
-
-    quality = prompt_plus(questions, 'quality')
-    if quality == 'medium':
-        print('  🚀 you trade-off a bit of quality for having the best speed')
-    elif quality == 'good':
-        print('  ⚖️ you have the best out of speed and quality')
-    elif quality == 'excellent':
-        print('  ✨ you trade-off speed to having the best quality')
+    if 'quality' in kwargs.keys():
+        quality = kwargs['quality']
+    else:
+        quality = prompt_plus(questions, 'quality')
+        if quality == 'medium':
+            print('  🚀 you trade-off a bit of quality for having the best speed')
+        elif quality == 'good':
+            print('  ⚖️ you have the best out of speed and quality')
+        elif quality == 'excellent':
+            print('  ✨ you trade-off speed to having the best quality')
 
     user_input.model_quality, user_input.model_variant = QUALITY_MAP[quality]
 
 
-def ask_deployment(user_input: UserInput, contexts, active_context):
+def ask_deployment(user_input: UserInput, contexts, active_context, os_type, arch):
     choices = ([c['name'] for c in contexts] if contexts is not None else []) + [
         NEW_CLUSTER
     ]
@@ -224,13 +245,27 @@ def ask_deployment(user_input: UserInput, contexts, active_context):
                         'name': '⛅️ Amazon Elastic Kubernetes Service',
                         'disabled': AVAILABLE_SOON,
                     },
-                    {'name': '⛅️ Azure Kubernetes Service', 'disabled': AVAILABLE_SOON},
-                    {'name': '⛅️ DigitalOcean Kubernetes', 'disabled': AVAILABLE_SOON},
+                    {
+                        'name': '⛅️ Azure Kubernetes Service',
+                        'disabled': AVAILABLE_SOON,
+                    },
+                    {
+                        'name': '⛅️ DigitalOcean Kubernetes',
+                        'disabled': AVAILABLE_SOON,
+                    },
                 ],
                 'filter': lambda val: val.lower(),
             }
         ]
         user_input.new_cluster_type = prompt_plus(questions, 'cluster_new')
+        if user_input.new_cluster_type == 'gke':
+            output, _ = cmd('which gcloud')
+            if output is not None:
+                cmd(
+                    f'/bin/bash ./src/scripts/install_gcloud.sh {os_type} {arch}',
+                    output=False,
+                    error=False,
+                )
 
 
 if __name__ == '__main__':

@@ -7,6 +7,7 @@ import numpy as np
 import torch
 from docarray import Document
 from PIL import Image, ImageDraw, ImageFont
+from rich.console import Console
 
 colors = [
     "navy",
@@ -346,3 +347,13 @@ def download(url, filename):
             shutil.copyfileobj(r_raw, f)
 
     return path
+
+
+def get_rich_console():
+    """
+    Function to get jina rich default console.
+    :return: rich console
+    """
+    return Console(
+        force_terminal=True, force_interactive=True
+    )  # It forces render in any terminal, especily in PyCharm
