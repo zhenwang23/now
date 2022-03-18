@@ -103,7 +103,8 @@ def cli():
             output=False,
             error=False,
         )
-    run_k8s(os_type=os, arch=arch, **args)
+    args_dict = vars(args)
+    run_k8s(os_type=os, arch=arch, **vars(args))
     print('done')
 
 
