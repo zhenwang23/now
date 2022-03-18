@@ -3,21 +3,16 @@ import platform
 import sys
 
 import cpuinfo
-from rich import box
-from rich.table import Table
 from src.deployment.flow import cmd
 from src.run_all_k8s import run_k8s
-from src.utils import get_rich_console
 
 
-def _get_run_args(print_args: bool = True):
+def _get_run_args():
     from src.cli.parser import get_main_parser
 
-    console = get_rich_console()
     parser = get_main_parser()
 
     if len(sys.argv) > 1:
-        from argparse import _StoreAction, _StoreTrueAction
 
         args, unknown = parser.parse_known_args()
 
@@ -25,36 +20,6 @@ def _get_run_args(print_args: bool = True):
             # Need to handle the unwanted arg parse
             pass
 
-        if print_args:
-            from src import __resources_path__
-
-            p = parser._actions[-1].choices[sys.argv[1]]
-            default_args = {
-                a.dest: a.default
-                for a in p._actions
-                if isinstance(a, (_StoreAction, _StoreTrueAction))
-            }
-
-            with open(os.path.join(__resources_path__, 'jina.logo')) as fp:
-                logo_str = fp.read()
-
-            param_str = Table(title=None, box=box.ROUNDED, highlight=True)
-            param_str.add_column('')
-            param_str.add_column('Parameters', justify='right')
-            param_str.add_column('Value', justify='left')
-
-            for k, v in sorted(vars(args).items()):
-                sign = ' ' if default_args.get(k, None) == v else '🔧️'
-                param = f'{k.replace("_", "-"): >30.30}'
-                value = f'=  {str(v):30.30}'
-
-                style = None if default_args.get(k, None) == v else 'blue on yellow'
-
-                param_str.add_row(sign, param, value, style=style)
-
-            print(f'\n{logo_str}\n')
-            console.print(f'▶️  {" ".join(sys.argv)}')
-            console.print(param_str)
         return args
 
 
