@@ -107,12 +107,12 @@ def ask_data(user_input: UserInput, **kwargs):
             ],
         },
     ]
-    if kwargs and kwargs['dataset'] == 'custom':
+    if kwargs and kwargs['data'] == 'custom':
         user_input.dataset = 'custom'
         print('Dataset selected: custom')
-    elif kwargs and kwargs['dataset']:
-        print('Dataset selected: ', kwargs['dataset'])
-        user_input.dataset = kwargs['dataset']
+    elif kwargs and kwargs['data']:
+        print('Dataset selected: ', kwargs['data'])
+        user_input.dataset = kwargs['data']
     else:
         user_input.dataset = prompt_plus(questions, 'dataset')
 
@@ -148,14 +148,23 @@ def ask_data_custom(user_input: UserInput, **kwargs):
             ],
         },
     ]
-    if kwargs and kwargs['dataset_type']:
-        custom_dataset_type = kwargs['dataset_type']
-        print('Dataset type for custom dataset: ', kwargs['dataset_type'])
+    if kwargs and kwargs['data'] == 'custom':
+        if kwargs['data_url']:
+            user_input.custom_dataset_type = 'url'
+            user_input.dataset_url = kwargs['url']
+        elif kwargs['data_path']:
+            user_input.custom_dataset_type = 'path'
+            user_input.dataset_path = kwargs['path']
+        else:
+            user_input.custom_dataset_type = 'docarray'
+            user_input.dataset_secret = kwargs['data_secret']
+        print('Dataset type for custom dataset: ', user_input.custom_dataset_type)
+        return
     else:
         custom_dataset_type = prompt_plus(questions, 'custom_dataset_type')
         user_input.custom_dataset_type = custom_dataset_type
 
-    if custom_dataset_type == 'docarray' and (not kwargs or not kwargs['secret']):
+    if custom_dataset_type == 'docarray':
         questions = [
             {
                 'type': 'password',
@@ -164,7 +173,7 @@ def ask_data_custom(user_input: UserInput, **kwargs):
             },
         ]
         user_input.dataset_secret = prompt_plus(questions, 'secret')
-    elif custom_dataset_type == 'url' and (not kwargs or not kwargs['url']):
+    elif custom_dataset_type == 'url':
         questions = [
             {
                 'type': 'input',
