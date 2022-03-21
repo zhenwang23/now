@@ -44,7 +44,6 @@ def run(user_input: UserInput, is_debug, tmpdir):
         user_input.dataset_secret,
         user_input.dataset_url,
         user_input.dataset_path,
-        tmpdir,
     )
     dataset = {
         'index': dataset,

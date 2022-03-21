@@ -11,11 +11,14 @@ from src.utils import download
 from yaspin import yaspin
 
 
-def _fetch_da_from_url(url: str, tmpdir: str) -> DocumentArray:
-    if not os.path.exists(osp(tmpdir, 'data/tmp')):
-        os.makedirs(osp(tmpdir, 'data/tmp'))
+def _fetch_da_from_url(
+    url: str, downloaded_path: str = '~/.cache/jina-now'
+) -> DocumentArray:
+    data_dir = os.path.expanduser(downloaded_path)
+    if not os.path.exists(osp(data_dir, 'data/tmp')):
+        os.makedirs(osp(data_dir, 'data/tmp'))
     data_path = (
-        tmpdir
+        data_dir
         + f"/data/tmp/{base64.b64encode(bytes(url, 'utf-8')).decode('utf-8')}.bin"
     )
     if not os.path.exists(data_path):
@@ -60,7 +63,6 @@ def load_data(
     secret: Optional[str],
     url: Optional[str],
     path: Optional[str],
-    tmpdir: str,
 ) -> DocumentArray:
 
     print('⬇  download data')
@@ -70,7 +72,7 @@ def load_data(
             'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
             f'jpeg/{dataset}.{model_quality}.bin'
         )
-        da = _fetch_da_from_url(url, tmpdir)
+        da = _fetch_da_from_url(url)
 
     else:
         if custom_type == 'docarray':
@@ -82,7 +84,7 @@ def load_data(
                 )
                 exit(1)
         elif custom_type == 'url':
-            da = _fetch_da_from_url(url, tmpdir)
+            da = _fetch_da_from_url(url)
         else:
             da = DocumentArray.from_files(path + '/**')
             da.apply(lambda d: d.load_uri_to_image_tensor())
