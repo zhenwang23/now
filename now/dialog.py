@@ -8,8 +8,9 @@ import cowsay
 from pyfiglet import Figlet
 from PyInquirer import Separator
 from PyInquirer.prompt import prompt
-from src.deployment.deployment import cmd
-from src.system_information import get_system_state
+
+from now.deployment.deployment import cmd
+from now.system_information import get_system_state
 
 NEW_CLUSTER = '🐣 create new'
 AVAILABLE_SOON = 'will be available in upcoming versions'

@@ -8,8 +8,9 @@ from random import shuffle
 from typing import Any, Dict, Optional
 
 from jina import Document, DocumentArray
-from src.data_loading.utils import upload_to_gcloud_bucket
 from tqdm import tqdm
+
+from now.data_loading.utils import upload_to_gcloud_bucket
 
 IMAGE_SHAPE = (224, 224)
 

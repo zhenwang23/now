@@ -1,9 +1,10 @@
 from time import sleep
 
 import requests
-from src.deployment.deployment import apply_replace
-from src.deployment.flow import cmd, wait_for_lb
 from yaspin import yaspin
+
+from now.deployment.deployment import apply_replace
+from now.deployment.flow import cmd, wait_for_lb
 
 
 def run(

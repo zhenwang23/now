@@ -1,10 +1,11 @@
 import tempfile
 
 import cowsay
-from src import run_backend, run_frontend
-from src.cloud_manager import setup_cluster
-from src.dialog import get_user_input
-from src.system_information import get_system_state
+
+from now import run_backend, run_frontend
+from now.cloud_manager import setup_cluster
+from now.dialog import get_user_input
+from now.system_information import get_system_state
 
 
 def run_k8s(os_type='linux', arch='x86_64', **kwargs):

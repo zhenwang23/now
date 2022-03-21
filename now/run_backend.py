@@ -3,14 +3,15 @@ import pickle
 import warnings
 from os.path import join as osp
 
-from src.data_loading.data_loading import fill_missing, load_data
-from src.deployment.flow import deploy_flow
-from src.dialog import UserInput
-from src.finetuning.finetuning import add_clip_embeddings, finetune_layer
-from src.hub.head_encoder.head_encoder import extend_embeddings
-from src.hub.hub import push_to_hub
-from src.improvements.improvements import show_improvement
 from yaspin import yaspin
+
+from now.data_loading.data_loading import fill_missing, load_data
+from now.deployment.flow import deploy_flow
+from now.dialog import UserInput
+from now.finetuning.finetuning import add_clip_embeddings, finetune_layer
+from now.hub.head_encoder.head_encoder import extend_embeddings
+from now.hub.hub import push_to_hub
+from now.improvements.improvements import show_improvement
 
 
 def save_mean(da, tmpdir):

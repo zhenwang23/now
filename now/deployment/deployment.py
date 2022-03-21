@@ -8,7 +8,7 @@ def cmd(command, output=True, error=True, wait=True):
             command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
     else:
-        with open("NUL", "w") as fh:
+        with tempfile.NamedTemporaryFile() as fh:
             if output:
                 stdout = subprocess.PIPE
             else:

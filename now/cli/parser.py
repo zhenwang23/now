@@ -1,6 +1,6 @@
 import argparse
 
-from src import __version__
+from now import __version__
 
 
 def set_base_parser():

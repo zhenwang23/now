@@ -4,8 +4,9 @@ from copy import deepcopy
 
 import numpy as np
 from finetuner.tuner.evaluation import Evaluator
-from src.hub.head_encoder.head_encoder import FineTunedLinearHeadEncoder
-from src.utils import plot_metrics, save_before_after_image, visual_result
+
+from now.hub.head_encoder.head_encoder import FineTunedLinearHeadEncoder
+from now.utils import plot_metrics, save_before_after_image, visual_result
 
 np.seterr(divide='ignore', invalid='ignore')
 

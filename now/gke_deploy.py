@@ -3,8 +3,9 @@ import subprocess
 import time
 
 import cowsay
-from src.deployment.flow import cmd
-from src.dialog import prompt_plus
+
+from now.deployment.flow import cmd
+from now.dialog import prompt_plus
 
 
 def auth_cmd(command):

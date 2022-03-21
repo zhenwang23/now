@@ -9,10 +9,11 @@ from jina.clients.helper import pprint_routes
 from kubernetes import client
 from kubernetes import client as k8s_client
 from kubernetes import config
-from src.deployment.deployment import apply_replace, cmd
 from tqdm import tqdm
 from yaspin import yaspin
 from yaspin.spinners import Spinners
+
+from now.deployment.deployment import apply_replace, cmd
 
 cur_dir = pathlib.Path(__file__).parent.resolve()
 

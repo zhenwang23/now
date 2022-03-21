@@ -3,12 +3,13 @@ import platform
 import sys
 
 import cpuinfo
-from src.deployment.flow import cmd
-from src.run_all_k8s import run_k8s
+
+from now.deployment.flow import cmd
+from now.run_all_k8s import run_k8s
 
 
 def _get_run_args():
-    from src.cli.parser import get_main_parser
+    from now.cli.parser import get_main_parser
 
     parser = get_main_parser()
 

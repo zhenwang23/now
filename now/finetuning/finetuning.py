@@ -13,11 +13,12 @@ from finetuner.tuner.callback import (
 from finetuner.tuner.pytorch.losses import TripletLoss
 from finetuner.tuner.pytorch.miner import TripletEasyHardMiner
 from jina import Client, Flow
-from src.deployment.flow import batch, cmd, deploy_k8s
-from src.hub.head_encoder.head_encoder import LinearHead
-from src.utils import get_device
 from tqdm import tqdm
 from yaspin import yaspin
+
+from now.deployment.flow import batch, cmd, deploy_k8s
+from now.hub.head_encoder.head_encoder import LinearHead
+from now.utils import get_device
 
 epochs = 1  # use early stopping
 

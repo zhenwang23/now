@@ -2,10 +2,11 @@ from typing import Optional
 
 import cowsay
 from kubernetes import client, config
-from src.deployment.flow import cmd
-from src.dialog import prompt_plus
-from src.gke_deploy import create_gke_cluster
 from yaspin import yaspin
+
+from now.deployment.flow import cmd
+from now.dialog import prompt_plus
+from now.gke_deploy import create_gke_cluster
 
 
 def create_local_cluster():

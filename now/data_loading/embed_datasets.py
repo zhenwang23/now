@@ -9,8 +9,9 @@ import torch
 from docarray import Document
 from jina import DocumentArray
 from PIL import Image
-from src.data_loading.utils import upload_to_gcloud_bucket
 from tqdm import tqdm
+
+from now.data_loading.utils import upload_to_gcloud_bucket
 
 
 def _text_collate_fn(batch: DocumentArray):

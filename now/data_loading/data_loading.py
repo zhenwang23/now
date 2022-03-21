@@ -7,8 +7,9 @@ from os.path import join as osp
 from typing import Optional
 
 from docarray import DocumentArray
-from src.utils import download
 from yaspin import yaspin
+
+from now.utils import download
 
 
 def _fetch_da_from_url(
