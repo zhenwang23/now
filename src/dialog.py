@@ -19,6 +19,15 @@ QUALITY_MAP = {
     'excellent': ('ViT-L14', 'openai/clip-vit-large-patch14'),
 }
 
+LIST_OF_DB = {
+    'artworks',
+    'birds',
+    'cas',
+    'chest x-ray',
+    'deepfashion',
+    'geolocation',
+}
+
 
 @dataclass
 class UserInput:
@@ -60,7 +69,10 @@ def headline():
 def get_user_input(contexts, active_context, os_type, arch, **kwargs) -> UserInput:
     headline()
     user_input = UserInput()
-    ask_data(user_input, **kwargs)
+    if kwargs and kwargs['data']:
+        assign_data_fields(user_input, kwargs['data'])
+    else:
+        ask_data(user_input, **kwargs)
     ask_quality(user_input, **kwargs)
     ask_deployment(user_input, contexts, active_context, os_type, arch)
     return user_input
@@ -74,6 +86,23 @@ def prompt_plus(questions, attribute):
         os.system('clear')
         cowsay.cow('see you soon 👋')
         exit(0)
+
+
+def assign_data_fields(user_input, data):
+    user_input.dataset = 'custom'
+    user_input.is_custom_dataset = True
+    if os.path.exists(data):
+        user_input.custom_dataset_type = 'path'
+        user_input.dataset_path = data
+    elif 'http' in data:
+        user_input.custom_dataset_type = 'url'
+        user_input.dataset_url = data
+    elif data in LIST_OF_DB:
+        user_input.dataset = data
+        user_input.is_custom_dataset = False
+    else:
+        user_input.custom_dataset_type = 'docarray'
+        user_input.dataset_secret = data
 
 
 def ask_data(user_input: UserInput, **kwargs):
@@ -107,14 +136,7 @@ def ask_data(user_input: UserInput, **kwargs):
             ],
         },
     ]
-    if kwargs and kwargs['data'] == 'custom':
-        user_input.dataset = 'custom'
-        print('Dataset selected: custom')
-    elif kwargs and kwargs['data']:
-        print('Dataset selected: ', kwargs['data'])
-        user_input.dataset = kwargs['data']
-    else:
-        user_input.dataset = prompt_plus(questions, 'dataset')
+    user_input.dataset = prompt_plus(questions, 'dataset')
 
     if user_input.dataset == 'custom':
         user_input.is_custom_dataset = True
@@ -148,21 +170,8 @@ def ask_data_custom(user_input: UserInput, **kwargs):
             ],
         },
     ]
-    if kwargs and kwargs['data'] == 'custom':
-        if kwargs['data_url']:
-            user_input.custom_dataset_type = 'url'
-            user_input.dataset_url = kwargs['url']
-        elif kwargs['data_path']:
-            user_input.custom_dataset_type = 'path'
-            user_input.dataset_path = kwargs['path']
-        else:
-            user_input.custom_dataset_type = 'docarray'
-            user_input.dataset_secret = kwargs['data_secret']
-        print('Dataset type for custom dataset: ', user_input.custom_dataset_type)
-        return
-    else:
-        custom_dataset_type = prompt_plus(questions, 'custom_dataset_type')
-        user_input.custom_dataset_type = custom_dataset_type
+    custom_dataset_type = prompt_plus(questions, 'custom_dataset_type')
+    user_input.custom_dataset_type = custom_dataset_type
 
     if custom_dataset_type == 'docarray':
         questions = [

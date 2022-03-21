@@ -1,5 +1,6 @@
 import math
 import os.path
+import pathlib
 from time import sleep
 
 from jina import Flow
@@ -12,6 +13,8 @@ from src.deployment.deployment import apply_replace, cmd
 from tqdm import tqdm
 from yaspin import yaspin
 from yaspin.spinners import Spinners
+
+cur_dir = pathlib.Path(__file__).parent.resolve()
 
 
 def batch(iterable, n=1):
@@ -73,10 +76,6 @@ def deploy_k8s(f, ns, infrastructure, cluster_type, num_pods, tmpdir):
 
         # create namespace
         cmd(f'kubectl create namespace {ns}', output=False, error=False)
-        cmd(
-            f'wget https://storage.googleapis.com/jina-fashion-data/data/deployment.zip -P {tmpdir}'
-        )
-        cmd(f'tar -xf {tmpdir}/deployment.zip -C {tmpdir}')
 
         # deploy flow
         with yaspin(
@@ -87,14 +86,12 @@ def deploy_k8s(f, ns, infrastructure, cluster_type, num_pods, tmpdir):
             gateway_host_internal = f'gateway.{ns}.svc.cluster.local'
             gateway_port_internal = 8080
             if cluster_type == 'local':
-                apply_replace(
-                    f'{tmpdir}/deployment/k8s_backend-svc-node.yml', {'ns': ns}
-                )
+                apply_replace(f'{cur_dir}/k8s_backend-svc-node.yml', {'ns': ns})
                 gateway_host = 'localhost'
                 gateway_port = 31080
             else:
                 apply_replace(
-                    f'kubectl apply -f {tmpdir}/deployment/k8s_backend-svc-lb.yml',
+                    f'kubectl apply -f {cur_dir}/k8s_backend-svc-lb.yml',
                     {'ns': ns},
                 )
                 gateway_host = wait_for_lb('gateway-lb', ns)
@@ -153,7 +150,7 @@ def deploy_flow(
             env={'JINA_LOG_LEVEL': 'DEBUG'},
         )
     )
-    f.plot('data/deployed_flow.png', vertical_layout=True)
+    f.plot('./deployed_flow.png', vertical_layout=True)
 
     index = [x for x in index if x.text == '']
 

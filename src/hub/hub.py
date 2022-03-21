@@ -1,10 +1,12 @@
 # from jina.hubble.hubio import HubIO
 import os.path
+import pathlib
 import subprocess
 from datetime import datetime
 
-from src.deployment.deployment import cmd
 from yaspin import yaspin
+
+cur_dir = pathlib.Path(__file__).parent.resolve()
 
 
 def push_to_hub(tmpdir):
@@ -21,14 +23,10 @@ def push_to_hub(tmpdir):
     name = f'linear_head_encoder_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}'
     secret = '93ea59dbd1ee3fe0bdc44252c6e86a87'
     class_name = 'FineTunedLinearHeadEncoder'
-    ld_path = os.path.join(tmpdir, 'src/hub/head_encoder')
-    cmd(
-        f'wget https://storage.googleapis.com/jina-fashion-data/data/head_encoder.zip -P {ld_path}'
-    )
-    cmd(f'tar -xf {ld_path}/head_encoder.zip -C {ld_path}')
-    bashCommand = f"jina hub push --private {ld_path}/head_encoder -t {name} --force-update {class_name} --secret {secret}"
+    ld_path = os.path.join(cur_dir, 'head_encoder')
+    bashCommand = f"jina hub push --private {ld_path} -t {name} --force-update {class_name} --secret {secret}"
     with yaspin(text="Push fine-tuned model to Jina Hub", color="green") as spinner:
-        with open("NUL", "w") as fh:
+        with open(os.path.join(tmpdir, "NUL"), "w") as fh:
             process = subprocess.Popen(bashCommand.split(), stdout=fh)
         output, error = process.communicate()
         spinner.ok('⏫ ')

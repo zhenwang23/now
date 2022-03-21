@@ -20,26 +20,6 @@ def _get_run_args():
             # Need to handle the unwanted arg parse
             pass
 
-        # Verify the validity of arguments
-        if args:
-            if args.data == 'custom':
-                if not (args.data_path or args.data_url or args.data_secret):
-                    print(
-                        'Please provide either data_path, data_url or data_secret when using '
-                        'custom dataset'
-                    )
-                if args.data_path and os.path.exists(args.data_path):
-                    print(
-                        'Given filepath does not exist. Please make sure you are providing the '
-                        'right path where the dataset is present'
-                    )
-                if args.data_url and 'http' not in args.data_url:
-                    print(
-                        'Given data url is not correct. Please make sure you have provided the'
-                        'right url for the docarray'
-                    )
-                exit()
-
         return args
 
 
