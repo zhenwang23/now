@@ -107,10 +107,10 @@ def ask_data(user_input: UserInput, **kwargs):
             ],
         },
     ]
-    if kwargs['dataset_type']:
+    if kwargs and kwargs['dataset'] == 'custom':
         user_input.dataset = 'custom'
         print('Dataset selected: custom')
-    elif kwargs['dataset']:
+    elif kwargs and kwargs['dataset']:
         print('Dataset selected: ', kwargs['dataset'])
         user_input.dataset = kwargs['dataset']
     else:
@@ -148,14 +148,14 @@ def ask_data_custom(user_input: UserInput, **kwargs):
             ],
         },
     ]
-    if not kwargs['dataset_type']:
-        custom_dataset_type = prompt_plus(questions, 'custom_dataset_type')
-        user_input.custom_dataset_type = custom_dataset_type
-    else:
+    if kwargs and kwargs['dataset_type']:
         custom_dataset_type = kwargs['dataset_type']
         print('Dataset type for custom dataset: ', kwargs['dataset_type'])
+    else:
+        custom_dataset_type = prompt_plus(questions, 'custom_dataset_type')
+        user_input.custom_dataset_type = custom_dataset_type
 
-    if custom_dataset_type == 'docarray' and not kwargs['secret']:
+    if custom_dataset_type == 'docarray' and (not kwargs or not kwargs['secret']):
         questions = [
             {
                 'type': 'password',
@@ -164,7 +164,7 @@ def ask_data_custom(user_input: UserInput, **kwargs):
             },
         ]
         user_input.dataset_secret = prompt_plus(questions, 'secret')
-    elif custom_dataset_type == 'url' and not kwargs['url']:
+    elif custom_dataset_type == 'url' and (not kwargs or not kwargs['url']):
         questions = [
             {
                 'type': 'input',
@@ -194,7 +194,7 @@ def ask_quality(user_input: UserInput, **kwargs):
             'filter': lambda val: val.lower(),
         }
     ]
-    if kwargs['quality']:
+    if kwargs and kwargs['quality']:
         quality = kwargs['quality']
         print('Selected quality: ', quality)
     else:

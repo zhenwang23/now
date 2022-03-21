@@ -85,6 +85,8 @@ def cli():
         arch = platform.machine()
     if not args:
         args = {}  # Empty arguments
+    else:
+        args = vars(args)  # Make it a dict from Namedspace
     # kubectl needs `intel` or `m1` for apple os
     # for linux no need of architecture type
     if not os.path.isfile('/usr/local/bin/kubectl'):
@@ -103,12 +105,11 @@ def cli():
             output=False,
             error=False,
         )
-    args_dict = vars(args)
-    run_k8s(os_type=os, arch=arch, **vars(args))
+
+    run_k8s(os_type=os, arch=arch, **args)
     print('done')
 
 
 if __name__ == '__main__':
-    print('I am here')
     cli()
     print('done')
