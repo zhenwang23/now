@@ -73,27 +73,14 @@ def set_now_parser(parser=None):
     )
 
     parser.add_argument(
-        '--dataset',
+        '--data',
         help='Select one of the provided datasets or set it to custom to use your own dataset',
         type=str,
     )
 
     parser.add_argument(
-        '--dataset-type',
-        help='If using custom dataset, then specify the dataset type that you would like to provide',
-        type=str,
-        choices=['docarray', 'url', 'path'],
-    )
-
-    parser.add_argument(
-        '--docarray-id',
-        help='If using the custom docarray dataset type, then provide the id to pull from Jina Hub',
-        type=str,
-    )
-
-    parser.add_argument(
-        '--data-path',
-        help='The path to the dataset if you want to load custom local dataset',
+        '--data_path',
+        help='The path to the custom dataset if you want to load from local filepath',
         type=str,
     )
 
@@ -104,8 +91,8 @@ def set_now_parser(parser=None):
     )
 
     parser.add_argument(
-        '--secret',
-        help='If want to pull custom docarray from the Hub, then provide the secret',
+        '--data_secret',
+        help='If you want to pull custom docarray from the Hub, then provide the secret',
         type=str,
     )
 

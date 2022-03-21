@@ -20,17 +20,17 @@ def _get_run_args():
             # Need to handle the unwanted arg parse
             pass
 
+        # Verify the validity of arguments
+        if args:
+            if args['data'] == 'custom':
+                if not (args['data_path'] or args['data_url'] or args['secret']):
+                    print(
+                        'Please provde either filepath, url or secret when using '
+                        'custom dataset'
+                    )
+                exit()
+
         return args
-
-
-def _quick_ac_lookup():
-    from src.cli.autocomplete import ac_table
-
-    if len(sys.argv) > 1:
-        if sys.argv[1] == 'commands':
-            for k in ac_table['commands']:
-                print(k)
-            exit()
 
 
 def _is_latest_version(suppress_on_error=True):
@@ -67,7 +67,6 @@ def _is_latest_version(suppress_on_error=True):
 
 def cli():
     """The main entrypoint of the CLI"""
-    _quick_ac_lookup()
     args = _get_run_args()
 
     if '--version' in sys.argv[1:]:
@@ -89,6 +88,7 @@ def cli():
         args = vars(args)  # Make it a dict from Namedspace
     # kubectl needs `intel` or `m1` for apple os
     # for linux no need of architecture type
+
     if not os.path.isfile('/usr/local/bin/kubectl'):
         print('kubectl not found. Installing kubectl as it is required to run Jina Now')
         cmd(
