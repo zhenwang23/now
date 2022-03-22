@@ -69,13 +69,14 @@ def set_now_parser(parser=None):
 
     parser.add_argument(
         '--data',
-        help='Select one of the provided datasets or set it to custom to use your own dataset',
+        help='Select one of the available datasets or provide local filepath, '
+        'docarray url, or docarray secret to use your own dataset',
         type=str,
     )
 
     parser.add_argument(
         '--quality',
-        help='Choose the qulaity of the model that you would like to finetune',
+        help='Choose the quality of the model that you would like to finetune',
         type=str,
     )
 

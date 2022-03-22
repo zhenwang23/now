@@ -288,7 +288,6 @@ def ask_deployment(user_input: UserInput, contexts, active_context, os_type, arc
                 cmd(
                     f'/bin/bash ./src/scripts/install_gcloud.sh {os_type} {arch}',
                     output=False,
-                    error=False,
                 )
 
 

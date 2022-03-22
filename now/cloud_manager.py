@@ -9,12 +9,9 @@ from now.dialog import prompt_plus
 from now.gke_deploy import create_gke_cluster
 
 
-def create_local_cluster():
-    out, error = cmd('kind get clusters')
-    if error != b'' and 'failed to list clusters' in error:
-        print(error.decode('utf-8'))
-        exit(0)
-    if out == b'jina-now\n':
+def create_local_cluster(kind_path):
+    out, _ = cmd(f'{kind_path} get clusters')
+    if 'jina-now' in out:
         questions = [
             {
                 'type': 'list',
@@ -30,31 +27,33 @@ def create_local_cluster():
         recreate = prompt_plus(questions, 'proceed')
         if recreate:
             with yaspin(text="Remove local cluster", color="green") as spinner:
-                cmd('/usr/local/bin/kind delete clusters jina-now', output=False)
+                cmd(f'{kind_path} delete clusters jina-now', output=False)
                 spinner.ok('💀')
         else:
             cowsay.cow('see you soon 👋')
             exit(0)
     with yaspin(text="Setup local cluster", color="green") as spinner:
         cmd(
-            '/usr/local/bin/kind create cluster --name jina-now --config src/kind.yml',
+            f'{kind_path} create cluster --name jina-now --config src/kind.yml',
             output=False,
         )
         spinner.ok("📦")
 
 
-def setup_cluster(cluster_name: Optional[str], provider: str):
+def setup_cluster(
+    cluster_name: Optional[str], provider: str, kubectl_path, kind_path, **kwargs
+):
     if cluster_name is not None:
-        cmd(f'kubectl config use-context {cluster_name}')
-        ask_existing()
+        cmd(f'{kubectl_path} config use-context {cluster_name}')
+        ask_existing(kubectl_path)
     else:
         if provider == 'local':
-            create_local_cluster()
+            create_local_cluster(kind_path)
         elif provider == 'gke':
             create_gke_cluster()
 
 
-def ask_existing():
+def ask_existing(kubectl_path):
     config.load_kube_config()
     v1 = client.CoreV1Api()
     if 'nowapi' in [item.metadata.name for item in v1.list_namespace().items]:
@@ -75,7 +74,7 @@ def ask_existing():
         remove = prompt_plus(questions, 'proceed')
         if remove:
             with yaspin(text="Remove old deployment", color="green") as spinner:
-                cmd('kubectl delete ns nowapi', output=False, error=False)
+                cmd(f'{kubectl_path} delete ns nowapi', output=False)
                 spinner.ok('💀')
         else:
             cowsay.cow('see you soon 👋')

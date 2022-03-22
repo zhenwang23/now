@@ -22,7 +22,7 @@ def save_mean(da, tmpdir):
         pickle.dump(mean, f)
 
 
-def run(user_input: UserInput, is_debug, tmpdir):
+def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
     """
     Args:
         user_input: User input arguments
@@ -92,7 +92,7 @@ def run(user_input: UserInput, is_debug, tmpdir):
             # raise e
             pass
         spinner.ok('🖼')
-    print('   before-after comparison files are saved at jina-now/visualization')
+    print('before-after comparison files are saved in the current working directory')
     executor_name = push_to_hub(tmpdir)
     # executor_name = 'FineTunedLinearHeadEncoder:93ea59dbd1ee3fe0bdc44252c6e86a87/
     # linear_head_encoder_2022-02-20_20-35-15'
@@ -114,6 +114,7 @@ def run(user_input: UserInput, is_debug, tmpdir):
         final_layer_output_dim,
         embedding_size,
         tmpdir,
+        **kwargs,
     )
     return gateway_host, gateway_port, gateway_host_internal, gateway_port_internal
 

@@ -10,6 +10,6 @@ init:
 	pip install -r requirements.txt
 style:
 	black -S .
-	flake8 ./src
+	flake8 ./now
 	isort .
 	pycln .

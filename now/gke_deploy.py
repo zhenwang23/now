@@ -130,7 +130,6 @@ def create_gke_cluster():
     cmd(
         f'/bin/bash ./src/scripts/gke_deploy.sh {application_name}',
         output=False,
-        error=False,
     )
     # spinner.ok('🌥')
 

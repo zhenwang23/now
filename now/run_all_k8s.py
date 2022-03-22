@@ -13,13 +13,13 @@ def run_k8s(os_type='linux', arch='x86_64', **kwargs):
         docker_frontend_tag = '0.0.1'
         contexts, active_context, is_debug = get_system_state()
         user_input = get_user_input(contexts, active_context, os_type, arch, **kwargs)
-        setup_cluster(user_input.cluster, user_input.new_cluster_type)
+        setup_cluster(user_input.cluster, user_input.new_cluster_type, **kwargs)
         (
             gateway_host,
             gateway_port,
             gateway_host_internal,
             gateway_port_internal,
-        ) = run_backend.run(user_input, is_debug, tmpdir)
+        ) = run_backend.run(user_input, is_debug, tmpdir, **kwargs)
         frontend_host, frontend_port = run_frontend.run(
             user_input.dataset,
             gateway_host,
@@ -27,6 +27,8 @@ def run_k8s(os_type='linux', arch='x86_64', **kwargs):
             gateway_host_internal,
             gateway_port_internal,
             docker_frontend_tag,
+            tmpdir,
+            **kwargs,
         )
         url = f'{frontend_host}' + (
             '' if str(frontend_port) == '80' else f':{frontend_port}'

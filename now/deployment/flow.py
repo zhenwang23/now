@@ -61,7 +61,9 @@ def wait_for_all_pods_in_ns(ns, num_pods, max_wait=1800):
         sleep(1)
 
 
-def deploy_k8s(f, ns, infrastructure, cluster_type, num_pods, tmpdir):
+def deploy_k8s(
+    f, ns, infrastructure, cluster_type, num_pods, tmpdir, kubectl_path, **kwargs
+):
     if infrastructure == 'local':
         with f:
             print('start indexing', len(index))
@@ -71,29 +73,31 @@ def deploy_k8s(f, ns, infrastructure, cluster_type, num_pods, tmpdir):
             f.block()
         return 'localhost'
     else:
+        k8_path = os.path.join(tmpdir, f'k8s/{ns}')
         with yaspin(text="Convert Flow to Kubernetes YAML", color="green") as spinner:
-            f.to_k8s_yaml(os.path.join(tmpdir, f'k8s/{ns}'))
+            f.to_k8s_yaml(k8_path)
             spinner.ok('🔄')
 
         # create namespace
-        cmd(f'kubectl create namespace {ns}', output=False, error=False)
+        cmd(f'{kubectl_path} create namespace {ns}', output=False)
 
         # deploy flow
         with yaspin(
             Spinners.earth,
             text="Deploy Jina Flow (might take some time depending on internet connection and selected quality)",
         ) as spinner:
-            cmd(f'kubectl apply -R -f k8s/{ns}')
+            cmd(f'{kubectl_path} apply -R -f {k8_path}')
             gateway_host_internal = f'gateway.{ns}.svc.cluster.local'
             gateway_port_internal = 8080
             if cluster_type == 'local':
-                apply_replace(f'{cur_dir}/k8s_backend-svc-node.yml', {'ns': ns})
+                apply_replace(
+                    f'{cur_dir}/k8s_backend-svc-node.yml', {'ns': ns}, kubectl_path
+                )
                 gateway_host = 'localhost'
                 gateway_port = 31080
             else:
                 apply_replace(
-                    f'kubectl apply -f {cur_dir}/k8s_backend-svc-lb.yml',
-                    {'ns': ns},
+                    f'{cur_dir}/k8s_backend-svc-lb.yml', {'ns': ns}, kubectl_path
                 )
                 gateway_host = wait_for_lb('gateway-lb', ns)
                 gateway_port = 8080
@@ -113,6 +117,7 @@ def deploy_flow(
     final_layer_output_dim,
     embedding_size,
     tmpdir,
+    **kwargs,
 ):
     flow_kwargs = {}
     docker_prefix = '+docker'
@@ -151,7 +156,7 @@ def deploy_flow(
             env={'JINA_LOG_LEVEL': 'DEBUG'},
         )
     )
-    f.plot('./deployed_flow.png', vertical_layout=True)
+    # f.plot('./deployed_flow.png', vertical_layout=True)
 
     index = [x for x in index if x.text == '']
 
@@ -160,7 +165,7 @@ def deploy_flow(
         gateway_port,
         gateway_host_internal,
         gateway_port_internal,
-    ) = deploy_k8s(f, ns, infrastructure, cluster_type, 7, tmpdir)
+    ) = deploy_k8s(f, ns, infrastructure, cluster_type, 7, tmpdir, **kwargs)
     print(f'▶ indexing {len(index)} documents')
 
     client = Client(host=gateway_host, port=gateway_port)

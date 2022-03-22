@@ -1,6 +1,6 @@
-# from jina.hubble.hubio import HubIO
 import os.path
 import pathlib
+import shutil
 import subprocess
 from datetime import datetime
 
@@ -23,8 +23,10 @@ def push_to_hub(tmpdir):
     name = f'linear_head_encoder_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}'
     secret = '93ea59dbd1ee3fe0bdc44252c6e86a87'
     class_name = 'FineTunedLinearHeadEncoder'
-    ld_path = os.path.join(cur_dir, 'head_encoder')
-    bashCommand = f"jina hub push --private {ld_path} -t {name} --force-update {class_name} --secret {secret}"
+    src_path = os.path.join(cur_dir, 'head_encoder')
+    dst_path = os.path.join(tmpdir, 'src/hub/head_encoder')
+    shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
+    bashCommand = f"jina hub push --private {dst_path} -t {name} --force-update {class_name} --secret {secret}"
     with yaspin(text="Push fine-tuned model to Jina Hub", color="green") as spinner:
         with open(os.path.join(tmpdir, "NUL"), "w") as fh:
             process = subprocess.Popen(bashCommand.split(), stdout=fh)

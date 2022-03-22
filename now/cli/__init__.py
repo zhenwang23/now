@@ -1,9 +1,11 @@
 import os
 import platform
 import sys
+from os.path import expanduser as user
 
 import cpuinfo
 
+from now import __version__
 from now.deployment.flow import cmd
 from now.run_all_k8s import run_k8s
 
@@ -12,16 +14,13 @@ def _get_run_args():
     from now.cli.parser import get_main_parser
 
     parser = get_main_parser()
+    args, unknown = parser.parse_known_args()
 
-    if len(sys.argv) > 1:
+    if unknown:
+        # Need to handle the unwanted arg parse
+        pass
 
-        args, unknown = parser.parse_known_args()
-
-        if unknown:
-            # Need to handle the unwanted arg parse
-            pass
-
-        return args
+    return args
 
 
 def _is_latest_version(suppress_on_error=True):
@@ -61,8 +60,10 @@ def cli():
     args = _get_run_args()
 
     if '--version' in sys.argv[1:]:
-        # print(__version__)
+        print(__version__)
         exit(0)
+
+    os.environ['JINA_LOG_LEVEL'] = 'ERROR'
 
     os_type = platform.system().lower()
     arch = 'x86_64'
@@ -73,30 +74,32 @@ def cli():
             arch = platform.machine()
     elif os_type == 'linux':
         arch = platform.machine()
-    if not args:
-        args = {}  # Empty arguments
-    else:
-        args = vars(args)  # Make it a dict from Namedspace
+    args = vars(args)  # Make it a dict from Namespace
+
     # kubectl needs `intel` or `m1` for apple os
     # for linux no need of architecture type
-
-    if not os.path.isfile('/usr/local/bin/kubectl'):
-        print('kubectl not found. Installing kubectl as it is required to run Jina Now')
-        cmd(
-            f'/bin/bash ./src/scripts/install_kubectl.sh {os_type} {arch}',
-            output=False,
-            error=False,
-        )
+    kubectl_path, _ = cmd('which kubectl')
+    if not kubectl_path:
+        if not os.path.isfile(user('~/.cache/jina-now/kubectl')):
+            print(
+                'kubectl not found. Installing kubectl as it is required to run Jina Now'
+            )
+            cmd(
+                f'/bin/bash ./now/scripts/install_kubectl.sh {os_type} {arch}',
+            )
+        kubectl_path = user('~/.cache/jina-now/kubectl')
 
     # kind needs no distinction of architecture type
-    if not os.path.isfile('/usr/local/bin/kind'):
-        print('kind not found. Installing kind')
-        cmd(
-            f'/bin/bash ./src/scripts/install_kind.sh {os_type}',
-            output=False,
-            error=False,
-        )
-
+    kind_path, _ = cmd('which kind')
+    if not kind_path:
+        if not os.path.exists(user('~/.cache/jina-now/kind')):
+            print('kind not found. Installing kind')
+            cmd(
+                f'/bin/bash ./now/scripts/install_kind.sh {os_type}',
+            )
+        kind_path = user('~/.cache/jina-now/kind')
+    args['kubectl_path'] = kubectl_path
+    args['kind_path'] = kind_path
     run_k8s(os_type=os, arch=arch, **args)
     print('done')
 
