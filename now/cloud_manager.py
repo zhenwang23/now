@@ -1,3 +1,4 @@
+import pathlib
 from typing import Optional
 
 import cowsay
@@ -8,10 +9,12 @@ from now.deployment.flow import cmd
 from now.dialog import prompt_plus
 from now.gke_deploy import create_gke_cluster
 
+cur_dir = pathlib.Path(__file__).parent.resolve()
+
 
 def create_local_cluster(kind_path):
     out, _ = cmd(f'{kind_path} get clusters')
-    if 'jina-now' in out:
+    if 'jina-now' in out.decode('utf-8'):
         questions = [
             {
                 'type': 'list',
@@ -34,7 +37,7 @@ def create_local_cluster(kind_path):
             exit(0)
     with yaspin(text="Setup local cluster", color="green") as spinner:
         cmd(
-            f'{kind_path} create cluster --name jina-now --config src/kind.yml',
+            f'{kind_path} create cluster --name jina-now --config {cur_dir}/kind.yml',
             output=False,
         )
         spinner.ok("📦")
