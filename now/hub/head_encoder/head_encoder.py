@@ -32,7 +32,9 @@ class LinearHead(Module):
     def __init__(self, final_layer_output_dim, embedding_size, mean_path=None):
         super(LinearHead, self).__init__()
         self.linear1 = Linear(final_layer_output_dim, embedding_size, bias=False)
-        mean_path = (mean_path if mean_path else Path(__file__).parent) + '/mean.bin'
+        mean_path = (
+            mean_path if mean_path else str(Path(__file__).parent)
+        ) + '/mean.bin'
         self.mean = load_mean(mean_path)
 
     def forward(self, x):

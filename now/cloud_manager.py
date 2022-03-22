@@ -11,7 +11,7 @@ from now.gke_deploy import create_gke_cluster
 
 def create_local_cluster(kind_path):
     out, _ = cmd(f'{kind_path} get clusters')
-    if 'jina-now' in out:
+    if 'jina-now' in out.decode('utf-8'):
         questions = [
             {
                 'type': 'list',
