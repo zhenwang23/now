@@ -1,3 +1,4 @@
+import pathlib
 from typing import Optional
 
 import cowsay
@@ -7,6 +8,8 @@ from yaspin import yaspin
 from now.deployment.flow import cmd
 from now.dialog import prompt_plus
 from now.gke_deploy import create_gke_cluster
+
+cur_dir = pathlib.Path(__file__).parent.resolve()
 
 
 def create_local_cluster(kind_path):
