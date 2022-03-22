@@ -10,7 +10,7 @@ if sys.version_info < (3, 7, 0):
 
 try:
     pkg_name = 'jina-now'
-    libinfo_py = path.join(pkg_name, '__init__.py')
+    libinfo_py = path.join('now', '__init__.py')
     libinfo_content = open(libinfo_py, 'r', encoding='utf8').readlines()
     version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][
         0
@@ -28,12 +28,10 @@ except FileNotFoundError:
 import pathlib
 
 
-
-with pathlib.Path('requirements.txt').open() as requirements_txt:
+with pathlib.Path('requirements_pip.txt').open() as requirements_txt:
     install_requires = [
         str(requirement)
-        for requirement
-        in pkg_resources.parse_requirements(requirements_txt)
+        for requirement in pkg_resources.parse_requirements(requirements_txt)
     ]
 
 setup(
@@ -52,6 +50,7 @@ setup(
     zip_safe=False,
     setup_requires=['setuptools>=18.0', 'wheel'],
     install_requires=install_requires,
+    entry_points={"console_scripts": ["jina-now = now.cli:cli"]},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

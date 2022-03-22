@@ -1,8 +1,16 @@
 NUL
 k8s
-src/hub/head_encoder/best_model_ndcg
-src/hub/head_encoder/mean.bin
+now/hub/head_encoder/best_model_ndcg
+now/hub/head_encoder/mean.bin
 *.idea
 *.png
 
 data/
+jina-now/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+.DS_Store
