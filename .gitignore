@@ -14,3 +14,5 @@ __pycache__/
 *$py.class
 
 .DS_Store
+build
+jina_now.egg-info
