@@ -1,10 +1,11 @@
 import os.path
 import pathlib
-import shutil
 import subprocess
 from datetime import datetime
 
 from yaspin import yaspin
+
+from now.utils import copytree
 
 cur_dir = pathlib.Path(__file__).parent.resolve()
 
@@ -25,7 +26,7 @@ def push_to_hub(tmpdir):
     class_name = 'FineTunedLinearHeadEncoder'
     src_path = os.path.join(cur_dir, 'head_encoder')
     dst_path = os.path.join(tmpdir, 'src/hub/head_encoder')
-    shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
+    copytree(src_path, dst_path)
     bashCommand = f"jina hub push --private {dst_path} -t {name} --force-update {class_name} --secret {secret}"
     with yaspin(text="Push fine-tuned model to Jina Hub", color="green") as spinner:
         with open(os.path.join(tmpdir, "NUL"), "w") as fh:
