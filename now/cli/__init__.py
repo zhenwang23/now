@@ -1,3 +1,4 @@
+print('Initialising Jina NOW...')
 import os
 import platform
 import sys
@@ -5,7 +6,6 @@ from os.path import expanduser as user
 
 import cpuinfo
 
-print('Initialising Jina NOW...')
 from now import __version__
 from now.deployment.flow import cmd
 from now.run_all_k8s import run_k8s
