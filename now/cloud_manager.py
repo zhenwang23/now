@@ -39,8 +39,9 @@ def create_local_cluster(kind_path):
             cowsay.cow('see you soon 👋')
             exit(0)
     with yaspin(text="Setup local cluster", color="green") as spinner:
-        out, err = cmd(
+        cmd(
             f'{kind_path} create cluster --name jina-now --config {cur_dir}/kind.yml',
+            output=False,
         )
         spinner.ok("📦")
 
