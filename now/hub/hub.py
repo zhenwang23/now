@@ -25,7 +25,7 @@ def push_to_hub(tmpdir):
     secret = '93ea59dbd1ee3fe0bdc44252c6e86a87'
     class_name = 'FineTunedLinearHeadEncoder'
     src_path = os.path.join(cur_dir, 'head_encoder')
-    dst_path = os.path.join(tmpdir, 'src/hub/head_encoder')
+    dst_path = os.path.join(tmpdir, 'now/hub/head_encoder')
     copytree(src_path, dst_path)
     bashCommand = f"jina hub push --private {dst_path} -t {name} --force-update {class_name} --secret {secret}"
     with yaspin(text="Push fine-tuned model to Jina Hub", color="green") as spinner:

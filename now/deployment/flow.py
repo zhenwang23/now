@@ -156,7 +156,7 @@ def deploy_flow(
             env={'JINA_LOG_LEVEL': 'DEBUG'},
         )
     )
-    # f.plot('./deployed_flow.png', vertical_layout=True)
+    # f.plot('./flow.png', vertical_layout=True)
 
     index = [x for x in index if x.text == '']
 

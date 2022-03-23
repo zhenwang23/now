@@ -128,7 +128,7 @@ def create_gke_cluster():
     final_confirmation()
     # with yaspin(custom_spinner().weather, text="create cluster") as spinner:
     cmd(
-        f'/bin/bash ./src/scripts/gke_deploy.sh {application_name}',
+        f'/bin/bash ./now/scripts/gke_deploy.sh {application_name}',
         output=False,
     )
     # spinner.ok('🌥')

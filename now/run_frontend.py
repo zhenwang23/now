@@ -22,7 +22,7 @@ def run(
 ):
     # deployment
     with yaspin(text="Deploy frontend", color="green") as spinner:
-        deploy_path = osp(tmpdir, 'src/deployment')
+        deploy_path = osp(tmpdir, 'now/deployment')
         if not os.path.exists(deploy_path):
             os.makedirs(deploy_path)
         apply_replace(

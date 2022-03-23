@@ -164,7 +164,7 @@ def save_before_after_image(path):
     dst.paste(im4, (im1.width + 120, im1.height + 250))
     draw = ImageDraw.Draw(dst)
     font = ImageFont.truetype(
-        'src/fonts/arial.ttf', 50
+        'now/fonts/arial.ttf', 50
     )  # this font does not work in docker currently
     # font = ImageFont.load_default()
     draw.line(
@@ -199,7 +199,7 @@ def save_before_after_image(path):
         0,
         font=font,
     )
-    font = ImageFont.truetype('src/fonts/arial.ttf', 30)
+    font = ImageFont.truetype('now/fonts/arial.ttf', 30)
     draw.text((20, 100), "Query", 0, font=font)
     draw.text((im1.width + 150, 100), "Query", 0, font=font)
     draw.text((im1.width // 2, 100), "Top-k", 0, font=font)
@@ -304,7 +304,7 @@ def plot_metrics(metrics_dict, title):
     )
     draw = ImageDraw.Draw(dst)
     font = ImageFont.truetype(
-        'src/fonts/arial.ttf', 20
+        'now/fonts/arial.ttf', 20
     )  # this font does not work in docker currently
     # font = ImageFont.load_default()
     for idx, (key, val) in enumerate(metrics_dict.items()):

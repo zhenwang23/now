@@ -16,9 +16,9 @@ from now.improvements.improvements import show_improvement
 
 def save_mean(da, tmpdir):
     mean = da.embeddings.mean(0)
-    if not os.path.exists(osp(tmpdir, 'src/hub/head_encoder/')):
-        os.makedirs(osp(tmpdir, 'src/hub/head_encoder/'))
-    with open(osp(tmpdir, 'src/hub/head_encoder/mean.bin'), 'wb') as f:
+    if not os.path.exists(osp(tmpdir, 'now/hub/head_encoder/')):
+        os.makedirs(osp(tmpdir, 'now/hub/head_encoder/'))
+    with open(osp(tmpdir, 'now/hub/head_encoder/mean.bin'), 'wb') as f:
         pickle.dump(mean, f)
 
 
