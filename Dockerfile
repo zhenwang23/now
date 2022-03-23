@@ -1,4 +1,4 @@
-FROM jinaai/jina:3.0.1-py37-standard
+FROM jinaai/jina:3.2.8-py37-standard
 
 RUN apt-get update && apt-get -y install ca-certificates curl gnupg lsb-release && \
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \

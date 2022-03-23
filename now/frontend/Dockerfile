@@ -1,4 +1,4 @@
-FROM jinaai/jina:3.0.1-py37-standard
+FROM jinaai/jina:3.2.8-py37-standard
 
 RUN apt-get update
 RUN apt-get -y install
