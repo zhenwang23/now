@@ -10,7 +10,7 @@ from now.deployment.flow import cmd, wait_for_lb
 
 
 def run(
-    data,
+    dataset,
     gateway_host,
     gateway_port,
     gateway_host_internal,
@@ -28,7 +28,7 @@ def run(
         apply_replace(
             deploy_path + '/k8s_frontend-deployment.yml',
             {
-                'data': data,
+                'data': dataset,
                 'gateway_host': gateway_host_internal,
                 'gateway_port': gateway_port_internal,
                 'docker_frontend_tag': docker_frontend_tag,
