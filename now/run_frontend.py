@@ -1,5 +1,4 @@
-import os.path
-from os.path import join as osp
+import pathlib
 from time import sleep
 
 import requests
@@ -7,6 +6,8 @@ from yaspin import yaspin
 
 from now.deployment.deployment import apply_replace
 from now.deployment.flow import cmd, wait_for_lb
+
+cur_dir = pathlib.Path(__file__).parent.resolve()
 
 
 def run(
@@ -22,11 +23,8 @@ def run(
 ):
     # deployment
     with yaspin(text="Deploy frontend", color="green") as spinner:
-        deploy_path = osp(tmpdir, 'now/deployment')
-        if not os.path.exists(deploy_path):
-            os.makedirs(deploy_path)
         apply_replace(
-            deploy_path + '/k8s_frontend-deployment.yml',
+            f'{cur_dir}/deployment/k8s_frontend-deployment.yml',
             {
                 'data': dataset,
                 'gateway_host': gateway_host_internal,
@@ -37,7 +35,9 @@ def run(
         )
 
         if gateway_host == 'localhost':
-            cmd(f'{kubectl_path} apply -f {deploy_path}/k8s_frontend-svc-node.yml')
+            cmd(
+                f'{kubectl_path} apply -f {cur_dir}/deployment/k8s_frontend-svc-node.yml'
+            )
             while True:
                 try:
                     url = 'http://localhost:30080'
@@ -48,7 +48,7 @@ def run(
             frontend_host = 'http://localhost'
             frontend_port = '30080'
         else:
-            cmd(f'{kubectl_path} apply -f {deploy_path}/k8s_frontend-svc-lb.yml')
+            cmd(f'{kubectl_path} apply -f {cur_dir}/deployment/k8s_frontend-svc-lb.yml')
             frontend_host = f'http://{wait_for_lb("frontend-lb", "nowapi")}'
             frontend_port = '80'
 
