@@ -286,7 +286,7 @@ def ask_deployment(user_input: UserInput, contexts, active_context, os_type, arc
             output, _ = cmd('which gcloud')
             if output is not None:
                 cmd(
-                    f'/bin/bash ./src/scripts/install_gcloud.sh {os_type} {arch}',
+                    f'/bin/bash ./now/scripts/install_gcloud.sh {os_type} {arch}',
                     output=False,
                 )
 

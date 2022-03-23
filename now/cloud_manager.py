@@ -47,7 +47,7 @@ def create_local_cluster(kind_path):
 
 
 def setup_cluster(
-    cluster_name: Optional[str], provider: str, kubectl_path, kind_path, **kwargs
+    cluster_name: Optional[str], provider: str, kubectl_path='kubectl', kind_path='kind', **kwargs
 ):
     if cluster_name is not None:
         cmd(f'{kubectl_path} config use-context {cluster_name}')

@@ -43,7 +43,7 @@ def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size, tmpdi
     ) = embedding_datasets
     # print(
     #     f'data size: (train, {len(train_embedding)}), (val, {len(validation_embedding)}), (query, {len(query_embedding)}), (index, {len(index_embedding)})')
-    save_dir = os.path.join(tmpdir, 'src/hub/head_encoder')
+    save_dir = os.path.join(tmpdir, 'now/hub/head_encoder')
     callbacks = [
         EvaluationCallback(
             # TODO parameterize limit based on dataset
@@ -67,7 +67,7 @@ def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size, tmpdi
     #     return optimizer, scheduler
 
     print('💪 fine-tuning:')
-    mean_path = os.path.join(tmpdir, 'src/hub/head_encoder')
+    mean_path = os.path.join(tmpdir, 'now/hub/head_encoder')
     head = LinearHead(final_layer_output_dim, embedding_size, mean_path=mean_path)
     # noinspection PyTypeChecker
     finetuner.fit(

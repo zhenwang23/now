@@ -62,7 +62,7 @@ class FineTunedLinearHeadEncoder(Executor):
     ):
         super().__init__(**kwargs)
         if tmpdir:
-            model_path = os.path.join(tmpdir, 'src/hub/head_encoder/best_model_ndcg')
+            model_path = os.path.join(tmpdir, 'now/hub/head_encoder/best_model_ndcg')
         else:
             model_path = Path(__file__).parent / 'best_model_ndcg'
         self.final_layer_output_dim = final_layer_output_dim

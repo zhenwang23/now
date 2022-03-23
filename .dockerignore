@@ -13,4 +13,4 @@ Dockerfile
 filename.pickle
 jina-now/
 k8s/
-src/hub/head_encoder/best_model_ndcg
+now/hub/head_encoder/best_model_ndcg
