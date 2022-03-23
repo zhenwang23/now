@@ -107,9 +107,7 @@ def cli():
     args['kubectl_path'] = kubectl_path
     args['kind_path'] = kind_path
     run_k8s(os_type=os, arch=arch, **args)
-    print('done')
 
 
 if __name__ == '__main__':
     cli()
-    print('done')
