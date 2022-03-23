@@ -87,10 +87,17 @@ def load_data(
         elif custom_type == 'url':
             da = _fetch_da_from_url(url)
         else:
-            da = DocumentArray.from_files(path + '/**')
-            da.apply(lambda d: d.load_uri_to_image_tensor())
-            for d in da:
-                d.tags['finetuner_label'] = os.path.dirname(d.uri).split('/')[-1]
+            if os.path.isfile(path):
+                try:
+                    da = DocumentArray.load_binary(path)
+                except Exception as e:
+                    print('Failed to load the binary file provided')
+                    exit(1)
+            else:
+                da = DocumentArray.from_files(path + '/**')
+                da.apply(lambda d: d.load_uri_to_image_tensor())
+                for d in da:
+                    d.tags['finetuner_label'] = os.path.dirname(d.uri).split('/')[-1]
 
     da = da.shuffle(seed=42)
     da = remove_duplicates(da)

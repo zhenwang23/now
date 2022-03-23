@@ -92,6 +92,10 @@ def prompt_plus(questions, attribute):
 def assign_data_fields(user_input, data):
     user_input.dataset = 'custom'
     user_input.is_custom_dataset = True
+    try:
+        data = os.path.expanduser(data)
+    except Exception:
+        pass
     if os.path.exists(data):
         user_input.custom_dataset_type = 'path'
         user_input.dataset_path = data
