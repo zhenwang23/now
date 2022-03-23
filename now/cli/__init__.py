@@ -88,6 +88,8 @@ def cli():
                 f'/bin/bash ./now/scripts/install_kubectl.sh {os_type} {arch}',
             )
         kubectl_path = user('~/.cache/jina-now/kubectl')
+    else:
+        kubectl_path = kubectl_path.decode('utf-8')
 
     # kind needs no distinction of architecture type
     kind_path, _ = cmd('which kind')
@@ -98,6 +100,9 @@ def cli():
                 f'/bin/bash ./now/scripts/install_kind.sh {os_type}',
             )
         kind_path = user('~/.cache/jina-now/kind')
+    else:
+        kind_path = kind_path.decode('utf-8')
+
     args['kubectl_path'] = kubectl_path
     args['kind_path'] = kind_path
     run_k8s(os_type=os, arch=arch, **args)
