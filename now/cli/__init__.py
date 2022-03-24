@@ -1,5 +1,6 @@
 print('Initialising Jina NOW...')
 import os
+import pathlib
 import platform
 import sys
 from os.path import expanduser as user
@@ -9,6 +10,8 @@ import cpuinfo
 from now import __version__
 from now.deployment.flow import cmd
 from now.run_all_k8s import run_k8s
+
+cur_dir = pathlib.Path(__file__).parents[1].resolve()
 
 
 def _get_run_args():
@@ -86,7 +89,7 @@ def cli():
                 'kubectl not found. Installing kubectl as it is required to run Jina Now'
             )
             cmd(
-                f'/bin/bash ./now/scripts/install_kubectl.sh {os_type} {arch}',
+                f'/bin/bash {cur_dir}/scripts/install_kubectl.sh {os_type} {arch}',
                 std_output=True,
             )
         kubectl_path = user('~/.cache/jina-now/kubectl')
@@ -99,7 +102,7 @@ def cli():
         if not os.path.exists(user('~/.cache/jina-now/kind')):
             print('kind not found. Installing kind')
             cmd(
-                f'/bin/bash ./now/scripts/install_kind.sh {os_type}',
+                f'/bin/bash {cur_dir}/scripts/install_kind.sh {os_type}',
                 std_output=True,
             )
         kind_path = user('~/.cache/jina-now/kind')
