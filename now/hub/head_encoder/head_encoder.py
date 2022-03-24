@@ -1,4 +1,3 @@
-import os.path
 import pickle
 from pathlib import Path
 from typing import Optional
@@ -55,18 +54,16 @@ class FineTunedLinearHeadEncoder(Executor):
         self,
         final_layer_output_dim,
         embedding_size,
-        tmpdir: str = None,
-        model_path='best_model_ndcg',
+        model_path=None,
+        mean_path=None,
         *args,
         **kwargs
     ):
-        super().__init__(**kwargs)
-        if tmpdir:
-            model_path = os.path.join(tmpdir, 'now/hub/head_encoder/best_model_ndcg')
-        else:
+        super().__init__(*args, **kwargs)
+        if not model_path:
             model_path = Path(__file__).parent / 'best_model_ndcg'
         self.final_layer_output_dim = final_layer_output_dim
-        self.model = LinearHead(final_layer_output_dim, embedding_size)
+        self.model = LinearHead(final_layer_output_dim, embedding_size, mean_path)
         self.model.load_state_dict(torch.load(model_path, map_location='cpu'))
 
     @requests

@@ -1,4 +1,5 @@
 import copy
+import os.path
 from collections import defaultdict
 from copy import deepcopy
 
@@ -67,8 +68,13 @@ def show_improvement(
 
     # Step 2: Get pretrained and finetuned embeddings
     # pretrained_embed = filtered_doc.embeddings
+    mean_path = os.path.dirname(finetuned_model_path)
+    mean_path = os.path.realpath(mean_path)
     finetuned_encoder = FineTunedLinearHeadEncoder(
-        final_layer_output_dim, embedding_size, model_path=finetuned_model_path
+        final_layer_output_dim,
+        embedding_size,
+        model_path=finetuned_model_path,
+        mean_path=mean_path,
     )
     # finetuned_docs = finetuned_encoder.encode(filtered_doc)
     # finetuned_embed = finetuned_docs.embeddings
