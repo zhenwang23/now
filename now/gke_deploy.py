@@ -1,4 +1,5 @@
 import json
+import pathlib
 from os.path import expanduser as user
 
 import cowsay
@@ -7,6 +8,8 @@ from yaspin import yaspin
 from now.deployment.flow import cmd
 from now.dialog import prompt_plus
 from now.utils import custom_spinner
+
+cur_dir = pathlib.Path(__file__).parent.resolve()
 
 
 def ask_projects(options):
@@ -132,7 +135,7 @@ def create_gke_cluster():
     else:
         with yaspin(custom_spinner().weather, text="Create cluster") as spinner:
             cmd(
-                f'/bin/bash ./now/scripts/gke_deploy.sh {application_name} {gcloud_path}',
+                f'/bin/bash {cur_dir}/scripts/gke_deploy.sh {application_name} {gcloud_path}',
                 std_output=True,
             )
             spinner.ok('🌥')
