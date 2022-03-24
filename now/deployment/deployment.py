@@ -2,14 +2,13 @@ import subprocess
 import tempfile
 
 
-def cmd(command, output=True, wait=True):
-    if output:
+def cmd(command, std_output=False, wait=True):
+    if not std_output:
         process = subprocess.Popen(
             command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
     else:
-        with tempfile.NamedTemporaryFile() as fh:
-            process = subprocess.Popen(command.split(), stdout=fh, stderr=fh)
+        process = subprocess.Popen(command.split())
     if wait:
         output, error = process.communicate()
         return output, error

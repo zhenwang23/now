@@ -2,6 +2,7 @@ from __future__ import print_function, unicode_literals
 
 import os
 from dataclasses import dataclass
+from os.path import expanduser as user
 from typing import Optional
 
 import cowsay
@@ -287,12 +288,16 @@ def ask_deployment(user_input: UserInput, contexts, active_context, os_type, arc
         ]
         user_input.new_cluster_type = prompt_plus(questions, 'cluster_new')
         if user_input.new_cluster_type == 'gke':
-            output, _ = cmd('which gcloud')
-            if output is not None:
-                cmd(
-                    f'/bin/bash ./now/scripts/install_gcloud.sh {os_type} {arch}',
-                    output=False,
-                )
+            gcloud_path, _ = cmd('which gcloud')
+            if not gcloud_path:
+                if not os.path.exists(user('~/.cache/jina-now/google-cloud-sdk')):
+                    print(
+                        f'gcloud installation not found. Installing gcloud now @ '
+                        f' {user("~/.cache/jina-now/google-cloud-sdk")}'
+                    )
+                    cmd(
+                        f'/bin/bash ./now/scripts/install_gcloud.sh {os_type} {arch}',
+                    )
 
 
 if __name__ == '__main__':
