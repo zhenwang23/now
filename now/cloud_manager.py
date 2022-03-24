@@ -14,7 +14,7 @@ cur_dir = pathlib.Path(__file__).parent.resolve()
 
 def create_local_cluster(kind_path):
     out, err = cmd(f'{kind_path} get clusters')
-    if err and 'No cluster' not in err.decode('utf-8'):
+    if err and 'No kind clusters' not in err.decode('utf-8'):
         print(err.decode('utf-8'))
         exit()
     if 'jina-now' in out.decode('utf-8'):
@@ -38,7 +38,7 @@ def create_local_cluster(kind_path):
         else:
             cowsay.cow('see you soon 👋')
             exit(0)
-    with yaspin(text="Setup local cluster", color="green") as spinner:
+    with yaspin(text="Setting up local cluster", color="green") as spinner:
         cmd(
             f'{kind_path} create cluster --name jina-now --config {cur_dir}/kind.yml',
         )
