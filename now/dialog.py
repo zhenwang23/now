@@ -1,6 +1,7 @@
 from __future__ import print_function, unicode_literals
 
 import os
+import pathlib
 from dataclasses import dataclass
 from os.path import expanduser as user
 from typing import Optional
@@ -14,6 +15,7 @@ from yaspin import yaspin
 from now.deployment.deployment import cmd
 from now.system_information import get_system_state
 
+cur_dir = pathlib.Path(__file__).parent.resolve()
 NEW_CLUSTER = '🐣 create new'
 AVAILABLE_SOON = 'will be available in upcoming versions'
 QUALITY_MAP = {
@@ -294,7 +296,7 @@ def ask_deployment(user_input: UserInput, contexts, active_context, os_type, arc
                 if not os.path.exists(user('~/.cache/jina-now/google-cloud-sdk')):
                     with yaspin(text='Setting up gcloud', color='green') as spinner:
                         cmd(
-                            f'/bin/bash ./now/scripts/install_gcloud.sh {os_type} {arch}',
+                            f'/bin/bash {cur_dir}/scripts/install_gcloud.sh {os_type} {arch}',
                         )
                         spinner.ok('🛠️')
 
