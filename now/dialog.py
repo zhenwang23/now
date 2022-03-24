@@ -2,12 +2,14 @@ from __future__ import print_function, unicode_literals
 
 import os
 from dataclasses import dataclass
+from os.path import expanduser as user
 from typing import Optional
 
 import cowsay
 from pyfiglet import Figlet
 from PyInquirer import Separator
 from PyInquirer.prompt import prompt
+from yaspin import yaspin
 
 from now.deployment.deployment import cmd
 from now.system_information import get_system_state
@@ -287,12 +289,14 @@ def ask_deployment(user_input: UserInput, contexts, active_context, os_type, arc
         ]
         user_input.new_cluster_type = prompt_plus(questions, 'cluster_new')
         if user_input.new_cluster_type == 'gke':
-            output, _ = cmd('which gcloud')
-            if output is not None:
-                cmd(
-                    f'/bin/bash ./now/scripts/install_gcloud.sh {os_type} {arch}',
-                    output=False,
-                )
+            out, _ = cmd('which gcloud')
+            if not out:
+                if not os.path.exists(user('~/.cache/jina-now/google-cloud-sdk')):
+                    with yaspin(text='Setting up gcloud', color='green') as spinner:
+                        cmd(
+                            f'/bin/bash ./now/scripts/install_gcloud.sh {os_type} {arch}',
+                        )
+                        spinner.ok('🛠️')
 
 
 if __name__ == '__main__':

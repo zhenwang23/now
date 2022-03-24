@@ -79,7 +79,7 @@ def deploy_k8s(
             spinner.ok('🔄')
 
         # create namespace
-        cmd(f'{kubectl_path} create namespace {ns}', output=False)
+        cmd(f'{kubectl_path} create namespace {ns}')
 
         # deploy flow
         with yaspin(

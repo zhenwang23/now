@@ -66,7 +66,7 @@ def load_data(
     path: Optional[str],
 ) -> DocumentArray:
 
-    print('⬇  download data')
+    print('⬇  Download data')
 
     if not is_custom:
         url = (

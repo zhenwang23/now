@@ -87,6 +87,7 @@ def cli():
             )
             cmd(
                 f'/bin/bash ./now/scripts/install_kubectl.sh {os_type} {arch}',
+                std_output=True,
             )
         kubectl_path = user('~/.cache/jina-now/kubectl')
     else:
@@ -99,6 +100,7 @@ def cli():
             print('kind not found. Installing kind')
             cmd(
                 f'/bin/bash ./now/scripts/install_kind.sh {os_type}',
+                std_output=True,
             )
         kind_path = user('~/.cache/jina-now/kind')
     else:
@@ -106,7 +108,7 @@ def cli():
 
     args['kubectl_path'] = kubectl_path
     args['kind_path'] = kind_path
-    run_k8s(os_type=os, arch=arch, **args)
+    run_k8s(os_type=os_type, arch=arch, **args)
 
 
 if __name__ == '__main__':

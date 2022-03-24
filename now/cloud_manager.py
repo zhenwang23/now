@@ -33,7 +33,7 @@ def create_local_cluster(kind_path):
         recreate = prompt_plus(questions, 'proceed')
         if recreate:
             with yaspin(text="Remove local cluster", color="green") as spinner:
-                cmd(f'{kind_path} delete clusters jina-now', output=False)
+                cmd(f'{kind_path} delete clusters jina-now')
                 spinner.ok('💀')
         else:
             cowsay.cow('see you soon 👋')
@@ -41,13 +41,16 @@ def create_local_cluster(kind_path):
     with yaspin(text="Setup local cluster", color="green") as spinner:
         cmd(
             f'{kind_path} create cluster --name jina-now --config {cur_dir}/kind.yml',
-            output=False,
         )
         spinner.ok("📦")
 
 
 def setup_cluster(
-    cluster_name: Optional[str], provider: str, kubectl_path='kubectl', kind_path='kind', **kwargs
+    cluster_name: Optional[str],
+    provider: str,
+    kubectl_path='kubectl',
+    kind_path='kind',
+    **kwargs,
 ):
     if cluster_name is not None:
         cmd(f'{kubectl_path} config use-context {cluster_name}')
@@ -80,7 +83,7 @@ def ask_existing(kubectl_path):
         remove = prompt_plus(questions, 'proceed')
         if remove:
             with yaspin(text="Remove old deployment", color="green") as spinner:
-                cmd(f'{kubectl_path} delete ns nowapi', output=False)
+                cmd(f'{kubectl_path} delete ns nowapi')
                 spinner.ok('💀')
         else:
             cowsay.cow('see you soon 👋')

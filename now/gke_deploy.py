@@ -1,18 +1,12 @@
 import json
-import subprocess
-import time
+from os.path import expanduser as user
 
 import cowsay
+from yaspin import yaspin
 
 from now.deployment.flow import cmd
 from now.dialog import prompt_plus
-
-
-def auth_cmd(command):
-    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-    time.sleep(2)
-    print('Enter verification code: ')
-    process.communicate()
+from now.utils import custom_spinner
 
 
 def ask_projects(options):
@@ -33,7 +27,7 @@ def ask_regions(options):
         {
             'type': 'list',
             'name': 'region',
-            'message': 'Which region do chose?',
+            'message': 'Which region to chose?',
             'choices': options,
             'filter': lambda val: val.lower(),
         }
@@ -54,14 +48,17 @@ def ask_zones(options):
 
 
 # Google cloud authentication ->
-def init_gcloud():
-    auth_cmd('gcloud auth login')
+def init_gcloud(gcloud_path):
+    out, _ = cmd(f'{gcloud_path} auth list')
+    if not out:
+        print('Please perform gcloud authentication to deploy Flow on GKE')
+        cmd(f'{gcloud_path} auth login')
 
 
 # List the projects and present it as options to user
-def get_project():
+def get_project(gcloud_path):
     project_list = []
-    output, _ = cmd('gcloud projects list --format=json')
+    output, _ = cmd(f'{gcloud_path} projects list --format=json')
     projects = output.decode('utf-8')
     projects = json.loads(projects)
     for proj in projects:
@@ -70,9 +67,9 @@ def get_project():
     return ask_projects(project_list)
 
 
-def get_region():
+def get_region(gcloud_path):
     regions_list = []
-    output, _ = cmd('gcloud compute regions list --format=json')
+    output, _ = cmd(f'{gcloud_path} compute regions list --format=json')
     regions = output.decode('utf-8')
     regions = json.loads(regions)
     for region in regions:
@@ -81,9 +78,9 @@ def get_region():
     return ask_regions(regions_list)
 
 
-def get_zone(region):
+def get_zone(region, gcloud_path):
     zones_list = []
-    output, _ = cmd('gcloud compute zones list --format=json')
+    output, _ = cmd(f'{gcloud_path} compute zones list --format=json')
     zones = output.decode('utf-8')
     zones = json.loads(zones)
     for zone in zones:
@@ -109,29 +106,36 @@ def final_confirmation():
         }
     ]
     proceed = prompt_plus(questions, 'proceed')
-    if proceed:
-        print('Another authentication step is required')
-    else:
+    if not proceed:
         cowsay.cow('see you soon 👋')
         exit(0)
 
 
 def create_gke_cluster():
+    gcloud_path, _ = cmd('which gcloud')
+    if not gcloud_path:
+        gcloud_path = user('~/.cache/jina-now/google-cloud-sdk/bin/gcloud')
     application_name = 'jina-now'
-    init_gcloud()
-    proj = get_project()
-    cmd(f'gcloud config set project {proj}')
-    region = get_region()
-    cmd(f'gcloud config set compute/region {region}')
-    zone = get_zone(region)
-    cmd(f'gcloud config set compute/zone {zone}')
+    init_gcloud(gcloud_path)
+    proj = get_project(gcloud_path)
+    cmd(f'{gcloud_path} config set project {proj}')
+    region = get_region(gcloud_path)
+    cmd(f'{gcloud_path} config set compute/region {region}')
+    zone = get_zone(region, gcloud_path)
+    cmd(f'{gcloud_path} config set compute/zone {zone}')
     final_confirmation()
-    # with yaspin(custom_spinner().weather, text="create cluster") as spinner:
-    cmd(
-        f'/bin/bash ./now/scripts/gke_deploy.sh {application_name}',
-        output=False,
-    )
-    # spinner.ok('🌥')
+    out, _ = cmd(f'{gcloud_path} container clusters list')
+    out = out.decode('utf-8')
+    if application_name in out and zone in out:
+        with yaspin(text='Cluster exists already', color='green') as spinner:
+            spinner.ok('✅')
+    else:
+        with yaspin(custom_spinner().weather, text="Create cluster") as spinner:
+            cmd(
+                f'/bin/bash ./now/scripts/gke_deploy.sh {application_name} {gcloud_path}',
+                std_output=True,
+            )
+            spinner.ok('🌥')
 
 
 if __name__ == '__main__':
