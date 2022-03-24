@@ -118,6 +118,8 @@ def create_gke_cluster():
     gcloud_path, _ = cmd('which gcloud')
     if not gcloud_path:
         gcloud_path = user('~/.cache/jina-now/google-cloud-sdk/bin/gcloud')
+    else:
+        gcloud_path = gcloud_path.decode('utf-8')
     application_name = 'jina-now'
     init_gcloud(gcloud_path)
     proj = get_project(gcloud_path)
