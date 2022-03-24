@@ -9,6 +9,7 @@ import cowsay
 from pyfiglet import Figlet
 from PyInquirer import Separator
 from PyInquirer.prompt import prompt
+from yaspin import yaspin
 
 from now.deployment.deployment import cmd
 from now.system_information import get_system_state
@@ -288,16 +289,14 @@ def ask_deployment(user_input: UserInput, contexts, active_context, os_type, arc
         ]
         user_input.new_cluster_type = prompt_plus(questions, 'cluster_new')
         if user_input.new_cluster_type == 'gke':
-            gcloud_path, _ = cmd('which gcloud')
-            if not gcloud_path:
+            out, _ = cmd('which gcloud')
+            if not out:
                 if not os.path.exists(user('~/.cache/jina-now/google-cloud-sdk')):
-                    print(
-                        f'gcloud installation not found. Installing gcloud now @ '
-                        f' {user("~/.cache/jina-now/google-cloud-sdk")}'
-                    )
-                    cmd(
-                        f'/bin/bash ./now/scripts/install_gcloud.sh {os_type} {arch}',
-                    )
+                    with yaspin(text='Setting up gcloud', color='green') as spinner:
+                        cmd(
+                            f'/bin/bash ./now/scripts/install_gcloud.sh {os_type} {arch}',
+                        )
+                        spinner.ok('🛠️')
 
 
 if __name__ == '__main__':

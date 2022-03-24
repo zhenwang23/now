@@ -2,9 +2,11 @@ import json
 from os.path import expanduser as user
 
 import cowsay
+from yaspin import yaspin
 
 from now.deployment.flow import cmd
 from now.dialog import prompt_plus
+from now.utils import custom_spinner
 
 
 def ask_projects(options):
@@ -47,7 +49,10 @@ def ask_zones(options):
 
 # Google cloud authentication ->
 def init_gcloud(gcloud_path):
-    cmd(f'{gcloud_path} auth login', std_output=True)
+    out, _ = cmd(f'{gcloud_path} auth list')
+    if not out:
+        print('Please perform gcloud authentication to deploy Flow on GKE')
+        cmd(f'{gcloud_path} auth login')
 
 
 # List the projects and present it as options to user
@@ -101,9 +106,7 @@ def final_confirmation():
         }
     ]
     proceed = prompt_plus(questions, 'proceed')
-    if proceed:
-        print('Another authentication step is required')
-    else:
+    if not proceed:
         cowsay.cow('see you soon 👋')
         exit(0)
 
@@ -121,11 +124,18 @@ def create_gke_cluster():
     zone = get_zone(region, gcloud_path)
     cmd(f'{gcloud_path} config set compute/zone {zone}')
     final_confirmation()
-    cmd(
-        f'/bin/bash ./now/scripts/gke_deploy.sh {application_name} {gcloud_path}',
-        std_output=True,
-    )
-    print('True')
+    out, _ = cmd(f'{gcloud_path} container clusters list')
+    out = out.decode('utf-8')
+    if application_name in out and zone in out:
+        with yaspin(text='Cluster exists already', color='green') as spinner:
+            spinner.ok('✅')
+    else:
+        with yaspin(custom_spinner().weather, text="Create cluster") as spinner:
+            cmd(
+                f'/bin/bash ./now/scripts/gke_deploy.sh {application_name} {gcloud_path}',
+                std_output=True,
+            )
+            spinner.ok('🌥')
 
 
 if __name__ == '__main__':

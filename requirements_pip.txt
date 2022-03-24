@@ -9,3 +9,4 @@ cowsay==4.0
 pyInquirer @ git+https://github.com/florian-hoenicke/PyInquirer.git@patch-1
 yaspin==2.1.0
 py-cpuinfo==8.0.0
+kubernetes==23.3.0
