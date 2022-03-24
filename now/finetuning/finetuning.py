@@ -93,7 +93,7 @@ def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size, tmpdi
     return f'{save_dir}/best_model_ndcg'
 
 
-def add_clip_embeddings(dataset, vision_model, infrastructure, cluster_type):
+def add_clip_embeddings(dataset, vision_model, cluster_type):
     need_to_add_embeddings = False
     with yaspin(text="Check if embeddings already exist", color="green") as spinner:
         for k, da in dataset.items():
@@ -119,7 +119,7 @@ def add_clip_embeddings(dataset, vision_model, infrastructure, cluster_type):
         gateway_port,
         gateway_host_internal,
         gateway_port_internal,
-    ) = deploy_k8s(f, ns, infrastructure, cluster_type, 3)
+    ) = deploy_k8s(f, ns, cluster_type, 3)
     for k, da in dataset.items():
         if da is not None:
             # this is just to save computation in case we have the embeddings already

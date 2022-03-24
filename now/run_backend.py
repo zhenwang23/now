@@ -59,7 +59,6 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         dataset,
         user_input.model_variant,
         user_input.cluster,
-        user_input.new_cluster_type,
     )
     extend_embeddings(dataset['index'], final_layer_output_dim)
     save_mean(dataset['index'], tmpdir)
