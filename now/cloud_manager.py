@@ -14,7 +14,7 @@ cur_dir = pathlib.Path(__file__).parent.resolve()
 
 def create_local_cluster(kind_path):
     out, err = cmd(f'{kind_path} get clusters')
-    if err:
+    if err and 'No cluster' not in err.decode('utf-8'):
         print(err.decode('utf-8'))
         exit()
     if 'jina-now' in out.decode('utf-8'):
