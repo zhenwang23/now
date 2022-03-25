@@ -55,7 +55,7 @@ def init_gcloud(gcloud_path):
     out, _ = cmd(f'{gcloud_path} auth list')
     if not out:
         print('Please perform gcloud authentication to deploy Flow on GKE')
-        cmd(f'{gcloud_path} auth login')
+        cmd(f'{gcloud_path} auth login', std_output=True)
 
 
 # List the projects and present it as options to user
@@ -137,8 +137,7 @@ def create_gke_cluster():
     else:
         with yaspin(custom_spinner().weather, text="Create cluster") as spinner:
             cmd(
-                f'/bin/bash {cur_dir}/scripts/gke_deploy.sh {application_name} {gcloud_path}',
-                std_output=True,
+                f'/bin/bash {cur_dir}/scripts/gke_deploy.sh {application_name} {gcloud_path}'
             )
             spinner.ok('🌥')
 
