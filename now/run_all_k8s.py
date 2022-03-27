@@ -1,43 +1,80 @@
 import tempfile
 
 import cowsay
+from yaspin import yaspin
 
 from now import run_backend, run_frontend
 from now.cloud_manager import setup_cluster
-from now.dialog import get_user_input
+from now.deployment.deployment import cmd
+from now.dialog import get_context_names, get_user_input, prompt_plus
 from now.system_information import get_system_state
 
 
-def run_k8s(os_type='linux', arch='x86_64', **kwargs):
-    with tempfile.TemporaryDirectory() as tmpdir:
-        docker_frontend_tag = '0.0.1'
-        contexts, active_context, is_debug = get_system_state()
-        user_input = get_user_input(contexts, active_context, os_type, arch, **kwargs)
-        setup_cluster(user_input.cluster, user_input.new_cluster_type, **kwargs)
-        (
-            gateway_host,
-            gateway_port,
-            gateway_host_internal,
-            gateway_port_internal,
-        ) = run_backend.run(user_input, is_debug, tmpdir, **kwargs)
-        frontend_host, frontend_port = run_frontend.run(
-            user_input.dataset,
-            gateway_host,
-            gateway_port,
-            gateway_host_internal,
-            gateway_port_internal,
-            docker_frontend_tag,
-            tmpdir,
-            **kwargs,
-        )
-        url = f'{frontend_host}' + (
-            '' if str(frontend_port) == '80' else f':{frontend_port}'
-        )
-        print()
+def stop_now(contexts, active_context, **kwargs):
+    choices = get_context_names(contexts, active_context)
+    if len(choices) == 0:
+        cowsay.cow('nothing to stop')
+        return
+    elif len(choices) == 1:
+        cluster = choices[0]
+    else:
+        questions = [
+            {
+                'type': 'list',
+                'name': 'cluster',
+                'message': 'Which cluster do you want to delete?',
+                'choices': choices,
+            }
+        ]
+        cluster = prompt_plus(questions, 'cluster')
+    if cluster == 'kind-jina-now':
+        with yaspin(text=f"Remove local cluster {cluster}", color="green") as spinner:
+            cmd(f'{kwargs["kind_path"]} delete clusters jina-now')
+            spinner.ok('💀')
+        cowsay.cow('local jina NOW cluster removed')
+    else:
+        with yaspin(text=f"Remove jina NOW from {cluster}", color="green") as spinner:
+            cmd(f'{kwargs["kubectl_path"]} delete ns nowapi')
+            spinner.ok('💀')
+        cowsay.cow(f'nowapi namespace removed from {cluster}')
 
-        # print(f'✅ Your search case running.\nhost: {node_ip}:30080')
-        # print(f'host: {node_ip}:30080')
-        cowsay.cow(f'You made it:\n{url}')
+
+def run_k8s(os_type='linux', arch='x86_64', **kwargs):
+    contexts, active_context, is_debug = get_system_state()
+    if kwargs['cli'] == 'stop':
+        stop_now(contexts, active_context, **kwargs)
+    else:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            docker_frontend_tag = '0.0.1'
+
+            user_input = get_user_input(
+                contexts, active_context, os_type, arch, **kwargs
+            )
+            setup_cluster(user_input.cluster, user_input.new_cluster_type, **kwargs)
+            (
+                gateway_host,
+                gateway_port,
+                gateway_host_internal,
+                gateway_port_internal,
+            ) = run_backend.run(user_input, is_debug, tmpdir, **kwargs)
+            frontend_host, frontend_port = run_frontend.run(
+                user_input.dataset,
+                gateway_host,
+                gateway_port,
+                gateway_host_internal,
+                gateway_port_internal,
+                docker_frontend_tag,
+                tmpdir,
+                **kwargs,
+            )
+            url = f'{frontend_host}' + (
+                '' if str(frontend_port) == '80' else f':{frontend_port}'
+            )
+            print()
+
+            # print(f'✅ Your search case running.\nhost: {node_ip}:30080')
+            # print(f'host: {node_ip}:30080')
+            cowsay.cow(f'You made it:\n{url}')
 
 
 if __name__ == '__main__':

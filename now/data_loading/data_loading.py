@@ -4,11 +4,12 @@ import random
 import uuid
 from copy import deepcopy
 from os.path import join as osp
-from typing import Optional
+from typing import Optional, Tuple
 
 from docarray import DocumentArray
 from yaspin import yaspin
 
+from now.data_loading.convert_datasets_to_jpeg import to_jpg
 from now.utils import download
 
 
@@ -64,44 +65,52 @@ def load_data(
     secret: Optional[str],
     url: Optional[str],
     path: Optional[str],
-) -> DocumentArray:
-
-    print('⬇  Download data')
+) -> Tuple[DocumentArray, str]:
 
     if not is_custom:
+        print('⬇  Download data')
         url = (
             'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
             f'jpeg/{dataset}.{model_quality}.bin'
         )
         da = _fetch_da_from_url(url)
+        ds_type = 'demo'
 
     else:
         if custom_type == 'docarray':
+            print('⬇  pull docarray')
             try:
                 da = DocumentArray.pull(token=secret, show_progress=True)
+                ds_type = 'docarray_pull'
             except Exception:
                 print(
                     '💔 oh no, the secret of your docarray is wrong, or it was deleted after 14 days'
                 )
                 exit(1)
         elif custom_type == 'url':
+            print('⬇  Download data')
             da = _fetch_da_from_url(url)
+            ds_type = 'url'
         else:
             if os.path.isfile(path):
                 try:
                     da = DocumentArray.load_binary(path)
+                    ds_type = 'local_da'
                 except Exception as e:
                     print('Failed to load the binary file provided')
                     exit(1)
             else:
                 da = DocumentArray.from_files(path + '/**')
                 da.apply(lambda d: d.load_uri_to_image_tensor())
-                for d in da:
-                    d.tags['finetuner_label'] = os.path.dirname(d.uri).split('/')[-1]
+                da.apply(lambda d: to_jpg(d))
+                ds_type = 'local_folder'
+
+                # for d in da:
+                #     d.tags['finetuner_label'] = os.path.dirname(d.uri).split('/')[-1]
 
     da = da.shuffle(seed=42)
     da = remove_duplicates(da)
-    return da
+    return da, ds_type
 
 
 # def load_all_data(dataset):

@@ -1,5 +1,7 @@
 import argparse
 
+from jina.parsers.helper import _ColoredHelpFormatter
+
 from now import __version__
 
 
@@ -19,11 +21,12 @@ def set_base_parser():
 
     parser = argparse.ArgumentParser(
         epilog=f'''
-        Jina NOW allows one to tune the weights of any deep neural network for better embedding on search tasks.
-        
-        {url_str}
-        
-        ''',
+Jina NOW - get your neural search case up in minutes.
+
+{url_str}
+
+''',
+        formatter_class=_chf,
         description='Command Line Interface of `%(prog)s`',
     )
     parser.add_argument(
@@ -33,7 +36,6 @@ def set_base_parser():
         version=__version__,
         help='Show Jina version',
     )
-
     return parser
 
 
@@ -56,16 +58,18 @@ def set_help_parser(parser=None):
     return parser
 
 
-def set_now_parser(parser=None):
+def set_start_parser(sp=None):
     """Add the arguments for the jina now to the parser
     :param parser: an optional existing parser to build upon
     :return: the parser
     """
 
-    if not parser:
-        from jina.parsers.base import set_base_parser
-
-        parser = set_base_parser()
+    parser = sp.add_parser(
+        'start',
+        help='Start jina now and create or reuse a cluster.',
+        description='Start jina now and create or reuse a cluster.',
+        formatter_class=_chf,
+    )
 
     parser.add_argument(
         '--data',
@@ -80,6 +84,12 @@ def set_now_parser(parser=None):
         type=str,
     )
 
+    parser.add_argument(
+        '--cluster',
+        help='Choose the quality of the model that you would like to finetune',
+        type=str,
+    )
+
 
 def get_main_parser():
     """The main parser for Jina NOW
@@ -87,6 +97,24 @@ def get_main_parser():
     """
     # create the top-level parser
     parser = set_base_parser()
-    set_now_parser(parser)
+    sp = parser.add_subparsers(
+        dest='cli',
+        description='',
+        required=True,
+    )
+    set_start_parser(sp)
+
+    sp.add_parser(
+        'stop',
+        help='Stop jina now and remove local cluster.',
+        description='Stop jina now and remove local cluster.',
+        formatter_class=_chf,
+    )
+    # set_stop_parser(
+    #
+    # )
 
     return parser
+
+
+_chf = _ColoredHelpFormatter

@@ -1,7 +1,5 @@
-import base64
 import io
 import math
-from io import BytesIO
 from typing import Callable
 
 import clip
@@ -46,18 +44,13 @@ def embed_docs(
 
 
 def to_jpg(image_docs):
-    def pil2datauri(img: Image):
-        data = BytesIO()
-        img.save(data, format="JPEG", quality=75)
-        data64 = base64.b64encode(data.getvalue())
-        return u'data:img/jpeg;base64,' + data64.decode('utf-8')
-
     def pil2bytes(img: Image):
         img_byte_arr = io.BytesIO()
         img.save(img_byte_arr, format="JPEG", quality=75)
         return img_byte_arr.getvalue()
 
     def convert_to_jpeg(d: Document):
+        d.convert_image_tensor_to_blob()
         im = Image.fromarray(d.tensor)
         d.tensor = None
         d.blob = pil2bytes(im)

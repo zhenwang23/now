@@ -60,34 +60,37 @@ def wait_for_all_pods_in_ns(ns, num_pods, max_wait=1800):
         sleep(1)
 
 
-def deploy_k8s(f, ns, cluster_type, num_pods, tmpdir, kubectl_path, **kwargs):
+def deploy_k8s(f, ns, cluster_type, num_pods, tmpdir, **kwargs):
     k8_path = os.path.join(tmpdir, f'k8s/{ns}')
     with yaspin(text="Convert Flow to Kubernetes YAML", color="green") as spinner:
         f.to_k8s_yaml(k8_path)
         spinner.ok('🔄')
 
     # create namespace
-    cmd(f'{kubectl_path} create namespace {ns}')
+    cmd(f'{kwargs["kubectl_path"]} create namespace {ns}')
 
     # deploy flow
     with yaspin(
         Spinners.earth,
-        text="Deploy Jina Flow (might take some time depending on internet connection and selected quality)",
+        text="Deploy Jina Flow (might take a bit)",
     ) as spinner:
-        cmd(f'{kubectl_path} apply -R -f {k8_path}')
         gateway_host_internal = f'gateway.{ns}.svc.cluster.local'
         gateway_port_internal = 8080
         if cluster_type == 'local':
             apply_replace(
-                f'{cur_dir}/k8s_backend-svc-node.yml', {'ns': ns}, kubectl_path
+                f'{cur_dir}/k8s_backend-svc-node.yml',
+                {'ns': ns},
+                kwargs["kubectl_path"],
             )
             gateway_host = 'localhost'
             gateway_port = 31080
         else:
-            apply_replace(f'{cur_dir}/k8s_backend-svc-lb.yml', {'ns': ns}, kubectl_path)
+            apply_replace(
+                f'{cur_dir}/k8s_backend-svc-lb.yml', {'ns': ns}, kwargs["kubectl_path"]
+            )
             gateway_host = wait_for_lb('gateway-lb', ns)
             gateway_port = 8080
-
+        cmd(f'{kwargs["kubectl_path"]} apply -R -f {k8_path}')
         # wait for flow to come up
         wait_for_all_pods_in_ns(ns, num_pods)
         spinner.ok("🚀")
@@ -102,22 +105,23 @@ def deploy_flow(
     final_layer_output_dim,
     embedding_size,
     tmpdir,
+    finetuning,
     **kwargs,
 ):
     ns = 'nowapi'
-    f = (
-        Flow(
-            name=ns,
-            port_expose=8080,
-            cors=True,
-        )
-        .add(
-            name='encoder_clip',
-            uses=f'jinahub+docker://CLIPEncoder/v0.2.1',
-            uses_with={'pretrained_model_name_or_path': vision_model},
-            env={'JINA_LOG_LEVEL': 'DEBUG'},
-        )
-        .add(
+    f = Flow(
+        name=ns,
+        port_expose=8080,
+        cors=True,
+    )
+    f = f.add(
+        name='encoder_clip',
+        uses=f'jinahub+docker://CLIPEncoder/v0.2.1',
+        uses_with={'pretrained_model_name_or_path': vision_model},
+        env={'JINA_LOG_LEVEL': 'DEBUG'},
+    )
+    if finetuning:
+        f = f.add(
             name='linear_head',
             uses=f'jinahub+docker://{executor_name}',
             uses_with={
@@ -126,13 +130,12 @@ def deploy_flow(
             },
             env={'JINA_LOG_LEVEL': 'DEBUG'},
         )
-        .add(
-            name='indexer',
-            uses=f'jinahub+docker://PQLiteIndexer/v0.2.3-rc',
-            uses_with={'dim': embedding_size, 'metric': 'cosine'},
-            uses_metas={'workspace': 'pq_workspace'},
-            env={'JINA_LOG_LEVEL': 'DEBUG'},
-        )
+    f = f.add(
+        name='indexer',
+        uses=f'jinahub+docker://PQLiteIndexer/v0.2.3-rc',
+        uses_with={'dim': embedding_size, 'metric': 'cosine'},
+        uses_metas={'workspace': 'pq_workspace'},
+        env={'JINA_LOG_LEVEL': 'DEBUG'},
     )
     # f.plot('./flow.png', vertical_layout=True)
 
@@ -143,13 +146,20 @@ def deploy_flow(
         gateway_port,
         gateway_host_internal,
         gateway_port_internal,
-    ) = deploy_k8s(f, ns, cluster_type, 7, tmpdir, **kwargs)
-    print(f'▶ indexing {len(index)} documents')
+    ) = deploy_k8s(f, ns, cluster_type, 7 if finetuning else 5, tmpdir, **kwargs)
+    print(
+        f'▶ indexing {len(index)} documents - if it stays at 0% for a while, it is all good - just wait :)'
+    )
 
     client = Client(host=gateway_host, port=gateway_port)
-    for x in tqdm(batch(index, 50), total=math.ceil(len(index) / 50)):
+    for x in tqdm(batch(index, 1024), total=math.ceil(len(index) / 1024)):
         # first request takes soooo long
-        client.post('/index', request_size=50, inputs=x)
+        while True:
+            try:
+                client.post('/index', request_size=64, inputs=x)
+                break
+            except Exception as e:
+                sleep(1)
 
     print('⭐ Success - your data is indexed')
     return gateway_host, gateway_port, gateway_host_internal, gateway_port_internal

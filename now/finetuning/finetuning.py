@@ -1,6 +1,7 @@
 import math
 import os
 from copy import deepcopy
+from time import sleep
 
 import finetuner
 from docarray import DocumentArray
@@ -93,7 +94,7 @@ def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size, tmpdi
     return f'{save_dir}/best_model_ndcg'
 
 
-def add_clip_embeddings(dataset, vision_model, cluster_type):
+def add_clip_embeddings(dataset, vision_model, cluster_type, tmpdir, **kwargs):
     need_to_add_embeddings = False
     with yaspin(text="Check if embeddings already exist", color="green") as spinner:
         for k, da in dataset.items():
@@ -119,7 +120,7 @@ def add_clip_embeddings(dataset, vision_model, cluster_type):
         gateway_port,
         gateway_host_internal,
         gateway_port_internal,
-    ) = deploy_k8s(f, ns, cluster_type, 3)
+    ) = deploy_k8s(f, ns, cluster_type, 3, tmpdir, **kwargs)
     for k, da in dataset.items():
         if da is not None:
             # this is just to save computation in case we have the embeddings already
@@ -134,10 +135,16 @@ def add_clip_embeddings(dataset, vision_model, cluster_type):
             client = Client(host=gateway_host, port=gateway_port)
             print(f'▶ create embeddings for {len(no_embedding_dataset)} documents')
             for x in tqdm(
-                batch(no_embedding_dataset, 16),
-                total=math.ceil(len(no_embedding_dataset) / 16),
+                batch(no_embedding_dataset, 512),
+                total=math.ceil(len(no_embedding_dataset) / 512),
             ):
-                response = client.post('/index', request_size=16, inputs=x)
-                results.extend(response)
+                while True:
+                    try:
+                        response = client.post('/index', request_size=16, inputs=x)
+                        results.extend(response)
+                        break
+                    except Exception as e:
+                        sleep(1)
+
             dataset[k] = (embedding_dataset + results).shuffle(42)
-    cmd(f'kubectl delete ns {ns}')
+    cmd(f'{kwargs["kubectl_path"]} delete ns {ns}')

@@ -79,18 +79,21 @@ def get_user_input(contexts, active_context, os_type, arch, **kwargs) -> UserInp
     else:
         ask_data(user_input, **kwargs)
     ask_quality(user_input, **kwargs)
-    ask_deployment(user_input, contexts, active_context, os_type, arch)
+    ask_deployment(user_input, contexts, active_context, os_type, arch, **kwargs)
     return user_input
 
 
-def prompt_plus(questions, attribute):
-    answer = prompt(questions)
-    if attribute in answer:
-        return answer[attribute]
+def prompt_plus(questions, attribute, **kwargs):
+    if kwargs and kwargs[attribute]:
+        return kwargs[attribute]
     else:
-        os.system('clear')
-        cowsay.cow('see you soon 👋')
-        exit(0)
+        answer = prompt(questions)
+        if attribute in answer:
+            return answer[attribute]
+        else:
+            os.system('clear')
+            cowsay.cow('see you soon 👋')
+            exit(0)
 
 
 def assign_data_fields(user_input, data):
@@ -221,11 +224,7 @@ def ask_quality(user_input: UserInput, **kwargs):
             'filter': lambda val: val.lower(),
         }
     ]
-    if kwargs and kwargs['quality']:
-        quality = kwargs['quality']
-        print('Selected quality: ', quality)
-    else:
-        quality = prompt_plus(questions, 'quality')
+    quality = prompt_plus(questions, 'quality', **kwargs)
 
     if quality == 'medium':
         print('  🚀 you trade-off a bit of quality for having the best speed')
@@ -237,15 +236,18 @@ def ask_quality(user_input: UserInput, **kwargs):
     user_input.model_quality, user_input.model_variant = QUALITY_MAP[quality]
 
 
-def ask_deployment(user_input: UserInput, contexts, active_context, os_type, arch):
-    choices = ([c['name'] for c in contexts] if contexts is not None else []) + [
-        NEW_CLUSTER
-    ]
+def get_context_names(contexts, active_context=None):
+    names = [c['name'] for c in contexts] if contexts is not None else []
     if active_context is not None:
-        choices.remove(active_context['name'])
-        choices = [active_context['name']] + choices
+        names.remove(active_context['name'])
+        names = [active_context['name']] + names
+    return names
 
-    choices = [c for c in choices if 'minikube' not in c]
+
+def ask_deployment(
+    user_input: UserInput, contexts, active_context, os_type, arch, **kwargs
+):
+    choices = (get_context_names(contexts, active_context)) + [NEW_CLUSTER]
 
     questions = [
         {
@@ -253,10 +255,9 @@ def ask_deployment(user_input: UserInput, contexts, active_context, os_type, arc
             'name': 'cluster',
             'message': 'Where do you want to deploy your search engine?',
             'choices': choices,
-            'filter': lambda val: val.lower(),
         }
     ]
-    cluster = prompt_plus(questions, 'cluster')
+    cluster = prompt_plus(questions, 'cluster', **kwargs)
     user_input.cluster = cluster
 
     if cluster == NEW_CLUSTER:

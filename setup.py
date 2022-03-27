@@ -39,7 +39,7 @@ setup(
     packages=find_packages(),
     version=__version__,
     include_package_data=True,
-    description='Jina NOW allows one to tune the weights of any deep neural network for better embedding on search tasks.',
+    description='Jina NOW - get your neural search case up in minutes.',
     author='Jina AI',
     author_email='hello@jina.ai',
     license='Apache 2.0',

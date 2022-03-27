@@ -116,6 +116,7 @@ def final_confirmation():
 
 def create_gke_cluster():
     gcloud_path, _ = cmd('which gcloud')
+    gcloud_path = gcloud_path.strip()
     if not gcloud_path:
         gcloud_path = user('~/.cache/jina-now/google-cloud-sdk/bin/gcloud')
     else:
