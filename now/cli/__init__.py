@@ -1,5 +1,7 @@
 print('Initialising Jina NOW...')
 import os
+
+os.environ['JINA_LOG_LEVEL'] = 'CRITICAL'
 import pathlib
 import platform
 import sys
@@ -18,11 +20,13 @@ def _get_run_args():
     from now.cli.parser import get_main_parser
 
     parser = get_main_parser()
+    if len(sys.argv) == 1:
+        parser.print_help()
+        exit()
     args, unknown = parser.parse_known_args()
 
     if unknown:
-        # Need to handle the unwanted arg parse
-        pass
+        raise Exception('unknown args: ', unknown)
 
     return args
 
@@ -83,6 +87,7 @@ def cli():
     # kubectl needs `intel` or `m1` for apple os
     # for linux no need of architecture type
     kubectl_path, _ = cmd('which kubectl')
+    kubectl_path = kubectl_path.strip()
     if not kubectl_path:
         if not os.path.isfile(user('~/.cache/jina-now/kubectl')):
             print(
@@ -98,6 +103,7 @@ def cli():
 
     # kind needs no distinction of architecture type
     kind_path, _ = cmd('which kind')
+    kind_path = kind_path.strip()
     if not kind_path:
         if not os.path.exists(user('~/.cache/jina-now/kind')):
             print('kind not found. Installing kind')

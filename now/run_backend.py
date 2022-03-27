@@ -37,7 +37,7 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         num_default_val_queries,
     ) = parse_user_input(user_input.model_quality, is_debug)
 
-    dataset = load_data(
+    dataset, ds_type = load_data(
         user_input.dataset,
         user_input.model_quality,
         user_input.is_custom_dataset,
@@ -46,6 +46,10 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         user_input.dataset_url,
         user_input.dataset_path,
     )
+
+    finetuning = ds_type != 'local_folder'
+    if not finetuning:
+        embedding_size = int(final_layer_output_dim / 2)
     dataset = {
         'index': dataset,
         'train': None,
@@ -56,44 +60,46 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         'val_index_image': None,
     }
     add_clip_embeddings(
-        dataset,
-        user_input.model_variant,
-        user_input.cluster,
-        user_input.new_cluster_type,
+        dataset, user_input.model_variant, user_input.new_cluster_type, tmpdir, **kwargs
     )
-    extend_embeddings(dataset['index'], final_layer_output_dim)
-    save_mean(dataset['index'], tmpdir)
-    fill_missing(dataset, train_val_split_ratio, num_default_val_queries, is_debug)
+    if finetuning:
+        extend_embeddings(dataset['index'], final_layer_output_dim)
+        save_mean(dataset['index'], tmpdir)
+        fill_missing(dataset, train_val_split_ratio, num_default_val_queries, is_debug)
 
-    # if False:
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
-        finetuned_model_path = finetune_layer(
-            dataset, batch_size, final_layer_output_dim, embedding_size, tmpdir
+        # if False:
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            finetuned_model_path = finetune_layer(
+                dataset, batch_size, final_layer_output_dim, embedding_size, tmpdir
+            )
+
+        with yaspin(text="Create overview", color="green") as spinner:
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    show_improvement(
+                        user_input.dataset,
+                        user_input.model_quality,
+                        dataset['val_query_image'],
+                        dataset['val_index_image'],
+                        dataset['val_query'],
+                        dataset['val_index'],
+                        final_layer_output_dim,
+                        embedding_size,
+                        finetuned_model_path,
+                        class_label='finetuner_label',
+                    )
+            except Exception:
+                # raise e
+                pass
+            spinner.ok('🖼')
+        print(
+            'before-after comparison files are saved in the current working directory'
         )
-
-    with yaspin(text="Create overview", color="green") as spinner:
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                show_improvement(
-                    user_input.dataset,
-                    user_input.model_quality,
-                    dataset['val_query_image'],
-                    dataset['val_index_image'],
-                    dataset['val_query'],
-                    dataset['val_index'],
-                    final_layer_output_dim,
-                    embedding_size,
-                    finetuned_model_path,
-                    class_label='finetuner_label',
-                )
-        except Exception:
-            # raise e
-            pass
-        spinner.ok('🖼')
-    print('before-after comparison files are saved in the current working directory')
-    executor_name = push_to_hub(tmpdir)
+        executor_name = push_to_hub(tmpdir)
+    else:
+        executor_name = None
     # executor_name = 'FineTunedLinearHeadEncoder:93ea59dbd1ee3fe0bdc44252c6e86a87/
     # linear_head_encoder_2022-02-20_20-35-15'
     # print('###executor_name', executor_name)
@@ -107,13 +113,13 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
     ) = deploy_flow(
         executor_name,
         dataset['index'],
-        user_input.cluster,
         user_input.model_variant,
         # TODO what about existing cluster?
         user_input.new_cluster_type,
         final_layer_output_dim,
         embedding_size,
         tmpdir,
+        finetuning,
         **kwargs,
     )
     return gateway_host, gateway_port, gateway_host_internal, gateway_port_internal
