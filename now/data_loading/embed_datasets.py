@@ -22,7 +22,15 @@ class _ImageCollateFn:
 
     def __call__(self, batch: DocumentArray):
         return torch.stack(
-            [self._now_preprocess(Image.fromarray(doc.tensor)) for doc in batch], dim=0
+            [
+                self._now_preprocess(
+                    Image.fromarray(doc.tensor)
+                    if doc.tensor
+                    else Image.open(io.BytesIO(doc.blob))
+                )
+                for doc in batch
+            ],
+            dim=0,
         )
 
 
@@ -50,10 +58,11 @@ def to_jpg(image_docs):
         return img_byte_arr.getvalue()
 
     def convert_to_jpeg(d: Document):
-        d.convert_image_tensor_to_blob()
-        im = Image.fromarray(d.tensor)
-        d.tensor = None
-        d.blob = pil2bytes(im)
+        if not d.blob:
+            d.convert_image_tensor_to_blob()
+            im = Image.fromarray(d.tensor)
+            d.tensor = None
+            d.blob = pil2bytes(im)
         return d
 
     image_docs.apply(convert_to_jpeg)
@@ -134,6 +143,7 @@ def main():
     bucket = 'jina-fashion-data'
     location = 'data/one-line/datasets'
     datasets = [
+        'tll',
         'nft-monkey',
         'deepfashion',
         'nih-chest-xrays',

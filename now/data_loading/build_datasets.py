@@ -453,6 +453,26 @@ def _build_nft(root: str, num_workers: int = 8) -> DocumentArray:
     return DocumentArray(docs)
 
 
+def _build_tll(root: str, num_workers: int = 8) -> DocumentArray:
+    """
+    Build the tll dataset.
+    Download the raw dataset from
+    https://sites.google.com/view/totally-looks-like-dataset
+    :param root: the dataset root folder.
+    :param num_workers: the number of parallel workers to use.
+    :return: DocumentArray
+    """
+
+    def transform(d: Document):
+        d.load_uri_to_blob()
+        d.tags['content_type'] = 'image'
+        return d
+
+    da = DocumentArray.from_files(root + '/**')
+    da.apply(lambda d: transform(d))
+    return da
+
+
 def process_dataset(
     datadir: str,
     name: str,
@@ -493,19 +513,23 @@ def process_dataset(
     docs.save_binary(out)
     print(f'  Saved dataset to {out}')
     if sample_k:
-        image_docs.save_binary(out_img10)
-        print(f'  Saved dataset to {out_img10}')
-        text_docs.save_binary(out_txt10)
-        print(f'  Saved dataset to {out_txt10}')
+        if len(image_docs) > 0:
+            image_docs.save_binary(out_img10)
+            print(f'  Saved dataset to {out_img10}')
+        if len(text_docs) > 0:
+            text_docs.save_binary(out_txt10)
+            print(f'  Saved dataset to {out_txt10}')
 
     print('  Uploading datasets ...')
     upload_to_gcloud_bucket(project, bucket, location, out)
     print(f'  Uploaded dataset to gs://{bucket}/{location}/{out}')
     if sample_k:
-        upload_to_gcloud_bucket(project, bucket, location, out_img10)
-        print(f'  Uploaded dataset to gs://{bucket}/{location}/{out_img10}')
-        upload_to_gcloud_bucket(project, bucket, location, out_txt10)
-        print(f'  Uploaded dataset to gs://{bucket}/{location}/{out_txt10}')
+        if len(image_docs) > 0:
+            upload_to_gcloud_bucket(project, bucket, location, out_img10)
+            print(f'  Uploaded dataset to gs://{bucket}/{location}/{out_img10}')
+        if len(text_docs) > 0:
+            upload_to_gcloud_bucket(project, bucket, location, out_txt10)
+            print(f'  Uploaded dataset to gs://{bucket}/{location}/{out_txt10}')
 
 
 def main():
@@ -515,8 +539,9 @@ def main():
     localdir = 'data'
     project = 'jina-simpsons-florian'
     bucket = 'jina-fashion-data'
-    location = 'data/one-line/datasets'
+    location = 'data/one-line/datasets/jpeg'
     datasets = [
+        'tll',
         'nft-monkey',
         'deepfashion',
         'nih-chest-xrays',
