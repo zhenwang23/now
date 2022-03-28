@@ -1,6 +1,6 @@
 import sys
 from os import path
-
+import platform
 from setuptools import find_packages
 from setuptools import setup
 import pkg_resources
@@ -33,6 +33,13 @@ with pathlib.Path('requirements_pip.txt').open() as requirements_txt:
         str(requirement)
         for requirement in pkg_resources.parse_requirements(requirements_txt)
     ]
+sys_platform = platform.system().lower()
+if sys_platform == 'darwin':
+    torch_requirement = 'torch==1.10.2'
+else:
+    torch_requirement = 'torch @ https://download.pytorch.org/whl/cpu/torch-1.10.2%2Bcpu-cp37-cp37m-linux_x86_64.whl'
+
+install_requires.append(torch_requirement)
 
 setup(
     name=pkg_name,
