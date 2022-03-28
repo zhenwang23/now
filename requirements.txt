@@ -6,6 +6,7 @@ finetuner==0.4.0
 docker==5.0.3
 pyfiglet==0.8.post1
 git+https://github.com/florian-hoenicke/PyInquirer.git@patch-1
+git+https://github.com/openai/CLIP.git
 pathspec==0.9.0
 matplotlib==3.5.1
 cryptography==36.0.1

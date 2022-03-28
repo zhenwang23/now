@@ -9,8 +9,6 @@ from jina import DocumentArray
 from PIL import Image
 from tqdm import tqdm
 
-from now.data_loading.utils import upload_to_gcloud_bucket
-
 
 def _text_collate_fn(batch: DocumentArray):
     return clip.tokenize([doc.text.lower() for doc in batch], truncate=True)
@@ -130,9 +128,9 @@ def embed_dataset(
     docs.save_binary(out)
     print(f'  Saved embedded docs to {out} ...')
 
-    print(f'  Uploading dataset ...')
-    upload_to_gcloud_bucket(project, bucket, location, out)
-    print(f'  Uploaded dataset to gs://{bucket}/{location}/{out}')
+    # print(f'  Uploading dataset ...')
+    # upload_to_gcloud_bucket(project, bucket, location, out)
+    # print(f'  Uploaded dataset to gs://{bucket}/{location}/{out}')
 
 
 def main():
