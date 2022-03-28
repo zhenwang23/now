@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from contextlib import contextmanager
-
-from prompt_toolkit.application import Application
+from . import PromptParameterException, prompts
+from .prompts import list, confirm, input, password, checkbox, rawlist, expand, editor
 from prompt_toolkit.patch_stdout import patch_stdout as pt_patch_stdout
 from prompt_toolkit.shortcuts import PromptSession
+from prompt_toolkit.application import Application
 
-from . import PromptParameterException, prompts
 
 
 def prompt(questions, answers=None, **kwargs):
@@ -53,24 +53,23 @@ def prompt(questions, answers=None, **kwargs):
                             continue
                     except Exception as e:
                         raise ValueError(
-                            'Problem in \'when\' check of %s question: %s' % (name, e)
-                        )
+                            'Problem in \'when\' check of %s question: %s' %
+                            (name, e))
                 else:
-                    raise ValueError(
-                        '\'when\' needs to be function that ' 'accepts a dict argument'
-                    )
+                    raise ValueError('\'when\' needs to be function that ' \
+                                     'accepts a dict argument')
             if filter:
                 # at least a little sanity check!
                 if not callable(question['filter']):
-                    raise ValueError(
-                        '\'filter\' needs to be function that ' 'accepts an argument'
-                    )
+                    raise ValueError('\'filter\' needs to be function that ' \
+                                     'accepts an argument')
 
             if callable(question.get('default')):
                 _kwargs['default'] = question['default'](answers)
 
             with pt_patch_stdout() if patch_stdout else _dummy_context_manager():
                 result = getattr(prompts, type_).question(message, **_kwargs)
+
 
                 if isinstance(result, PromptSession):
                     answer = result.prompt()
@@ -91,9 +90,8 @@ def prompt(questions, answers=None, **kwargs):
                         answer = question['filter'](answer)
                     except Exception as e:
                         raise ValueError(
-                            'Problem processing \'filter\' of %s question: %s'
-                            % (name, e)
-                        )
+                            'Problem processing \'filter\' of %s question: %s' %
+                            (name, e))
                 answers[name] = answer
         except AttributeError as e:
             print(e)
@@ -108,11 +106,9 @@ def prompt(questions, answers=None, **kwargs):
             return {}
     return answers
 
-
 @contextmanager
 def _dummy_context_manager():
     yield
-
 
 # TODO:
 # Bottom Bar - inquirer.ui.BottomBar
