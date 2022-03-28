@@ -129,6 +129,7 @@ def ask_data(user_input: UserInput, **kwargs):
                     'name': '💰 nft - bored apes (10K docs)',
                     'value': 'nft-monkey',
                 },
+                {'name': '👬 totally looks like (≈12K docs)', 'value': 'tll'},
                 {'name': '🦆 birds (≈12K docs)', 'value': 'bird-species'},
                 {'name': '🚗 cars (≈16K docs)', 'value': 'stanford-cars'},
                 {

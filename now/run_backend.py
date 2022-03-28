@@ -47,7 +47,11 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         user_input.dataset_path,
     )
 
-    finetuning = ds_type != 'local_folder'
+    finetuning = False
+    for d in dataset:
+        if 'finetuner_label' in d.tags:
+            finetuning = True
+            break
     if not finetuning:
         embedding_size = int(final_layer_output_dim / 2)
     dataset = {
