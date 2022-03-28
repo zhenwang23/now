@@ -3,17 +3,21 @@ repos:
     rev: "22.1.0"
     hooks:
       - id: black
+        exclude: ^now/thirdparty/
         types: [python]
   - repo: https://github.com/pycqa/flake8
     rev: "4.0.1"
     hooks:
       - id: flake8
+        exclude: ^now/thirdparty/
   - repo: https://github.com/pycqa/isort
     rev: "5.10.1"
     hooks:
       - id: isort
+        exclude: ^now/thirdparty/
   - repo: https://github.com/hadialqattan/pycln
     rev: "v1.2.5"
     hooks:
       - id: pycln
         args: [ --config=pyproject.toml ]
+        exclude: ^now/thirdparty/
