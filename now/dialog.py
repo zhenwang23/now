@@ -8,12 +8,12 @@ from typing import Optional
 
 import cowsay
 from pyfiglet import Figlet
-from PyInquirer import Separator
-from PyInquirer.prompt import prompt
 from yaspin import yaspin
 
 from now.deployment.deployment import cmd
 from now.system_information import get_system_state
+from now.thridparty.PyInquirer import Separator
+from now.thridparty.PyInquirer.prompt import prompt
 
 cur_dir = pathlib.Path(__file__).parent.resolve()
 NEW_CLUSTER = '🐣 create new'
