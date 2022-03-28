@@ -4,8 +4,8 @@ from time import sleep
 import requests
 from yaspin import yaspin
 
-from now.deployment.deployment import apply_replace
-from now.deployment.flow import cmd, wait_for_lb
+from now.deployment.deployment import apply_replace, cmd
+from now.deployment.flow import wait_for_lb
 
 cur_dir = pathlib.Path(__file__).parent.resolve()
 

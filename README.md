@@ -29,25 +29,27 @@ Data privacy is becoming increasingly important. And with most data being privat
 
 One line to host them all.
 
-```bash
-docker run -it --rm \
---name jina-now \
---network="host" \
--v /var/run/docker.sock:/var/run/docker.sock \
--v $HOME/.kube:/root/.kube \
--v $PWD/jina-now:/root/data \
-jinaaitmp/now:0.0.1
-```
-
 ### Pip
 
 ```bash
 pip install jina-now
-jina-now --data [pushpullid | localpath | url
-(TBD)
 ```
 
-## Supported Modalities
+### Usage
+```bash
+jina-now --data [pushpullid | localpath | url] --quality [medium | good | excellent] --cluster [k8s-cluster-name]
+```
+
+### Example
+```bash
+jina-now start --quality medium --data /local/img/folder
+```
+### Cleanup
+```bash
+jina-now stop
+```
+
+## Supported Modalities (more will be added)
 
 - [x] Text
 - [x] Image

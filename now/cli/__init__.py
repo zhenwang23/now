@@ -1,3 +1,5 @@
+from now.deployment.deployment import cmd
+
 print('Initialising Jina NOW...')
 import os
 
@@ -10,7 +12,6 @@ from os.path import expanduser as user
 import cpuinfo
 
 from now import __version__
-from now.deployment.flow import cmd
 from now.run_all_k8s import run_k8s
 
 cur_dir = pathlib.Path(__file__).parents[1].resolve()

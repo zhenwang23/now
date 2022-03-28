@@ -5,7 +5,7 @@ from os.path import expanduser as user
 import cowsay
 from yaspin import yaspin
 
-from now.deployment.flow import cmd
+from now.deployment.deployment import cmd
 from now.dialog import prompt_plus
 from now.utils import custom_spinner
 

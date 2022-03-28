@@ -12,6 +12,7 @@ from tqdm import tqdm
 from yaspin import yaspin
 from yaspin.spinners import Spinners
 
+from now.cloud_manager import is_local_cluster
 from now.deployment.deployment import apply_replace, cmd
 
 cur_dir = pathlib.Path(__file__).parent.resolve()
@@ -60,7 +61,7 @@ def wait_for_all_pods_in_ns(ns, num_pods, max_wait=1800):
         sleep(1)
 
 
-def deploy_k8s(f, ns, cluster_type, num_pods, tmpdir, **kwargs):
+def deploy_k8s(f, ns, num_pods, tmpdir, **kwargs):
     k8_path = os.path.join(tmpdir, f'k8s/{ns}')
     with yaspin(text="Convert Flow to Kubernetes YAML", color="green") as spinner:
         f.to_k8s_yaml(k8_path)
@@ -76,7 +77,7 @@ def deploy_k8s(f, ns, cluster_type, num_pods, tmpdir, **kwargs):
     ) as spinner:
         gateway_host_internal = f'gateway.{ns}.svc.cluster.local'
         gateway_port_internal = 8080
-        if cluster_type == 'local':
+        if is_local_cluster():
             apply_replace(
                 f'{cur_dir}/k8s_backend-svc-node.yml',
                 {'ns': ns},
@@ -101,7 +102,6 @@ def deploy_flow(
     executor_name,
     index,
     vision_model,
-    cluster_type,
     final_layer_output_dim,
     embedding_size,
     tmpdir,
@@ -146,7 +146,7 @@ def deploy_flow(
         gateway_port,
         gateway_host_internal,
         gateway_port_internal,
-    ) = deploy_k8s(f, ns, cluster_type, 7 if finetuning else 5, tmpdir, **kwargs)
+    ) = deploy_k8s(f, ns, 7 if finetuning else 5, tmpdir, **kwargs)
     print(
         f'▶ indexing {len(index)} documents - if it stays at 0% for a while, it is all good - just wait :)'
     )

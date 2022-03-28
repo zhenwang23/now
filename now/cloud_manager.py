@@ -1,3 +1,4 @@
+import json
 import pathlib
 from typing import Optional
 
@@ -5,7 +6,7 @@ import cowsay
 from kubernetes import client, config
 from yaspin import yaspin
 
-from now.deployment.flow import cmd
+from now.deployment.deployment import cmd
 from now.dialog import prompt_plus
 from now.gke_deploy import create_gke_cluster
 
@@ -43,6 +44,14 @@ def create_local_cluster(kind_path):
             f'{kind_path} create cluster --name jina-now --config {cur_dir}/kind.yml',
         )
         spinner.ok("📦")
+
+
+def is_local_cluster():
+    out, error = cmd('kubectl get nodes -o json')
+    out = json.loads(out)
+    addresses = out['items'][0]['status']['addresses']
+    is_local = len([a for a in addresses if a['type'] == 'ExternalIP']) == 0
+    return is_local
 
 
 def setup_cluster(

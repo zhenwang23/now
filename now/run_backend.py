@@ -59,10 +59,9 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         'val_query_image': None,
         'val_index_image': None,
     }
-    add_clip_embeddings(
-        dataset, user_input.model_variant, user_input.new_cluster_type, tmpdir, **kwargs
-    )
+
     if finetuning:
+        add_clip_embeddings(dataset, user_input.model_variant, tmpdir, **kwargs)
         extend_embeddings(dataset['index'], final_layer_output_dim)
         save_mean(dataset['index'], tmpdir)
         fill_missing(dataset, train_val_split_ratio, num_default_val_queries, is_debug)
@@ -114,8 +113,6 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         executor_name,
         dataset['index'],
         user_input.model_variant,
-        # TODO what about existing cluster?
-        user_input.new_cluster_type,
         final_layer_output_dim,
         embedding_size,
         tmpdir,

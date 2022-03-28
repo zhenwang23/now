@@ -17,7 +17,8 @@ from jina import Client, Flow
 from tqdm import tqdm
 from yaspin import yaspin
 
-from now.deployment.flow import batch, cmd, deploy_k8s
+from now.deployment.deployment import cmd
+from now.deployment.flow import batch, deploy_k8s
 from now.hub.head_encoder.head_encoder import LinearHead
 from now.utils import get_device
 
@@ -94,7 +95,7 @@ def finetune_layer(ds, batch_size, final_layer_output_dim, embedding_size, tmpdi
     return f'{save_dir}/best_model_ndcg'
 
 
-def add_clip_embeddings(dataset, vision_model, cluster_type, tmpdir, **kwargs):
+def add_clip_embeddings(dataset, vision_model, tmpdir, **kwargs):
     need_to_add_embeddings = False
     with yaspin(text="Check if embeddings already exist", color="green") as spinner:
         for k, da in dataset.items():
@@ -120,7 +121,7 @@ def add_clip_embeddings(dataset, vision_model, cluster_type, tmpdir, **kwargs):
         gateway_port,
         gateway_host_internal,
         gateway_port_internal,
-    ) = deploy_k8s(f, ns, cluster_type, 3, tmpdir, **kwargs)
+    ) = deploy_k8s(f, ns, 3, tmpdir, **kwargs)
     for k, da in dataset.items():
         if da is not None:
             # this is just to save computation in case we have the embeddings already
