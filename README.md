@@ -1,9 +1,8 @@
 # DON'T share externally. We will carefully align the publication with the devrel team
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/11627845/157017285-21dd8b01-e3c0-4812-8695-68f06664cc87.png" alt="Jina NOW logo: The data structure for unstructured data" width="150px">
+<img src="https://user-images.githubusercontent.com/11627845/160392052-69672e7f-2e4d-45ee-a617-4384256bb6e8.jpg" alt="Jina NOW logo: The data structure for unstructured data" width="150px">
 <br>
-(placeholder - design is working on the real logo)
 
 <b>Democratization of neural search. Bootstrap your search case in minutes.</b>
 </p>
