@@ -4,7 +4,7 @@
 <img src="https://user-images.githubusercontent.com/11627845/160392052-69672e7f-2e4d-45ee-a617-4384256bb6e8.jpg" alt="Jina NOW logo: The data structure for unstructured data" width="300px">
 <br>
 
-<b>Democratization of neural search. Bootstrap your search case in minutes.</b>
+<b>One line to host them all. Bootstrap your search case in minutes.</b>
 </p>
 
 <p align=center>
@@ -21,12 +21,6 @@ Data privacy is becoming increasingly important. And with most data being privat
 - 🔒 **Private data**: Create your own search engine with your own private data
 - 🌐 **Democratization of neural search**: Empowers everyone to use neural search - even people who wouldn't normally have access to AI
 - 🔋 **Batteries included**: simple defaults allow you to provide just the data and get your search use case up and running
-
-## Quick start
-
-### Docker
-
-One line to host them all.
 
 ### Pip
 
