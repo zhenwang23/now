@@ -124,7 +124,7 @@ def ask_data(user_input: UserInput, **kwargs):
             'name': 'dataset',
             'message': 'What dataset do you want to use?',
             'choices': [
-                {'name': '🖼 artworks (≈8K docs)', 'value': 'best-artworks'},
+                {'name': '🖼  artworks (≈8K docs)', 'value': 'best-artworks'},
                 {
                     'name': '💰 nft - bored apes (10K docs)',
                     'value': 'nft-monkey',
@@ -133,12 +133,12 @@ def ask_data(user_input: UserInput, **kwargs):
                 {'name': '🦆 birds (≈12K docs)', 'value': 'bird-species'},
                 {'name': '🚗 cars (≈16K docs)', 'value': 'stanford-cars'},
                 {
-                    'name': '🏞 geolocation (≈50K docs)',
+                    'name': '🏞  geolocation (≈50K docs)',
                     'value': 'geolocation-geoguessr',
                 },
                 {'name': '👕 fashion (≈53K docs)', 'value': 'deepfashion'},
                 {
-                    'name': '☢️ chest x-ray (≈100K docs)',
+                    'name': '☢️  chest x-ray (≈100K docs)',
                     'value': 'nih-chest-xrays',
                 },
                 Separator(),

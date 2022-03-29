@@ -27,14 +27,14 @@ pip install jina-now
 In case you need sudo for running Docker, install and use jina-now using sudo as well.
 ### Usage
 ```bash
-jina-now --data [pushpullid | localpath | url] --quality [medium | good | excellent] --cluster [k8s-cluster-name]
+jina-now [start | stop] --data [pushpullid | localpath | url] --quality [medium | good | excellent] --cluster [k8s-cluster-name]
 ```
 
 ### quick start
 ```bash
 jina-now start
 ```
-### parameters
+### use cli parameters
 ```bash
 jina-now start --quality medium --data /local/img/folder
 ```
