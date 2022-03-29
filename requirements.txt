@@ -21,3 +21,4 @@ google-cloud-storage
 google-cloud-container
 yaspin==2.1.0
 prompt_toolkit==3.0.28
+protobuf==3.19.4

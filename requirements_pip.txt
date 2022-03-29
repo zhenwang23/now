@@ -9,3 +9,4 @@ yaspin==2.1.0
 py-cpuinfo==8.0.0
 kubernetes==23.3.0
 prompt_toolkit==3.0.28
+protobuf==3.19.4

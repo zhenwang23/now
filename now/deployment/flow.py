@@ -77,7 +77,7 @@ def deploy_k8s(f, ns, num_pods, tmpdir, **kwargs):
     ) as spinner:
         gateway_host_internal = f'gateway.{ns}.svc.cluster.local'
         gateway_port_internal = 8080
-        if is_local_cluster():
+        if is_local_cluster(**kwargs):
             apply_replace(
                 f'{cur_dir}/k8s_backend-svc-node.yml',
                 {'ns': ns},

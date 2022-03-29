@@ -46,8 +46,8 @@ def create_local_cluster(kind_path):
         spinner.ok("📦")
 
 
-def is_local_cluster():
-    out, error = cmd('kubectl get nodes -o json')
+def is_local_cluster(**kwargs):
+    out, error = cmd(f'{kwargs["kubectl_path"]} get nodes -o json')
     out = json.loads(out)
     addresses = out['items'][0]['status']['addresses']
     is_local = len([a for a in addresses if a['type'] == 'ExternalIP']) == 0

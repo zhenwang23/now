@@ -21,17 +21,20 @@ Data privacy is becoming increasingly important. And with most data being privat
 - 🔋 **Batteries included**: simple defaults allow you to provide just the data and get your search use case up and running
 
 ### Pip
-
 ```bash
 pip install jina-now
 ```
-
+In case you need sudo for running Docker, install and use jina-now using sudo as well.
 ### Usage
 ```bash
 jina-now --data [pushpullid | localpath | url] --quality [medium | good | excellent] --cluster [k8s-cluster-name]
 ```
 
-### Example
+### quick start
+```bash
+jina-now start
+```
+### parameters
 ```bash
 jina-now start --quality medium --data /local/img/folder
 ```
