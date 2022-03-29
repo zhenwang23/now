@@ -2,8 +2,6 @@ from now.deployment.deployment import cmd
 
 print('Initialising Jina NOW...')
 import os
-
-os.environ['JINA_LOG_LEVEL'] = 'CRITICAL'
 import pathlib
 import platform
 import sys
@@ -72,7 +70,7 @@ def cli():
         print(__version__)
         exit(0)
 
-    os.environ['JINA_LOG_LEVEL'] = 'ERROR'
+    os.environ['JINA_LOG_LEVEL'] = 'CRITICAL'
 
     os_type = platform.system().lower()
     arch = 'x86_64'

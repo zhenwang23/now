@@ -15,8 +15,6 @@ def stop_now(contexts, active_context, **kwargs):
     if len(choices) == 0:
         cowsay.cow('nothing to stop')
         return
-    elif len(choices) == 1:
-        cluster = choices[0]
     else:
         questions = [
             {
