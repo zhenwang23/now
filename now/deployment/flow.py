@@ -3,9 +3,6 @@ import os.path
 import pathlib
 from time import sleep
 
-from jina import Flow
-from jina.clients import Client
-from kubernetes import client
 from kubernetes import client as k8s_client
 from kubernetes import config
 from tqdm import tqdm
@@ -45,7 +42,7 @@ def wait_for_lb(lb_name, ns):
 
 def wait_for_all_pods_in_ns(ns, num_pods, max_wait=1800):
     config.load_kube_config()
-    v1 = client.CoreV1Api()
+    v1 = k8s_client.CoreV1Api()
     for i in range(max_wait):
         pods = v1.list_namespaced_pod(ns).items
         not_ready = [
@@ -108,6 +105,9 @@ def deploy_flow(
     finetuning,
     **kwargs,
 ):
+    from jina import Flow
+    from jina.clients import Client
+
     ns = 'nowapi'
     f = Flow(
         name=ns,

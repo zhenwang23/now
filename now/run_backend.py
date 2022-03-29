@@ -8,10 +8,6 @@ from yaspin import yaspin
 from now.data_loading.data_loading import fill_missing, load_data
 from now.deployment.flow import deploy_flow
 from now.dialog import UserInput
-from now.finetuning.finetuning import add_clip_embeddings, finetune_layer
-from now.hub.head_encoder.head_encoder import extend_embeddings
-from now.hub.hub import push_to_hub
-from now.improvements.improvements import show_improvement
 
 
 def save_mean(da, tmpdir):
@@ -65,6 +61,11 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
     }
 
     if finetuning:
+        from now.finetuning.finetuning import add_clip_embeddings, finetune_layer
+        from now.hub.head_encoder.head_encoder import extend_embeddings
+        from now.hub.hub import push_to_hub
+        from now.improvements.improvements import show_improvement
+
         add_clip_embeddings(dataset, user_input.model_variant, tmpdir, **kwargs)
         extend_embeddings(dataset['index'], final_layer_output_dim)
         save_mean(dataset['index'], tmpdir)
