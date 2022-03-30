@@ -39,7 +39,9 @@ def stop_now(contexts, active_context, **kwargs):
 
 def run_k8s(os_type='linux', arch='x86_64', **kwargs):
     contexts, active_context, is_debug = get_system_state()
-    if kwargs['cli'] == 'stop':
+    if ('cli' in kwargs and kwargs['cli'] == 'stop') or (
+        'now' in kwargs and kwargs['now'] == 'stop'
+    ):
         stop_now(contexts, active_context, **kwargs)
     else:
         with tempfile.TemporaryDirectory() as tmpdir:
