@@ -71,7 +71,6 @@ def cli(args=None):
         exit(0)
 
     os.environ['JINA_LOG_LEVEL'] = 'CRITICAL'
-    print('system info')
     os_type = platform.system().lower()
     arch = 'x86_64'
     if os_type == 'darwin':
