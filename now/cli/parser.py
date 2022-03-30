@@ -91,6 +91,15 @@ def set_start_parser(sp=None):
     )
 
 
+def set_stop_parser(sp):
+    sp.add_parser(
+        'stop',
+        help='Stop jina now and remove local cluster.',
+        description='Stop jina now and remove local cluster.',
+        formatter_class=_chf,
+    )
+
+
 def get_main_parser():
     """The main parser for Jina NOW
     :return: the parser
@@ -103,13 +112,8 @@ def get_main_parser():
         required=True,
     )
     set_start_parser(sp)
+    set_stop_parser(sp)
 
-    sp.add_parser(
-        'stop',
-        help='Stop jina now and remove local cluster.',
-        description='Stop jina now and remove local cluster.',
-        formatter_class=_chf,
-    )
     # set_stop_parser(
     #
     # )

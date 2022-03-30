@@ -9,9 +9,6 @@ from os.path import expanduser as user
 
 import cpuinfo
 
-from now import __version__
-from now.run_all_k8s import run_k8s
-
 cur_dir = pathlib.Path(__file__).parents[1].resolve()
 
 
@@ -62,16 +59,19 @@ def _is_latest_version(suppress_on_error=True):
             raise
 
 
-def cli():
+def cli(args=None):
     """The main entrypoint of the CLI"""
-    args = _get_run_args()
+    if not args:
+        args = _get_run_args()
 
     if '--version' in sys.argv[1:]:
+        from now import __version__
+
         print(__version__)
         exit(0)
 
     os.environ['JINA_LOG_LEVEL'] = 'CRITICAL'
-
+    print('system info')
     os_type = platform.system().lower()
     arch = 'x86_64'
     if os_type == 'darwin':
@@ -116,6 +116,8 @@ def cli():
 
     args['kubectl_path'] = kubectl_path
     args['kind_path'] = kind_path
+    from now.run_all_k8s import run_k8s
+
     run_k8s(os_type=os_type, arch=arch, **args)
 
 
