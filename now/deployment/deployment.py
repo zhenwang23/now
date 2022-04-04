@@ -1,11 +1,12 @@
 import subprocess
 import tempfile
 
-
 def cmd(command, std_output=False, wait=True):
+    if not isinstance(command, list):
+        command = command.split()
     if not std_output:
         process = subprocess.Popen(
-            command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
     else:
         process = subprocess.Popen(command.split())
