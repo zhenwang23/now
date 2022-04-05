@@ -42,7 +42,7 @@ def create_local_cluster(kind_path):
             cowsay.cow('see you soon 👋')
             exit(0)
     with yaspin(text="Setting up local cluster", color="green") as spinner:
-        kindest_images = docker.from_env().images.list('kindest/nod')
+        kindest_images = docker.from_env().images.list('kindest/node')
         if len(kindest_images) == 0:
             print('Download kind image to set up local cluster - this might take a while :)')
         _, err = cmd(
