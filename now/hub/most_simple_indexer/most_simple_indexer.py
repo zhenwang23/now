@@ -10,7 +10,7 @@ class MostSimpleIndexer(Executor):
         self.index = DocumentArray()
 
     @requests
-    def index(self, docs: Optional[DocumentArray], **kwargs):
+    def index(self, docs: DocumentArray, **kwargs):
         self.index.extend(docs)
 
     @requests(on='/search')
