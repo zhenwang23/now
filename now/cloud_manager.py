@@ -53,7 +53,7 @@ def is_local_cluster(**kwargs):
     try:
         out = json.loads(out)
     except:
-        print(f'Command {command} gives the following error: {out} {error}')
+        print(f'Command {command} gives the following error: {error.decode("utf-8")}')
         exit(1)
     addresses = out['items'][0]['status']['addresses']
     is_local = len([a for a in addresses if a['type'] == 'ExternalIP']) == 0
