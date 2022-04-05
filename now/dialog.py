@@ -7,6 +7,7 @@ from os.path import expanduser as user
 from typing import Optional
 
 import cowsay
+from kubernetes import client, config
 from pyfiglet import Figlet
 from yaspin import yaspin
 
@@ -245,6 +246,62 @@ def get_context_names(contexts, active_context=None):
     return names
 
 
+def ask_new_cluster(user_input: UserInput, os_type, arch):
+    user_input.cluster = None
+    user_input.create_new_cluster = True
+    questions = [
+        {
+            'type': 'list',
+            'name': 'cluster_new',
+            'message': 'Where do you want to create a new cluster?',
+            'choices': [
+                {
+                    'name': '📍 local (Kubernetes in Docker)',
+                    'value': 'local',
+                },
+                {'name': '⛅️ Google Kubernetes Engine', 'value': 'gke'},
+                {
+                    'name': '⛅️ Jina - Flow as a Service',
+                    'disabled': AVAILABLE_SOON,
+                },
+                {
+                    'name': '⛅️ Amazon Elastic Kubernetes Service',
+                    'disabled': AVAILABLE_SOON,
+                },
+                {
+                    'name': '⛅️ Azure Kubernetes Service',
+                    'disabled': AVAILABLE_SOON,
+                },
+                {
+                    'name': '⛅️ DigitalOcean Kubernetes',
+                    'disabled': AVAILABLE_SOON,
+                },
+            ],
+            'filter': lambda val: val.lower(),
+        }
+    ]
+    user_input.new_cluster_type = prompt_plus(questions, 'cluster_new')
+    if user_input.new_cluster_type == 'gke':
+        out, _ = cmd('which gcloud')
+        if not out:
+            if not os.path.exists(user('~/.cache/jina-now/google-cloud-sdk')):
+                with yaspin(text='Setting up gcloud', color='green') as spinner:
+                    cmd(
+                        f'/bin/bash {cur_dir}/scripts/install_gcloud.sh {os_type} {arch}',
+                    )
+                    spinner.ok('🛠️')
+
+
+def cluster_running(cluster):
+    config.load_kube_config(context=cluster)
+    v1 = client.CoreV1Api()
+    try:
+        v1.list_namespace()  # list nodes does not work on k8s
+    except Exception as e:
+        return False
+    return True
+
+
 def ask_deployment(
     user_input: UserInput, contexts, active_context, os_type, arch, **kwargs
 ):
@@ -262,45 +319,13 @@ def ask_deployment(
     user_input.cluster = cluster
 
     if cluster == NEW_CLUSTER:
-        user_input.cluster = None
-        user_input.create_new_cluster = True
-        questions = [
-            {
-                'type': 'list',
-                'name': 'cluster_new',
-                'message': 'Where do you want to create a new cluster?',
-                'choices': [
-                    {
-                        'name': '📍 local (Kubernetes in Docker)',
-                        'value': 'local',
-                    },
-                    {'name': '⛅️ Google Kubernetes Engine', 'value': 'gke'},
-                    {
-                        'name': '⛅️ Amazon Elastic Kubernetes Service',
-                        'disabled': AVAILABLE_SOON,
-                    },
-                    {
-                        'name': '⛅️ Azure Kubernetes Service',
-                        'disabled': AVAILABLE_SOON,
-                    },
-                    {
-                        'name': '⛅️ DigitalOcean Kubernetes',
-                        'disabled': AVAILABLE_SOON,
-                    },
-                ],
-                'filter': lambda val: val.lower(),
-            }
-        ]
-        user_input.new_cluster_type = prompt_plus(questions, 'cluster_new')
-        if user_input.new_cluster_type == 'gke':
-            out, _ = cmd('which gcloud')
-            if not out:
-                if not os.path.exists(user('~/.cache/jina-now/google-cloud-sdk')):
-                    with yaspin(text='Setting up gcloud', color='green') as spinner:
-                        cmd(
-                            f'/bin/bash {cur_dir}/scripts/install_gcloud.sh {os_type} {arch}',
-                        )
-                        spinner.ok('🛠️')
+        ask_new_cluster(user_input, os_type, arch)
+    else:
+        if not cluster_running(cluster):
+            print(f'Cluster {cluster} is not running. Please select a different one.')
+            ask_deployment(
+                user_input, contexts, active_context, os_type, arch, **kwargs
+            )
 
 
 if __name__ == '__main__':
