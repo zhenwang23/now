@@ -1,5 +1,3 @@
-from typing import Optional
-
 from docarray import DocumentArray
 from jina import Executor, requests
 
@@ -14,6 +12,6 @@ class MostSimpleIndexer(Executor):
         self.index.extend(docs)
 
     @requests(on='/search')
-    def search(self, docs: Optional[DocumentArray], **kwargs):
+    def search(self, docs: DocumentArray, **kwargs):
         docs.match(self.index)
         return docs
