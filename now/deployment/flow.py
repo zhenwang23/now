@@ -132,7 +132,7 @@ def deploy_flow(
         )
     f = f.add(
         name='indexer',
-        uses=f'jinahub+docker://PQLiteIndexer/v0.2.3-rc',
+        uses=f'jinahub+docker://MostSimpleIndexer:346e8475359e13d621717ceff7f48c2a',
         uses_with={'dim': embedding_size, 'metric': 'cosine'},
         uses_metas={'workspace': 'pq_workspace'},
         env={'JINA_LOG_LEVEL': 'DEBUG'},

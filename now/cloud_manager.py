@@ -19,7 +19,8 @@ def create_local_cluster(kind_path):
     if err and 'No kind clusters' not in err.decode('utf-8'):
         print(err.decode('utf-8'))
         exit()
-    if 'jina-now' in out.decode('utf-8'):
+    cluster_name = 'jina-now'
+    if cluster_name in out.decode('utf-8'):
         questions = [
             {
                 'type': 'list',
@@ -27,15 +28,15 @@ def create_local_cluster(kind_path):
                 'message': 'The local cluster is running already. '
                 'Should it be recreated?',
                 'choices': [
-                    {'name': '⛔ no - stop', 'value': False},
-                    {'name': '✅ yes - recreate', 'value': True},
+                    {'name': '⛔ no', 'value': False},
+                    {'name': '✅ yes', 'value': True},
                 ],
             },
         ]
         recreate = prompt_plus(questions, 'proceed')
         if recreate:
             with yaspin(text="Remove local cluster", color="green") as spinner:
-                cmd(f'{kind_path} delete clusters jina-now')
+                cmd(f'{kind_path} delete clusters {cluster_name}')
                 spinner.ok('💀')
         else:
             cowsay.cow('see you soon 👋')
@@ -44,15 +45,23 @@ def create_local_cluster(kind_path):
         kindest_images = docker.from_env().images.list('kindest/nod')
         if len(kindest_images) == 0:
             print('Download kind image to set up local cluster - this might take a while :)')
-        cmd(
-            f'{kind_path} create cluster --name jina-now --config {cur_dir}/kind.yml',
+        _, err = cmd(
+            f'{kind_path} create cluster --name {cluster_name} --config {cur_dir}/kind.yml',
         )
+        if err and 'failed to create cluster' in err.decode('utf-8'):
+            print('\n' + err.decode('utf-8').split('ERROR')[-1])
+            exit(1)
         spinner.ok("📦")
 
 
 def is_local_cluster(**kwargs):
+    command = f'{kwargs["kubectl_path"]} get nodes -o json'
     out, error = cmd(f'{kwargs["kubectl_path"]} get nodes -o json')
-    out = json.loads(out)
+    try:
+        out = json.loads(out)
+    except:
+        print(f'Command {command} gives the following error: {error.decode("utf-8")}')
+        exit(1)
     addresses = out['items'][0]['status']['addresses']
     is_local = len([a for a in addresses if a['type'] == 'ExternalIP']) == 0
     return is_local
@@ -88,8 +97,8 @@ def ask_existing(kubectl_path):
                     'current data?'
                 ),
                 'choices': [
-                    {'name': '⛔ no - stop', 'value': False},
-                    {'name': '✅ yes - remove', 'value': True},
+                    {'name': '⛔ no', 'value': False},
+                    {'name': '✅ yes', 'value': True},
                 ],
             },
         ]
