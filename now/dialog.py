@@ -169,7 +169,7 @@ def ask_data_custom(user_input: UserInput, **kwargs):
             ),
             'choices': [
                 {
-                    'name': 'docarray.pull(...) (recommended)',
+                    'name': 'docarray.pull id (recommended)',
                     'value': 'docarray',
                 },
                 {
@@ -179,7 +179,6 @@ def ask_data_custom(user_input: UserInput, **kwargs):
                 {
                     'name': 'local mounted path',
                     'value': 'path',
-                    'disabled': AVAILABLE_SOON,
                 },
             ],
         },
@@ -192,7 +191,7 @@ def ask_data_custom(user_input: UserInput, **kwargs):
             {
                 'type': 'password',
                 'name': 'secret',
-                'message': 'Please enter your docarray secret',
+                'message': 'Please enter your docarray secret.',
             },
         ]
         user_input.dataset_secret = prompt_plus(questions, 'secret')
@@ -201,12 +200,19 @@ def ask_data_custom(user_input: UserInput, **kwargs):
             {
                 'type': 'input',
                 'name': 'url',
-                'message': 'Please paste in your URL for the docarray:',
+                'message': 'Please paste in your URL for the docarray.',
             },
         ]
         user_input.dataset_url = prompt_plus(questions, 'url')
     else:
-        pass
+        questions = [
+            {
+                'type': 'input',
+                'name': 'local_path',
+                'message': 'Please enter the path to the local image folder.',
+            },
+        ]
+        user_input.dataset_path = prompt_plus(questions, 'local_path')
 
 
 def ask_quality(user_input: UserInput, **kwargs):
@@ -296,7 +302,7 @@ def cluster_running(cluster):
     config.load_kube_config(context=cluster)
     v1 = client.CoreV1Api()
     try:
-        v1.list_namespace()  # list nodes does not work on k8s
+        v1.list_namespace()
     except Exception as e:
         return False
     return True
