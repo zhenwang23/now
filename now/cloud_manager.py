@@ -3,6 +3,7 @@ import pathlib
 from typing import Optional
 
 import cowsay
+import docker
 from kubernetes import client, config
 from yaspin import yaspin
 
@@ -41,6 +42,9 @@ def create_local_cluster(kind_path):
             cowsay.cow('see you soon 👋')
             exit(0)
     with yaspin(text="Setting up local cluster", color="green") as spinner:
+        kindest_images = docker.from_env().images.list('kindest/node')
+        if len(kindest_images) == 0:
+            print('Download kind image to set up local cluster - this might take a while :)')
         _, err = cmd(
             f'{kind_path} create cluster --name {cluster_name} --config {cur_dir}/kind.yml',
         )
