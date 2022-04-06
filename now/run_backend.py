@@ -95,11 +95,10 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
                         class_label='finetuner_label',
                     )
             except Exception:
-                # raise e
                 pass
             spinner.ok('🖼')
         print(
-            'before-after comparison files are saved in the current working directory'
+            f'before-after comparison result is saved in the current working directory as image'
         )
         executor_name = push_to_hub(tmpdir)
     else:
