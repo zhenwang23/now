@@ -35,13 +35,14 @@ with pathlib.Path('requirements_pip.txt').open() as requirements_txt:
     ]
 sys_platform = platform.system().lower()
 if sys_platform == 'darwin':
-    torch_requirement = 'torch==1.10.2'
+    torch_requirement = ['torch==1.10.2']
 else:
     torch_requirement = (
-        '-f https://download.pytorch.org/whl/torch_stable.html\ntorch==1.10.2+cpu'
+        '-f https://download.pytorch.org/whl/torch_stable.html',
+        'torch==1.10.2+cpu',
     )
 
-install_requires.append(torch_requirement)
+install_requires.extend(torch_requirement)
 
 setup(
     name=pkg_name,
