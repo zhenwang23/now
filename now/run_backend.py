@@ -19,6 +19,27 @@ def save_mean(da, tmpdir):
         pickle.dump(mean, f)
 
 
+def is_finetuning(dataset_name, dataset):
+    # finetuning for some datasets is deactivated since the generalization ability is lost
+    # they can be reactivated once this ticket is done:
+    # https://github.com/jina-ai/now/issues/76
+    if dataset_name in [
+        'tll',
+        'nft-monkey',
+        # 'deepfashion',
+        'nih-chest-xrays',
+        'geolocation-geoguessr',
+        'stanford-cars',
+        # 'bird-species',
+        'best-artworks',
+    ]:
+        return False
+    for d in dataset:
+        if 'finetuner_label' in d.tags:
+            return True
+    return False
+
+
 def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
     """
     Args:
@@ -44,11 +65,8 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         user_input.dataset_path,
     )
 
-    finetuning = False
-    for d in dataset:
-        if 'finetuner_label' in d.tags:
-            finetuning = True
-            break
+    finetuning = is_finetuning(user_input.dataset, dataset)
+
     if not finetuning:
         embedding_size = int(final_layer_output_dim / 2)
     dataset = {
