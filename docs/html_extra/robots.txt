@@ -1,0 +1,2 @@
+User-agent: *
+sitemap: https://now.jina.ai/sitemap.xml
