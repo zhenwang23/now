@@ -6,6 +6,7 @@ from yaspin import yaspin
 
 from now.deployment.deployment import apply_replace, cmd
 from now.deployment.flow import wait_for_lb
+from now.utils import sigmap
 
 cur_dir = pathlib.Path(__file__).parent.resolve()
 
@@ -22,7 +23,7 @@ def run(
     **kwargs,
 ):
     # deployment
-    with yaspin(text="Deploy frontend", color="green") as spinner:
+    with yaspin(sigmap=sigmap, text="Deploy frontend", color="green") as spinner:
         apply_replace(
             f'{cur_dir}/deployment/k8s_frontend-deployment.yml',
             {
