@@ -37,10 +37,10 @@ sys_platform = platform.system().lower()
 if sys_platform == 'darwin':
     torch_requirement = ['torch==1.10.2']
 else:
-    torch_requirement = (
-        '-f https://download.pytorch.org/whl/torch_stable.html',
+    torch_requirement = [
         'torch==1.10.2+cpu',
-    )
+    ]
+
 
 install_requires.extend(torch_requirement)
 
@@ -80,4 +80,5 @@ setup(
         'Tracker': 'https://github.com/jina-ai/now/issues',
     },
     keywords='jina neural-search neural-network deep-learning now private data democratization',
+    dependency_links=['https://download.pytorch.org/whl/torch_stable.html'],
 )
