@@ -1,3 +1,3 @@
 # FAQ
 
-This is a list of Frequently Asked Questions about Jina Now. Feel free to suggest new entries!
+This is a list of Frequently Asked Questions about Jina NOW. Feel free to suggest new entries!
