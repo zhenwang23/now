@@ -153,7 +153,8 @@ def deploy_flow(
 
     import time
     client = Client(host=gateway_host, port=gateway_port)
-    for x in tqdm(batch(index, 1024), total=math.ceil(len(index) / 1024)):
+    bs = 16
+    for x in tqdm(batch(index, bs), total=math.ceil(len(index) / bs)):
         # first request takes soooo long
         while True:
             try:

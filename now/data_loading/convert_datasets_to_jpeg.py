@@ -11,7 +11,7 @@ def to_jpg_thumbnail(doc: Document):
         im = Image.fromarray(doc.tensor)
         # im.thumbnail((256, 256))
         # im.thumbnail((128, 128))
-        # im.thumbnail((16, 16))
+        im.thumbnail((16, 16))
         doc.tensor = None
         img_byte_arr = io.BytesIO()
         im.save(img_byte_arr, format="JPEG", quality=75)
