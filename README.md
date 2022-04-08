@@ -24,6 +24,8 @@ Main features
 ```bash
 pip install jina-now
 ```
+<!-- end elevator-pitch -->
+
 In case you need sudo for running Docker, install and use jina-now using sudo as well.
 
 #### Mac M1
