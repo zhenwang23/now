@@ -9,7 +9,7 @@ on:
       triggered_by:
         description: 'CI | CD | TAG | MANUAL'
         required: false
-        default: CD
+        default: CI
 
 jobs:
 # Commenting for now as I don't have token
