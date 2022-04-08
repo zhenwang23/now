@@ -9,7 +9,3 @@ def test_to_jpg():
     to_jpg(da)
     assert da
     assert da[0].blob
-
-
-def test_dummy():
-    assert 1 == 1
