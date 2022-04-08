@@ -1,6 +1,7 @@
 import subprocess
 import tempfile
 
+
 def cmd(command, std_output=False, wait=True):
     if isinstance(command, str):
         command = command.split()
