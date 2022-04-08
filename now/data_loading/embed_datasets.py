@@ -1,8 +1,7 @@
 import io
 import math
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
-import clip
 import torch
 from docarray import Document
 from jina import DocumentArray
@@ -11,6 +10,8 @@ from tqdm import tqdm
 
 
 def _text_collate_fn(batch: DocumentArray):
+    if TYPE_CHECKING:
+        import clip
     return clip.tokenize([doc.text.lower() for doc in batch], truncate=True)
 
 
@@ -57,10 +58,11 @@ def to_jpg(image_docs):
 
     def convert_to_jpeg(d: Document):
         if not d.blob:
-            d.convert_image_tensor_to_blob()
-            im = Image.fromarray(d.tensor)
-            d.tensor = None
-            d.blob = pil2bytes(im)
+            d.convert_image_tensor_to_blob(image_format='jpeg')
+            # TODO: Why we need separate conversion if same is done above?
+            # im = Image.fromarray(d.tensor)
+            # d.tensor = None
+            # d.blob = pil2bytes(im)
         return d
 
     image_docs.apply(convert_to_jpeg)
@@ -75,6 +77,8 @@ def embed_dataset(
     batch_size: int = 128,
     num_workers: int = 8,
 ):
+    if TYPE_CHECKING:
+        import clip
     path = f'{dataset}.bin'
 
     print(f'===> {dataset} - {model}')
