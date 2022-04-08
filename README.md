@@ -19,11 +19,17 @@ Main features
 - 🌈 **Quality**: If you provide labels to your documents, Jina NOW fine-tunes a model for you
 - 🌳 **Reliable**: We take care of the deployment and maintenance (coming soon)
 
-### Pip
+### Installation
+
 ```bash
 pip install jina-now
 ```
 In case you need sudo for running Docker, install and use jina-now using sudo as well.
+
+#### Mac M1
+
+For the Mac M1 it is generally recommended using a conda environment as outlined in the [Jina documentation](https://docs.jina.ai/get-started/install/troubleshooting/#on-mac-m1).
+
 ### Usage
 ```bash
 jina-now [start | stop] --data [pushpullid | localpath | url] --quality [medium | good | excellent] --cluster [k8s-cluster-name]
