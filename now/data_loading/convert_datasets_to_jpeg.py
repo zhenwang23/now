@@ -6,9 +6,12 @@ from PIL import Image
 from tqdm import tqdm
 
 
-def to_jpg(doc: Document):
+def to_jpg_thumbnail(doc: Document):
     if doc.tensor is not None:
         im = Image.fromarray(doc.tensor)
+        # im.thumbnail((256, 256))
+        # im.thumbnail((128, 128))
+        # im.thumbnail((16, 16))
         doc.tensor = None
         img_byte_arr = io.BytesIO()
         im.save(img_byte_arr, format="JPEG", quality=75)
@@ -27,7 +30,7 @@ def convert_to_jpeg(dataset: str, num_workers: int = 8):
     print(f' convert images to jpeg for smaller datasets')
     # build docs
     with mp.Pool(processes=num_workers) as pool:
-        docs = list(tqdm(pool.imap(to_jpg, docs)))
+        docs = list(tqdm(pool.imap(to_jpg_thumbnail, docs)))
     docs = DocumentArray(docs)
 
     print(f'  Saving converted docs ...')

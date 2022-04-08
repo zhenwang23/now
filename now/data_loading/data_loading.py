@@ -9,7 +9,7 @@ from typing import Optional, Tuple
 from docarray import DocumentArray
 from yaspin import yaspin
 
-from now.data_loading.convert_datasets_to_jpeg import to_jpg
+from now.data_loading.convert_datasets_to_jpeg import to_jpg_thumbnail
 from now.utils import download
 
 
@@ -105,7 +105,7 @@ def load_data(
                 def convert_fn(d):
                     try:
                         d.load_uri_to_image_tensor()
-                        return to_jpg(d)
+                        return to_jpg_thumbnail(d)
                     except:
                         return d
 

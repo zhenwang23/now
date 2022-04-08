@@ -179,7 +179,7 @@ def ask_data_custom(user_input: UserInput, **kwargs):
                 {
                     'name': 'local mounted path',
                     'value': 'path',
-                    'disabled': AVAILABLE_SOON,
+                    # 'disabled': AVAILABLE_SOON,
                 },
             ],
         },
@@ -206,7 +206,14 @@ def ask_data_custom(user_input: UserInput, **kwargs):
         ]
         user_input.dataset_url = prompt_plus(questions, 'url')
     else:
-        pass
+        questions = [
+            {
+                'type': 'input',
+                'name': 'path',
+                'message': 'Please type the path for the data:',
+            }
+        ]
+        user_input.dataset_path = prompt_plus(questions, 'path')
 
 
 def ask_quality(user_input: UserInput, **kwargs):
