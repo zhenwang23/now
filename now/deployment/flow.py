@@ -155,18 +155,12 @@ def deploy_flow(
         f'▶ indexing {len(index)} documents - if it stays at 0% for a while, it is all good - just wait :)'
     )
 
-    import time
-
     client = Client(host=gateway_host, port=gateway_port)
-    bs = 64
-    for x in tqdm(batch(index, bs), total=math.ceil(len(index) / bs)):
+    for x in tqdm(batch(index, 1024), total=math.ceil(len(index) / 1024)):
         # first request takes soooo long
         while True:
             try:
-                t1 = time.time()
                 client.post('/index', request_size=64, inputs=x)
-                diff = time.time() - t1
-                print(f"{diff} seconds for indexing")
                 break
             except Exception as e:
                 sleep(1)
