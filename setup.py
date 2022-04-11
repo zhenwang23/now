@@ -35,11 +35,14 @@ with pathlib.Path('requirements_pip.txt').open() as requirements_txt:
     ]
 sys_platform = platform.system().lower()
 # if sys_platform == 'darwin':
-torch_requirement = 'torch==1.10.2'
+torch_requirement = ['torch==1.10.2']
 # else:
-#     torch_requirement = 'torch @ https://download.pytorch.org/whl/cpu/torch-1.10.2%2Bcpu-cp37-cp37m-linux_x86_64.whl'
+#     torch_requirement = [
+#         'torch==1.10.2+cpu',
+#     ]
 
-install_requires.append(torch_requirement)
+
+install_requires.extend(torch_requirement)
 
 setup(
     name=pkg_name,
@@ -58,6 +61,19 @@ setup(
     setup_requires=['setuptools>=18.0', 'wheel'],
     install_requires=install_requires,
     entry_points={"console_scripts": ["jina-now = now.cli:cli"]},
+    extras_require={
+        'test': [
+            'pytest',
+            'pytest-timeout',
+            'pytest-mock',
+            'pytest-cov',
+            'pytest-repeat',
+            'pytest-reraise',
+            'mock',
+            'pytest-custom_exit_code',
+            'black==22.3.0',
+        ]
+    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
@@ -77,4 +93,5 @@ setup(
         'Tracker': 'https://github.com/jina-ai/now/issues',
     },
     keywords='jina neural-search neural-network deep-learning now private data democratization',
+    dependency_links=['https://download.pytorch.org/whl/torch_stable.html'],
 )

@@ -2,7 +2,9 @@ import json
 import os
 import pkgutil
 import shutil
+import signal
 import stat
+import sys
 from collections import namedtuple
 
 import numpy as np
@@ -204,6 +206,7 @@ def save_before_after_image(path):
     draw.text((im1.width + 150, 100), "Query", 0, font=font)
     draw.text((im1.width // 2, 100), "Top-k", 0, font=font)
     draw.text((im1.width + 100 + (im2.width // 2), 100), "Top-k", 0, font=font)
+    dst.show(title=path.split('.')[0])
     dst.save(path)
     for imgs in figs:
         for img in imgs:
@@ -386,3 +389,13 @@ def copytree(src, dst, symlinks=False, ignore=None):
             copytree(s, d, symlinks, ignore)
         else:
             shutil.copy2(s, d)
+
+
+def my_handler(signum, frame, spinner):
+    with spinner.hidden():
+        sys.stdout.write("Program terminated!\n")
+    spinner.stop()
+    exit(0)
+
+
+sigmap = {signal.SIGINT: my_handler, signal.SIGTERM: my_handler}

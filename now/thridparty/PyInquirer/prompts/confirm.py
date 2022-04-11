@@ -12,13 +12,18 @@ def question(message, **kwargs):
     default = kwargs.pop('default', True)
 
     # TODO style defaults on detail level
-    style = kwargs.pop('style', Style.from_dict({
-        'questionmark': '#5F819D',
-        #'selected': '#FF9D00',  # AWS orange
-        'instruction': '',  # default
-        'answer': '#FF9D00 bold',  # AWS orange
-        'question': 'bold',
-    }))
+    style = kwargs.pop(
+        'style',
+        Style.from_dict(
+            {
+                'questionmark': '#5F819D',
+                #'selected': '#FF9D00',  # AWS orange
+                'instruction': '',  # default
+                'answer': '#FF9D00 bold',  # AWS orange
+                'question': 'bold',
+            }
+        ),
+    )
     status = {'answer': None}
 
     qmark = kwargs.pop('qmark', '?')

@@ -15,6 +15,7 @@ from now.deployment.deployment import cmd
 from now.system_information import get_system_state
 from now.thridparty.PyInquirer import Separator
 from now.thridparty.PyInquirer.prompt import prompt
+from now.utils import sigmap
 
 cur_dir = pathlib.Path(__file__).parent.resolve()
 NEW_CLUSTER = '🐣 create new'
@@ -92,7 +93,7 @@ def prompt_plus(questions, attribute, **kwargs):
         if attribute in answer:
             return answer[attribute]
         else:
-            os.system('clear')
+            print("\n" * 10)
             cowsay.cow('see you soon 👋')
             exit(0)
 
@@ -169,7 +170,7 @@ def ask_data_custom(user_input: UserInput, **kwargs):
             ),
             'choices': [
                 {
-                    'name': 'docarray.pull(...) (recommended)',
+                    'name': 'docarray.pull id (recommended)',
                     'value': 'docarray',
                 },
                 {
@@ -179,7 +180,6 @@ def ask_data_custom(user_input: UserInput, **kwargs):
                 {
                     'name': 'local mounted path',
                     'value': 'path',
-                    # 'disabled': AVAILABLE_SOON,
                 },
             ],
         },
@@ -192,7 +192,7 @@ def ask_data_custom(user_input: UserInput, **kwargs):
             {
                 'type': 'password',
                 'name': 'secret',
-                'message': 'Please enter your docarray secret',
+                'message': 'Please enter your docarray secret.',
             },
         ]
         user_input.dataset_secret = prompt_plus(questions, 'secret')
@@ -201,7 +201,7 @@ def ask_data_custom(user_input: UserInput, **kwargs):
             {
                 'type': 'input',
                 'name': 'url',
-                'message': 'Please paste in your URL for the docarray:',
+                'message': 'Please paste in your URL for the docarray.',
             },
         ]
         user_input.dataset_url = prompt_plus(questions, 'url')
@@ -209,11 +209,11 @@ def ask_data_custom(user_input: UserInput, **kwargs):
         questions = [
             {
                 'type': 'input',
-                'name': 'path',
-                'message': 'Please type the path for the data:',
-            }
+                'name': 'local_path',
+                'message': 'Please enter the path to the local image folder.',
+            },
         ]
-        user_input.dataset_path = prompt_plus(questions, 'path')
+        user_input.dataset_path = prompt_plus(questions, 'local_path')
 
 
 def ask_quality(user_input: UserInput, **kwargs):
@@ -292,7 +292,9 @@ def ask_new_cluster(user_input: UserInput, os_type, arch):
         out, _ = cmd('which gcloud')
         if not out:
             if not os.path.exists(user('~/.cache/jina-now/google-cloud-sdk')):
-                with yaspin(text='Setting up gcloud', color='green') as spinner:
+                with yaspin(
+                    sigmap=sigmap, text='Setting up gcloud', color='green'
+                ) as spinner:
                     cmd(
                         f'/bin/bash {cur_dir}/scripts/install_gcloud.sh {os_type} {arch}',
                     )
@@ -303,7 +305,7 @@ def cluster_running(cluster):
     config.load_kube_config(context=cluster)
     v1 = client.CoreV1Api()
     try:
-        v1.list_namespace()  # list nodes does not work on k8s
+        v1.list_namespace()
     except Exception as e:
         return False
     return True

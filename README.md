@@ -2,7 +2,7 @@
 <img src="https://user-images.githubusercontent.com/11627845/160392052-69672e7f-2e4d-45ee-a617-4384256bb6e8.jpg" alt="Jina NOW logo: The data structure for unstructured data" width="300px">
 <br>
 
-<b>One line to host them all. Bootstrap your search case in minutes.</b>
+<b>One line to host them all. Bootstrap your image search case in minutes.</b>
 </p>
 
 <p align=center>
@@ -12,19 +12,26 @@
 
 <!-- start elevator-pitch -->
 
-NOW gives the world access to customized neural search in just one line of code.
+NOW gives the world access to customized neural image search in just one line of code.
+Main features
+- 🐥 **Easy**: No engineering skills required
+- 🐎 **Fast**: Set up your search case within minutes
+- 🌈 **Quality**: If you provide labels to your documents, Jina NOW fine-tunes a model for you
+- 🌳 **Reliable**: We take care of the deployment and maintenance (coming soon)
 
-Data privacy is becoming increasingly important. And with most data being private, you can't use public search engines (like Google) to search for it. This is where Jina NOW comes in, letting you build a search engine for your private data with just one terminal command.
+### Installation
 
-- 🔒 **Private data**: Create your own search engine with your own private data
-- 🌐 **Democratization of neural search**: Empowers everyone to use neural search - even people who wouldn't normally have access to AI
-- 🔋 **Batteries included**: simple defaults allow you to provide just the data and get your search use case up and running
-
-### Pip
 ```bash
 pip install jina-now
 ```
+<!-- end elevator-pitch -->
+
 In case you need sudo for running Docker, install and use jina-now using sudo as well.
+
+#### Mac M1
+
+For the Mac M1 it is generally recommended using a conda environment as outlined in the [Jina documentation](https://docs.jina.ai/get-started/install/troubleshooting/#on-mac-m1).
+
 ### Usage
 ```bash
 jina-now [start | stop] --data [pushpullid | localpath | url] --quality [medium | good | excellent] --cluster [k8s-cluster-name]
@@ -42,6 +49,17 @@ jina-now start --quality medium --data /local/img/folder
 ```bash
 jina-now stop
 ```
+
+### Requirements
+- `python 3.7`, `3.8` or `3.9`
+#### Local execution
+- `docker` installation
+- 10 GB assigned to docker
+- user must be permitted to run docker containers
+#### Google Cloud deployment
+- billing account enabled
+#### Jina Flow as a service
+- no further requirements (coming soon)
 
 ## Supported Modalities (more will be added)
 

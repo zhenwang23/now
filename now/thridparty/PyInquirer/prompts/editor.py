@@ -5,22 +5,23 @@
 import inspect
 import os
 import sys
-from prompt_toolkit.shortcuts import PromptSession
-from prompt_toolkit.validation import Validator, ValidationError
+
 from prompt_toolkit.lexers import SimpleLexer
+from prompt_toolkit.shortcuts import PromptSession
+from prompt_toolkit.validation import ValidationError, Validator
 
 from .common import default_style
-
 
 # use std prompt-toolkit control
 
 WIN = sys.platform.startswith('win')
 
+
 class EditorArgumentsError(Exception):
     pass
 
-class Editor:
 
+class Editor:
     def __init__(self, editor=None, env=None, require_save=True, extension='.txt'):
         self.editor = editor
         self.env = env
@@ -43,6 +44,7 @@ class Editor:
 
     def edit_file(self, filename):
         import subprocess
+
         editor = self.get_editor()
         if self.env:
             environ = os.environ.copy()
@@ -50,8 +52,9 @@ class Editor:
         else:
             environ = None
         try:
-            c = subprocess.Popen('%s "%s"' % (editor, filename),
-                                 env=environ, shell=True)
+            c = subprocess.Popen(
+                '%s "%s"' % (editor, filename), env=environ, shell=True
+            )
             exit_code = c.wait()
             if exit_code != 0:
                 raise Exception('%s: Editing failed!' % editor)
@@ -81,8 +84,7 @@ class Editor:
 
             self.edit_file(name)
 
-            if self.require_save \
-               and os.path.getmtime(name) == timestamp:
+            if self.require_save and os.path.getmtime(name) == timestamp:
                 return None
 
             f = open(name, 'rb')
@@ -94,8 +96,10 @@ class Editor:
         finally:
             os.unlink(name)
 
-def edit(text=None, editor=None, env=None, require_save=True,
-         extension='.txt', filename=None):
+
+def edit(
+    text=None, editor=None, env=None, require_save=True, extension='.txt', filename=None
+):
     r"""Edits the given text in the defined editor.  If an editor is given
     (should be the full path to the executable but the regular operating
     system search path is used for finding the executable) it overrides
@@ -124,11 +128,13 @@ def edit(text=None, editor=None, env=None, require_save=True,
                      file as an indirection in that case.
     """
 
-    editor = Editor(editor=editor, env=env, require_save=require_save,
-                    extension=extension)
+    editor = Editor(
+        editor=editor, env=env, require_save=require_save, extension=extension
+    )
     if filename is None:
         return editor.edit(text)
     editor.edit_file(filename)
+
 
 def question(message, **kwargs):
     default = kwargs.pop('default', '')
@@ -138,6 +144,7 @@ def question(message, **kwargs):
         if inspect.isclass(validate_prompt) and issubclass(validate_prompt, Validator):
             kwargs['validator'] = validate_prompt()
         elif callable(validate_prompt):
+
             class _InputValidator(Validator):
                 def validate(self, document):
                     # print(document)
@@ -146,16 +153,15 @@ def question(message, **kwargs):
                         if verdict == False:
                             verdict = 'invalid input'
                         raise ValidationError(
-                            message=verdict,
-                            cursor_position=len(document.text))
+                            message=verdict, cursor_position=len(document.text)
+                        )
+
             kwargs['validator'] = _InputValidator()
 
     for k, v in eargs.items():
         if v == "" or v == " ":
-            raise EditorArgumentsError(
-                "Args '{}' value should not be empty".format(k)
-            )
-    
+            raise EditorArgumentsError("Args '{}' value should not be empty".format(k))
+
     editor = eargs.get("editor", None)
     ext = eargs.get("ext", ".txt")
     env = eargs.get("env", None)
@@ -166,12 +172,12 @@ def question(message, **kwargs):
 
     if editor:
         _text = edit(
-            editor=editor, 
+            editor=editor,
             extension=ext,
             text=text,
             env=env,
             filename=filename,
-            require_save=save
+            require_save=save,
         )
         if filename:
             default = filename
@@ -181,12 +187,9 @@ def question(message, **kwargs):
     # TODO style defaults on detail level
     kwargs['style'] = kwargs.pop('style', default_style)
     qmark = kwargs.pop('qmark', '?')
-    
+
     def _get_prompt_tokens():
-        return [
-            ('class:questionmark', qmark),
-            ('class:question', ' %s  ' % message)
-        ]
+        return [('class:questionmark', qmark), ('class:question', ' %s  ' % message)]
 
     return PromptSession(
         message=_get_prompt_tokens,

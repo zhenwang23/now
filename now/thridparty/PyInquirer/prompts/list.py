@@ -3,17 +3,16 @@
 `list` type question
 """
 from prompt_toolkit.application import Application, get_app
-from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.layout.containers import Window
 from prompt_toolkit.filters import IsDone
-from prompt_toolkit.layout.controls import FormattedTextControl
-from prompt_toolkit.layout.containers import ConditionalContainer, HSplit
-from prompt_toolkit.layout.dimension import LayoutDimension as D
+from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout import Layout
+from prompt_toolkit.layout.containers import ConditionalContainer, HSplit, Window
+from prompt_toolkit.layout.controls import FormattedTextControl
+from prompt_toolkit.layout.dimension import LayoutDimension as D
 
-from . import PromptParameterException
 from ..separator import Separator
-from .common import if_mousedown, default_style
+from . import PromptParameterException
+from .common import default_style, if_mousedown
 
 # custom control based on FormattedTextControl
 # docu here:
@@ -63,7 +62,7 @@ class InquirerControl(FormattedTextControl):
         tokens = []
 
         def append(index, choice):
-            selected = (index == self.selected_option_index)
+            selected = index == self.selected_option_index
 
             @if_mousedown
             def select_item(mouse_event):
@@ -75,20 +74,38 @@ class InquirerControl(FormattedTextControl):
             if isinstance(choice[0], Separator):
                 tokens.append(('class:separator', '  %s\n' % choice[0]))
             else:
-                tokens.append(('class:pointer' if selected else '', ' \u276f ' if selected
-                else '   '))
+                tokens.append(
+                    (
+                        'class:pointer' if selected else '',
+                        ' \u276f ' if selected else '   ',
+                    )
+                )
                 if selected:
                     tokens.append(('[SetCursorPosition]', ''))
                 if choice[2]:  # disabled
-                    tokens.append(('class:Selected' if selected else '',
-                                   '- %s (%s)' % (choice[0], choice[2])))
+                    tokens.append(
+                        (
+                            'class:Selected' if selected else '',
+                            '- %s (%s)' % (choice[0], choice[2]),
+                        )
+                    )
                 else:
                     try:
-                        tokens.append(('class:Selected' if selected else '', str(choice[0]),
-                                    select_item))
+                        tokens.append(
+                            (
+                                'class:Selected' if selected else '',
+                                str(choice[0]),
+                                select_item,
+                            )
+                        )
                     except:
-                        tokens.append(('class:Selected' if selected else '', choice[0],
-                                    select_item))
+                        tokens.append(
+                            (
+                                'class:Selected' if selected else '',
+                                choice[0],
+                                select_item,
+                            )
+                        )
                 tokens.append(('', '\n'))
 
         # prepare the select choices
@@ -126,15 +143,12 @@ def question(message, **kwargs):
         return tokens
 
     # assemble layout
-    layout = HSplit([
-        Window(height=D.exact(1),
-               content=FormattedTextControl(get_prompt_tokens)
-        ),
-        ConditionalContainer(
-            Window(ic),
-            filter=~IsDone()
-        )
-    ])
+    layout = HSplit(
+        [
+            Window(height=D.exact(1), content=FormattedTextControl(get_prompt_tokens)),
+            ConditionalContainer(Window(ic), filter=~IsDone()),
+        ]
+    )
 
     # key bindings
     kb = KeyBindings()
@@ -148,21 +162,25 @@ def question(message, **kwargs):
     @kb.add('down', eager=True)
     def move_cursor_down(event):
         def _next():
-            ic.selected_option_index = (
-                (ic.selected_option_index + 1) % ic.choice_count)
+            ic.selected_option_index = (ic.selected_option_index + 1) % ic.choice_count
+
         _next()
-        while isinstance(ic.choices[ic.selected_option_index][0], Separator) or\
-                ic.choices[ic.selected_option_index][2]:
+        while (
+            isinstance(ic.choices[ic.selected_option_index][0], Separator)
+            or ic.choices[ic.selected_option_index][2]
+        ):
             _next()
 
     @kb.add('up', eager=True)
     def move_cursor_up(event):
         def _prev():
-            ic.selected_option_index = (
-                (ic.selected_option_index - 1) % ic.choice_count)
+            ic.selected_option_index = (ic.selected_option_index - 1) % ic.choice_count
+
         _prev()
-        while isinstance(ic.choices[ic.selected_option_index][0], Separator) or \
-                ic.choices[ic.selected_option_index][2]:
+        while (
+            isinstance(ic.choices[ic.selected_option_index][0], Separator)
+            or ic.choices[ic.selected_option_index][2]
+        ):
             _prev()
 
     @kb.add('enter', eager=True)
@@ -171,8 +189,5 @@ def question(message, **kwargs):
         event.app.exit(result=ic.get_selection()[1])
 
     return Application(
-        layout=Layout(layout),
-        key_bindings=kb,
-        mouse_support=False,
-        style=style
+        layout=Layout(layout), key_bindings=kb, mouse_support=False, style=style
     )

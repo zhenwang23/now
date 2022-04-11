@@ -180,8 +180,14 @@ def deploy_streamlit():
 def load_data(data_path: str) -> DocumentArray:
     print('⬇ load data')
     if data_path.startswith('http'):
-        if not os.path.exists('data/tmp'):
+        try:
+            # TODO try except is used as workaround
+            # in case load_data is called two times from two frontends it can happen that
+            # one of the calls created the directory right after checking that it does not exist
+            # this caused errors. Now the error will be ignored
             os.makedirs('data/tmp')
+        except:
+            pass
         url = data_path
         print('url', url)
         data_path = (

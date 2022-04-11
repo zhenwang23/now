@@ -3,4 +3,5 @@ class PromptParameterException(ValueError):
 
         # Call the base class constructor with the parameters it needs
         super(PromptParameterException, self).__init__(
-            'You must provide a `%s` value' % message, errors)
+            'You must provide a `%s` value' % message, errors
+        )

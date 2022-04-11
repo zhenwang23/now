@@ -8,6 +8,7 @@ from yaspin import yaspin
 from now.data_loading.data_loading import fill_missing, load_data
 from now.deployment.flow import deploy_flow
 from now.dialog import UserInput
+from now.utils import sigmap
 
 
 def save_mean(da, tmpdir):
@@ -16,6 +17,27 @@ def save_mean(da, tmpdir):
         os.makedirs(osp(tmpdir, 'now/hub/head_encoder/'))
     with open(osp(tmpdir, 'now/hub/head_encoder/mean.bin'), 'wb') as f:
         pickle.dump(mean, f)
+
+
+def is_finetuning(dataset_name, dataset):
+    # finetuning for some datasets is deactivated since the generalization ability is lost
+    # they can be reactivated once this ticket is done:
+    # https://github.com/jina-ai/now/issues/76
+    if dataset_name in [
+        'tll',
+        'nft-monkey',
+        # 'deepfashion',
+        'nih-chest-xrays',
+        'geolocation-geoguessr',
+        'stanford-cars',
+        # 'bird-species',
+        'best-artworks',
+    ]:
+        return False
+    for d in dataset:
+        if 'finetuner_label' in d.tags:
+            return True
+    return False
 
 
 def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
@@ -43,11 +65,8 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         user_input.dataset_path,
     )
 
-    finetuning = False
-    for d in dataset:
-        if 'finetuner_label' in d.tags:
-            finetuning = True
-            break
+    finetuning = is_finetuning(user_input.dataset, dataset)
+
     if not finetuning:
         embedding_size = int(final_layer_output_dim / 2)
     dataset = {
@@ -78,7 +97,7 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
                 dataset, batch_size, final_layer_output_dim, embedding_size, tmpdir
             )
 
-        with yaspin(text="Create overview", color="green") as spinner:
+        with yaspin(sigmap=sigmap, text="Create overview", color="green") as spinner:
             try:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
@@ -94,12 +113,11 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
                         finetuned_model_path,
                         class_label='finetuner_label',
                     )
-            except Exception:
-                # raise e
+            except Exception as e:
                 pass
             spinner.ok('🖼')
         print(
-            'before-after comparison files are saved in the current working directory'
+            f'before-after comparison result is saved in the current working directory as image'
         )
         executor_name = push_to_hub(tmpdir)
     else:

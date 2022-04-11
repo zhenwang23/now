@@ -6,7 +6,7 @@ from kubernetes import config
 def get_system_state():
     try:
         contexts, active_context = config.list_kube_config_contexts()
-    except Exception:
+    except Exception as e:
         contexts = None
         active_context = None
 

@@ -2,9 +2,9 @@
 """
 common prompt functionality
 """
-from prompt_toolkit.validation import Validator, ValidationError
-from prompt_toolkit.styles import Style
 from prompt_toolkit.mouse_events import MouseEventType
+from prompt_toolkit.styles import Style
+from prompt_toolkit.validation import ValidationError, Validator
 
 
 def if_mousedown(handler):
@@ -26,18 +26,20 @@ def setup_validator(kwargs):
         if issubclass(validate_prompt, Validator):
             kwargs['validator'] = validate_prompt()
         elif callable(validate_prompt):
+
             class _InputValidator(Validator):
                 def validate(self, document):
-                    #print('validation!!')
+                    # print('validation!!')
                     verdict = validate_prompt(document.text)
                     if isinstance(verdict, str):
                         raise ValidationError(
-                            message=verdict,
-                            cursor_position=len(document.text))
+                            message=verdict, cursor_position=len(document.text)
+                        )
                     elif verdict is not True:
                         raise ValidationError(
-                            message='invalid input',
-                            cursor_position=len(document.text))
+                            message='invalid input', cursor_position=len(document.text)
+                        )
+
             kwargs['validator'] = _InputValidator()
         return kwargs['validator']
 
@@ -51,8 +53,10 @@ def setup_simple_validator(kwargs):
     # https://github.com/jonathanslenders/python-prompt-toolkit/issues/430
     validate = kwargs.pop('validate', None)
     if validate is None:
+
         def _always(answer):
             return True
+
         return _always
     elif not callable(validate):
         raise ValueError('Here a simple validate function is expected, no class')
@@ -60,23 +64,22 @@ def setup_simple_validator(kwargs):
     def _validator(answer):
         verdict = validate(answer)
         if isinstance(verdict, str):
-            raise ValidationError(
-                message=verdict
-                )
+            raise ValidationError(message=verdict)
         elif verdict is not True:
-            raise ValidationError(
-                message='invalid input'
-                )
+            raise ValidationError(message='invalid input')
+
     return _validator
 
 
 # FIXME style defaults on detail level
-default_style = Style.from_dict({
-    'separator': '#6C6C6C',
-    'questionmark': '#5F819D',
-    'selected': '',  # default
-    'pointer': '#FF9D00 bold',  # AWS orange
-    'instruction': '',  # default
-    'answer': '#FF9D00 bold',  # AWS orange
-    'question': 'bold',
-})
+default_style = Style.from_dict(
+    {
+        'separator': '#6C6C6C',
+        'questionmark': '#5F819D',
+        'selected': '',  # default
+        'pointer': '#FF9D00 bold',  # AWS orange
+        'instruction': '',  # default
+        'answer': '#FF9D00 bold',  # AWS orange
+        'question': 'bold',
+    }
+)
