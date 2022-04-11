@@ -8,7 +8,6 @@ import sys
 from collections import namedtuple
 
 import numpy as np
-import torch
 from docarray import Document
 from PIL import Image, ImageDraw, ImageFont
 from rich.console import Console
@@ -29,7 +28,8 @@ colors = [
 
 
 def get_device():
-    return "cuda" if torch.cuda.is_available() else "cpu"
+    # return only cpu as we want all our processed to run on cpu
+    return "cpu"  # "cuda" if torch.cuda.is_available() else "cpu"
 
 
 # TODO needs to be fixed
