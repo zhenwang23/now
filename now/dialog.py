@@ -246,10 +246,10 @@ def ask_quality(user_input: UserInput, **kwargs):
 
 
 def get_context_names(contexts, active_context=None):
-    names = [c['name'] for c in contexts] if contexts is not None else []
+    names = [c for c in contexts] if contexts is not None else []
     if active_context is not None:
-        names.remove(active_context['name'])
-        names = [active_context['name']] + names
+        names.remove(active_context)
+        names = [active_context] + names
     return names
 
 
