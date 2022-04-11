@@ -1,6 +1,7 @@
 import multiprocessing as mp
 
 from docarray import Document, DocumentArray
+from tqdm import tqdm
 
 # $ pip uninstall jina
 # $ pip uninstall docarray
@@ -9,7 +10,6 @@ from docarray import Document, DocumentArray
 # $ pip install docarray
 from old import Document as OldDocument
 from old import DocumentArray as OldDocumentArray
-from tqdm import tqdm
 
 
 def _convert_doc(old: OldDocument) -> Document:

@@ -1,5 +1,6 @@
 import json
 import pathlib
+import warnings
 from typing import Optional
 
 import cowsay
@@ -13,6 +14,7 @@ from now.gke_deploy import create_gke_cluster
 from now.utils import sigmap
 
 cur_dir = pathlib.Path(__file__).parent.resolve()
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 def create_local_cluster(kind_path):
