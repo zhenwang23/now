@@ -7,6 +7,9 @@ import streamlit as st
 from docarray import DocumentArray
 from jina import Client, Document
 
+if 'matches' not in st.session_state:
+    st.session_state.matches = None
+
 
 def deploy_streamlit():
     """
@@ -90,10 +93,7 @@ def deploy_streamlit():
 
     def convert_file_to_document(query):
         data = query.read()
-
         doc = Document(blob=data)
-        print(doc)
-
         return doc
 
     matches = []
@@ -120,44 +120,51 @@ def deploy_streamlit():
         '<style>div.st-bf{flex-direction:column;} div.st-ag{font-weight:bold;padding-right:50px;}</style>',
         unsafe_allow_html=True,
     )
-    media_type = st.radio('', ["text", "Image"])
+    media_type = st.radio('', ["text", "Image"], on_change=clear_match)
 
     if media_type == "Image":
         upload_c, preview_c = st.columns([12, 1])
         query = upload_c.file_uploader("")
         if query:
             doc = convert_file_to_document(query)
-            matches = search_by_file(document=doc, server=host, port=port)
+            st.session_state.matches = search_by_file(
+                document=doc, server=host, port=port
+            )
         if da_img is not None:
             st.subheader("samples:")
             img_cs = st.columns(5)
             txt_cs = st.columns(5)
             for doc, c, txt in zip(da_img, img_cs, txt_cs):
                 with c:
-                    print('type', type(doc.blob), doc.blob)
                     st.image(doc.blob if doc.blob else doc.tensor, width=100)
                 with txt:
                     if st.button('Search', key=doc.id):
-                        matches = search_by_file(
+                        st.session_state.matches = search_by_file(
                             document=doc, server=host, port=port, convert_needed=False
                         )
 
     elif media_type == "text":
         query = st.text_input("", key="text_search_box")
         if query:
-            matches = search_by_t(input=query, server=host, port=port)
+            st.session_state.matches = search_by_t(input=query, server=host, port=port)
         if st.button("Search", key="text_search"):
-            matches = search_by_t(input=query, server=host, port=port)
+            st.session_state.matches = search_by_t(input=query, server=host, port=port)
         if da_txt is not None:
             st.subheader("samples:")
             c1, c2, c3 = st.columns(3)
             c4, c5, c6 = st.columns(3)
             for doc, col in zip(da_txt, [c1, c2, c3, c4, c5, c6]):
                 with col:
-                    if st.button(doc.content):
-                        matches = search_by_t(input=doc.content, server=host, port=port)
+                    if st.button(doc.content, key=doc.id, on_click=clear_text):
+                        st.session_state.matches = search_by_t(
+                            input=doc.content, server=host, port=port
+                        )
 
-    if matches:
+    st.markdown("""---""")
+    min_confidence = st.slider('Minimum confidence score', 0.0, 1.0, key='slider')
+
+    if st.session_state.matches:
+        matches = st.session_state.matches
         st.header('Search results')
         # Results area
         c1, c2, c3 = st.columns(3)
@@ -166,15 +173,23 @@ def deploy_streamlit():
         all_cs = [c1, c2, c3, c4, c5, c6, c7, c8, c9]
         # # TODO dirty hack to filter out text. Instead output modality should be passed as parameter
         # matches = [m for m in matches if m.tensor is None]
+        matches = [m for m in matches if m.scores['cosine'].value > min_confidence]
         for c, match in zip(all_cs, matches):
             match.mime_type = 'img'
-            print('match.blob', len(match.blob))
             if match.blob != b'':
                 match.convert_blob_to_datauri()
-            print('match.tensor', match.tensor)
             if match.tensor is not None:
                 match.convert_image_tensor_to_uri()
             c.image(match.convert_blob_to_datauri().uri)
+
+
+def clear_match():
+    st.session_state.matches = None
+    st.session_state.slider = 0.0
+
+
+def clear_text():
+    st.session_state.text_search_box = ''
 
 
 def load_data(data_path: str) -> DocumentArray:
