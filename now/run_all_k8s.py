@@ -62,6 +62,7 @@ def run_k8s(os_type='linux', arch='x86_64', **kwargs):
                 gateway_host_internal,
                 gateway_port_internal,
             ) = run_backend.run(user_input, is_debug, tmpdir, **kwargs)
+            kwargs.pop('dataset', None)
             frontend_host, frontend_port = run_frontend.run(
                 user_input.dataset,
                 gateway_host,

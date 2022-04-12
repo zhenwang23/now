@@ -1,41 +1,33 @@
+from argparse import Namespace
+
 import pytest
 from docarray import Document
 from jina import Client
 
+from now.cli import cli
 from now.dialog import NEW_CLUSTER
-from now.run_all_k8s import run_k8s
 
 
-@pytest.fixture
-def os_type() -> str:
-    pass
-
-
-@pytest.fixture
-def arch() -> str:
-    pass
-
-
-@pytest.mark.parameterize('dataset', ['best-artworks', 'nft-monkey'])
-@pytest.mark.parameterize('quality', ['medium', 'good', 'excellent'])
-@pytest.mark.parameterize('cluster', [NEW_CLUSTER])
-@pytest.mark.parameterize('cluster_new', ['local'])
-def test_run8ks(
-    os_type: str,
-    arch: str,
+@pytest.mark.parametrize('dataset', ['best-artworks', 'nft-monkey'])
+@pytest.mark.parametrize('quality', ['medium', 'good'])
+@pytest.mark.parametrize('cluster', [NEW_CLUSTER])
+@pytest.mark.parametrize('cluster_new', ['local'])
+def test_backend(
     dataset: str,
     quality: str,
     cluster: str,
     cluster_new: str,
 ):
-    run_k8s(
-        os_type=os_type,
-        arch=arch,
-        dataset=dataset,
-        quality=quality,
-        cluster=cluster,
-        cluster_new=cluster_new,
-    )
+    args = {
+        'data': None,
+        'dataset': dataset,
+        'quality': quality,
+        'cluster': cluster,
+        'cluster_new': cluster_new,
+        'proceed': True,
+    }
+    args = Namespace(**args)
+    cli(args=args)
 
     if dataset == 'best-artworks':
         search_text = 'impressionism'
@@ -44,12 +36,14 @@ def test_run8ks(
     else:
         search_text = 'test'
 
-    # TODO: host parameter doesn't seem right
-    client = Client(host='--server.port', protocol="grpc", port=80)
+    client = Client(
+        host='localhost',
+        protocol="grpc",
+        port=31080,  # 30080 for frontend, 31080 for backend
+    )
     response = client.search(
         Document(text=search_text),
         parameters={"limit": 9, "filter": {}},
-        return_results=True,
     )
 
     assert response[0].matches

@@ -86,7 +86,7 @@ def get_user_input(contexts, active_context, os_type, arch, **kwargs) -> UserInp
 
 
 def prompt_plus(questions, attribute, **kwargs):
-    if kwargs and kwargs[attribute]:
+    if kwargs and attribute in kwargs.keys() and kwargs[attribute]:
         return kwargs[attribute]
     else:
         answer = prompt(questions)
@@ -151,7 +151,7 @@ def ask_data(user_input: UserInput, **kwargs):
             ],
         },
     ]
-    user_input.dataset = prompt_plus(questions, 'dataset')
+    user_input.dataset = prompt_plus(questions, 'dataset', **kwargs)
 
     if user_input.dataset == 'custom':
         user_input.is_custom_dataset = True
