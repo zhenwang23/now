@@ -5,7 +5,7 @@ on:
 
 jobs:
   commit-lint:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: find the prev warning if exist
         uses: peter-evans/find-comment@v1
