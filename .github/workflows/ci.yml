@@ -126,8 +126,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Build Docker
-          if: ${{ runner.os == 'macOS' }}
-          uses: docker-practice/actions-setup-docker@master
+        if: ${{ runner.os == 'macOS' }}
+        uses: docker-practice/actions-setup-docker@master
       - name: Prepare enviroment
         run: |
           python -m pip install --upgrade pip
