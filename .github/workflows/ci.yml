@@ -107,6 +107,9 @@ jobs:
         run: |
           brew install jq
           echo "::set-output name=matrix::$(bash scripts/get-all-test-paths.sh)"
+      - name: Build Docker
+        if: ${{ runner.os == 'macOS' }}
+        uses: docker-practice/actions-setup-docker@master
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
 
