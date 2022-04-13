@@ -42,7 +42,7 @@ jobs:
           touch .nojekyll
           cp 404/index.html 404.html
           sed -i 's/href="\.\./href="/' 404.html # fix asset urls that needs to be updated in 404.html
-          echo docarray.jina.ai > CNAME
+          echo now.jina.ai > CNAME
           cd ..
           git add docs
           git status
