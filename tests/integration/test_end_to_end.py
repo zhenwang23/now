@@ -8,8 +8,8 @@ from now.cli import cli
 from now.dialog import NEW_CLUSTER
 
 
-@pytest.mark.parametrize('dataset', ['best-artworks', 'nft-monkey'])
-@pytest.mark.parametrize('quality', ['medium', 'good'])
+@pytest.mark.parametrize('dataset', ['best-artworks'])
+@pytest.mark.parametrize('quality', ['medium'])
 @pytest.mark.parametrize('cluster', [NEW_CLUSTER])
 @pytest.mark.parametrize('cluster_new', ['local'])
 def test_backend(
