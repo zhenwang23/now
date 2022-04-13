@@ -1,6 +1,7 @@
 import base64
 import os
 import sys
+from copy import deepcopy
 from urllib.request import urlopen
 
 import streamlit as st
@@ -127,6 +128,7 @@ def deploy_streamlit():
         query = upload_c.file_uploader("")
         if query:
             doc = convert_file_to_document(query)
+            st.image(doc.blob, width=160)
             st.session_state.matches = search_by_file(
                 document=doc, server=host, port=port
             )
@@ -161,10 +163,10 @@ def deploy_streamlit():
                         )
 
     st.markdown("""---""")
-    min_confidence = st.slider('Minimum confidence score', 0.0, 1.0, key='slider')
+    min_confidence = st.slider('Confidence threshold', 0.0, 1.0, key='slider')
 
     if st.session_state.matches:
-        matches = st.session_state.matches
+        matches = deepcopy(st.session_state.matches)
         st.header('Search results')
         # Results area
         c1, c2, c3 = st.columns(3)
@@ -173,6 +175,9 @@ def deploy_streamlit():
         all_cs = [c1, c2, c3, c4, c5, c6, c7, c8, c9]
         # # TODO dirty hack to filter out text. Instead output modality should be passed as parameter
         # matches = [m for m in matches if m.tensor is None]
+        for m in matches:
+            m.scores['cosine'].value = 1 - m.scores['cosine'].value
+        sorted(matches, key=lambda m: m.scores['cosine'].value, reverse=True)
         matches = [m for m in matches if m.scores['cosine'].value > min_confidence]
         for c, match in zip(all_cs, matches):
             match.mime_type = 'img'
