@@ -20,16 +20,15 @@ def test_backend(
     cluster: str,
     cluster_new: str,
 ):
-    args = {
-        'data': None,
-        'dataset': dataset,
+    kwargs = {
+        'data': dataset,
         'quality': quality,
         'cluster': cluster,
         'cluster_new': cluster_new,
         'proceed': True,
     }
-    args = Namespace(**args)
-    cli(args=args)
+    kwargs = Namespace(**kwargs)
+    cli(args=kwargs)
 
     if dataset == 'best-artworks':
         search_text = 'impressionism'
