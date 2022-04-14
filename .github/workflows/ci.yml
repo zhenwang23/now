@@ -148,7 +148,7 @@ jobs:
           file: coverage.xml
           flags: ${{ steps.test.outputs.codecov_flag }}
           fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+#          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
 
   # just for blocking the merge until all parallel core-test are successful
   success-all-test:

@@ -43,7 +43,7 @@ def stop_now(contexts, active_context, **kwargs):
 
 
 def run_k8s(os_type='linux', arch='x86_64', **kwargs):
-    contexts, active_context, is_debug = get_system_state()
+    contexts, active_context, is_debug = get_system_state(**kwargs)
     if ('cli' in kwargs and kwargs['cli'] == 'stop') or (
         'now' in kwargs and kwargs['now'] == 'stop'
     ):

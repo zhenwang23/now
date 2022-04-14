@@ -24,7 +24,7 @@ Main features
 ```bash
 pip install jina-now
 ```
-<!-- end elevator-pitch -->
+
 
 In case you need sudo for running Docker, install and use jina-now using sudo as well.
 
@@ -116,3 +116,4 @@ Fine-tuned on bird species
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157069954-615a5cb6-dda0-4a2f-9442-ea807ad4a8d5.png">
 
 ### Now use your custom data :)
+<!-- end elevator-pitch -->
