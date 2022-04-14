@@ -115,7 +115,7 @@ def add_clip_embeddings(dataset, vision_model, tmpdir, **kwargs):
     ns = 'nowtmp'
     f = Flow(name=ns, port_expose=8080, cors=True,).add(
         name='clip',
-        uses='jinahub+docker://CLIPEncoder/v0.2.1',
+        uses='jinahub+sandbox://CLIPEncoder/v0.2.1',
         uses_with={'pretrained_model_name_or_path': vision_model},
     )
     (

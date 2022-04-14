@@ -120,7 +120,7 @@ def deploy_flow(
     )
     f = f.add(
         name='encoder_clip',
-        uses=f'jinahub+docker://CLIPEncoder/v0.2.1',
+        uses=f'jinahub+sandbox://CLIPEncoder/v0.2.1',
         uses_with={'pretrained_model_name_or_path': vision_model},
         env={'JINA_LOG_LEVEL': 'DEBUG'},
     )
