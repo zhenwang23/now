@@ -86,7 +86,7 @@ def get_user_input(contexts, active_context, os_type, arch, **kwargs) -> UserInp
 
 
 def prompt_plus(questions, attribute, **kwargs):
-    if kwargs and kwargs[attribute]:
+    if kwargs and attribute in kwargs.keys() and kwargs[attribute]:
         return kwargs[attribute]
     else:
         answer = prompt(questions)
@@ -151,7 +151,7 @@ def ask_data(user_input: UserInput, **kwargs):
             ],
         },
     ]
-    user_input.dataset = prompt_plus(questions, 'dataset')
+    user_input.dataset = prompt_plus(questions, 'dataset', **kwargs)
 
     if user_input.dataset == 'custom':
         user_input.is_custom_dataset = True
@@ -253,7 +253,7 @@ def get_context_names(contexts, active_context=None):
     return names
 
 
-def ask_new_cluster(user_input: UserInput, os_type, arch):
+def ask_new_cluster(user_input: UserInput, os_type, arch, **kwargs):
     user_input.cluster = None
     user_input.create_new_cluster = True
     questions = [
@@ -287,7 +287,7 @@ def ask_new_cluster(user_input: UserInput, os_type, arch):
             'filter': lambda val: val.lower(),
         }
     ]
-    user_input.new_cluster_type = prompt_plus(questions, 'cluster_new')
+    user_input.new_cluster_type = prompt_plus(questions, 'cluster_new', **kwargs)
     if user_input.new_cluster_type == 'gke':
         out, _ = cmd('which gcloud')
         if not out:
@@ -328,7 +328,7 @@ def ask_deployment(
     user_input.cluster = cluster
 
     if cluster == NEW_CLUSTER:
-        ask_new_cluster(user_input, os_type, arch)
+        ask_new_cluster(user_input, os_type, arch, **kwargs)
     else:
         if not cluster_running(cluster):
             print(f'Cluster {cluster} is not running. Please select a different one.')

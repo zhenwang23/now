@@ -17,7 +17,7 @@ cur_dir = pathlib.Path(__file__).parent.resolve()
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
-def create_local_cluster(kind_path):
+def create_local_cluster(kind_path, **kwargs):
     out, err = cmd(f'{kind_path} get clusters')
     if err and 'No kind clusters' not in err.decode('utf-8'):
         print(err.decode('utf-8'))
@@ -36,7 +36,7 @@ def create_local_cluster(kind_path):
                 ],
             },
         ]
-        recreate = prompt_plus(questions, 'proceed')
+        recreate = prompt_plus(questions, 'proceed', **kwargs)
         if recreate:
             with yaspin(
                 sigmap=sigmap, text="Remove local cluster", color="green"
@@ -88,7 +88,7 @@ def setup_cluster(
         ask_existing(kubectl_path)
     else:
         if provider == 'local':
-            create_local_cluster(kind_path)
+            create_local_cluster(kind_path, **kwargs)
         elif provider == 'gke':
             create_gke_cluster()
 
