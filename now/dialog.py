@@ -12,6 +12,7 @@ from pyfiglet import Figlet
 from yaspin import yaspin
 
 from now.deployment.deployment import cmd
+from now.frontend.frontend import ds_set
 from now.system_information import get_system_state
 from now.thridparty.PyInquirer import Separator
 from now.thridparty.PyInquirer.prompt import prompt
@@ -24,15 +25,6 @@ QUALITY_MAP = {
     'medium': ('ViT-B32', 'openai/clip-vit-base-patch32'),
     'good': ('ViT-B16', 'openai/clip-vit-base-patch16'),
     'excellent': ('ViT-L14', 'openai/clip-vit-large-patch14'),
-}
-
-LIST_OF_DB = {
-    'artworks',
-    'birds',
-    'cas',
-    'chest x-ray',
-    'deepfashion',
-    'geolocation',
 }
 
 
@@ -111,7 +103,7 @@ def assign_data_fields(user_input, data):
     elif 'http' in data:
         user_input.custom_dataset_type = 'url'
         user_input.dataset_url = data
-    elif data in LIST_OF_DB:
+    elif data in ds_set:
         user_input.dataset = data
         user_input.is_custom_dataset = False
     else:

@@ -17,3 +17,4 @@ __pycache__/
 build
 jina_now.egg-info
 dist
+docs/_build
