@@ -11,6 +11,9 @@ from jina import Client, Document
 if 'matches' not in st.session_state:
     st.session_state.matches = None
 
+if 'min_confidence' not in st.session_state:
+    st.session_state.min_confidence = 0.0
+
 
 def deploy_streamlit():
     """
@@ -162,9 +165,6 @@ def deploy_streamlit():
                             input=doc.content, server=host, port=port
                         )
 
-    st.markdown("""---""")
-    min_confidence = st.slider('Confidence threshold', 0.0, 1.0, key='slider')
-
     if st.session_state.matches:
         matches = deepcopy(st.session_state.matches)
         st.header('Search results')
@@ -178,7 +178,11 @@ def deploy_streamlit():
         for m in matches:
             m.scores['cosine'].value = 1 - m.scores['cosine'].value
         sorted(matches, key=lambda m: m.scores['cosine'].value, reverse=True)
-        matches = [m for m in matches if m.scores['cosine'].value > min_confidence]
+        matches = [
+            m
+            for m in matches
+            if m.scores['cosine'].value > st.session_state.min_confidence
+        ]
         for c, match in zip(all_cs, matches):
             match.mime_type = 'img'
             if match.blob != b'':
@@ -186,11 +190,20 @@ def deploy_streamlit():
             if match.tensor is not None:
                 match.convert_image_tensor_to_uri()
             c.image(match.convert_blob_to_datauri().uri)
+        st.markdown("""---""")
+        st.session_state.min_confidence = st.slider(
+            'Confidence threshold', 0.0, 1.0, key='slider', on_change=update_conf
+        )
+
+
+def update_conf():
+    st.session_state.min_confidence = st.session_state.slider
 
 
 def clear_match():
     st.session_state.matches = None
     st.session_state.slider = 0.0
+    st.session_state.min_confidence = 0.0
 
 
 def clear_text():
