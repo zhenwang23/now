@@ -49,12 +49,10 @@ def run_k8s(os_type='linux', arch='x86_64', **kwargs):
     ):
         stop_now(contexts, active_context, **kwargs)
     else:
+        user_input = get_user_input(contexts, active_context, os_type, arch, **kwargs)
         with tempfile.TemporaryDirectory() as tmpdir:
             docker_frontend_tag = '0.0.1'
 
-            user_input = get_user_input(
-                contexts, active_context, os_type, arch, **kwargs
-            )
             setup_cluster(user_input.cluster, user_input.new_cluster_type, **kwargs)
             (
                 gateway_host,
@@ -62,7 +60,6 @@ def run_k8s(os_type='linux', arch='x86_64', **kwargs):
                 gateway_host_internal,
                 gateway_port_internal,
             ) = run_backend.run(user_input, is_debug, tmpdir, **kwargs)
-            kwargs.pop('dataset', None)
             frontend_host, frontend_port = run_frontend.run(
                 user_input.dataset,
                 gateway_host,
