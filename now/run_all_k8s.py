@@ -6,7 +6,7 @@ from yaspin import yaspin
 from now import run_backend, run_frontend
 from now.cloud_manager import setup_cluster
 from now.deployment.deployment import cmd
-from now.dialog import get_context_names, get_user_input, prompt_plus
+from now.dialog import configure_user_input, get_context_names, prompt_plus
 from now.system_information import get_system_state
 from now.utils import sigmap
 
@@ -42,14 +42,21 @@ def stop_now(contexts, active_context, **kwargs):
         cowsay.cow(f'nowapi namespace removed from {cluster}')
 
 
-def run_k8s(os_type='linux', arch='x86_64', **kwargs):
+def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
+
     contexts, active_context, is_debug = get_system_state(**kwargs)
     if ('cli' in kwargs and kwargs['cli'] == 'stop') or (
         'now' in kwargs and kwargs['now'] == 'stop'
     ):
         stop_now(contexts, active_context, **kwargs)
     else:
-        user_input = get_user_input(contexts, active_context, os_type, arch, **kwargs)
+        user_input = configure_user_input(
+            contexts=contexts,
+            active_context=active_context,
+            os_type=os_type,
+            arch=arch,
+            **kwargs,
+        )
         with tempfile.TemporaryDirectory() as tmpdir:
             docker_frontend_tag = '0.0.1'
 

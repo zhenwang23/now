@@ -72,6 +72,12 @@ def set_start_parser(sp=None):
     )
 
     parser.add_argument(
+        '--modality',
+        help='Select the modality you want to develop a search flow for.',
+        type=str
+    )
+
+    parser.add_argument(
         '--data',
         help='Select one of the available datasets or provide local filepath, '
         'docarray url, or docarray secret to use your own dataset',
@@ -113,10 +119,6 @@ def get_main_parser():
     )
     set_start_parser(sp)
     set_stop_parser(sp)
-
-    # set_stop_parser(
-    #
-    # )
 
     return parser
 
