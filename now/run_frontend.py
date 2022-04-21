@@ -64,6 +64,6 @@ if __name__ == '__main__':
         None,
         'gateway.nowapi.svc.cluster.local',
         '8080',
-        docker_frontend_tag='0.0.1',
+        docker_frontend_tag='0.0.2',
     )
     # 31080
