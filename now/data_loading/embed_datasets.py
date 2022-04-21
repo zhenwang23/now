@@ -1,6 +1,6 @@
 import io
 import math
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 import clip
 import torch
@@ -13,8 +13,8 @@ from now.data_loading.utils import upload_to_gcloud_bucket
 
 
 def _text_collate_fn(batch: DocumentArray):
-    # if TYPE_CHECKING:
-    #     import clip
+    if TYPE_CHECKING:
+        import clip
     return clip.tokenize([doc.text.lower() for doc in batch], truncate=True)
 
 
@@ -80,8 +80,8 @@ def embed_dataset(
     batch_size: int = 128,
     num_workers: int = 8,
 ):
-    # if TYPE_CHECKING:
-    #     import clip
+    if TYPE_CHECKING:
+        import clip
     path = f'{dataset}.bin'
 
     print(f'===> {dataset} - {model}')

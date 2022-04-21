@@ -186,19 +186,25 @@ def deploy_streamlit():
             for m in matches
             if m.scores['cosine'].value > st.session_state.min_confidence
         ]
+        if output_modality == 'text':
+            longest_text = max(map(len, [match.text for match in matches]))
         for c, match in zip(all_cs, matches):
             match.mime_type = output_modality
 
-            if output_modality == 'text' and match.text is not None:
-                if data == 'lyrics' or data == 'lyrics-10000':
-                    c.markdown(
-                        body=f"<!DOCTYPE html><html><body><blockquote>{match.text}</blockquote>"
-                        f"<figcaption>{match.tags['artist']}, <cite>{match.tags['song']}</cite></figcaption>"
-                        f"</body></html>",
-                        unsafe_allow_html=True,
+            if output_modality == 'text':
+                padded_text = match.text + (longest_text - len(match.text)) * ' '
+                body = (
+                    f"<!DOCTYPE html><html><body><blockquote>{padded_text}</blockquote>"
+                )
+                if match.tags.get('additional_info'):
+                    body += (
+                        f"<figcaption>{match.tags.get('additional_info')}</figcaption>"
                     )
-                else:
-                    c.text(match.text)
+                body += "</body></html>"
+                c.markdown(
+                    body=body,
+                    unsafe_allow_html=True,
+                )
             elif match.uri is not None:
                 if match.blob != b'':
                     match.convert_blob_to_datauri()
