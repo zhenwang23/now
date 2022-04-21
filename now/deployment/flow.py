@@ -101,6 +101,7 @@ def deploy_k8s(f, ns, num_pods, tmpdir, **kwargs):
 
 def deploy_flow(
     executor_name,
+    output_modality,
     index,
     vision_model,
     final_layer_output_dim,
@@ -143,7 +144,10 @@ def deploy_flow(
     )
     # f.plot('./flow.png', vertical_layout=True)
 
-    index = [x for x in index if x.text == '']
+    if output_modality == 'image':
+        index = [x for x in index if x.text == '']
+    elif output_modality == 'text':
+        index = [x for x in index if x.text != '']
 
     (
         gateway_host,

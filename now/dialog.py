@@ -39,6 +39,7 @@ LIST_OF_DB = {
 @dataclass
 class UserInput:
     # data related
+    output_modality: Optional[str] = 'image'
     dataset: Optional[str] = 'deepfashion'
     is_custom_dataset: Optional[bool] = False
     custom_dataset_type: Optional[str] = None
@@ -85,8 +86,72 @@ def get_user_input(contexts, active_context, os_type, arch, **kwargs) -> UserInp
     return user_input
 
 
+def ask_data(user_input: UserInput, **kwargs):
+    questions_output_modality = {
+        'type': 'list',
+        'name': 'output_modality',
+        'message': 'In what data modality do you want to search?',
+        'choices': [
+            {'name': '📷 images', 'value': 'image'},
+            {'name': '📝 text', 'value': 'text'},
+        ],
+    }
+    user_input.output_modality = prompt_plus(
+        [questions_output_modality], 'output_modality', **kwargs
+    )
+
+    questions_dataset = {
+        'type': 'list',
+        'name': 'dataset',
+        'message': 'What dataset do you want to use?',
+    }
+    if user_input.output_modality == 'image':
+        questions_dataset['choices'] = [
+            {'name': '🖼  artworks (≈8K docs)', 'value': 'best-artworks'},
+            {
+                'name': '💰 nft - bored apes (10K docs)',
+                'value': 'nft-monkey',
+            },
+            {'name': '👬 totally looks like (≈12K docs)', 'value': 'tll'},
+            {'name': '🦆 birds (≈12K docs)', 'value': 'bird-species'},
+            {'name': '🚗 cars (≈16K docs)', 'value': 'stanford-cars'},
+            {
+                'name': '🏞  geolocation (≈50K docs)',
+                'value': 'geolocation-geoguessr',
+            },
+            {'name': '👕 fashion (≈53K docs)', 'value': 'deepfashion'},
+            {
+                'name': '☢️  chest x-ray (≈100K docs)',
+                'value': 'nih-chest-xrays',
+            },
+        ]
+    elif user_input.output_modality == 'text':
+        questions_dataset['choices'] = [
+            {'name': '🎤 song lyrics (≈5M docs)', 'value': 'lyrics'},
+            {'name': '🎤 few song lyrics (10K docs)', 'value': 'lyrics-10000'},
+            # {'name': '💻 python code (≈UNKNOWN docs)', 'value': 'python-code'},
+        ]
+    if user_input.output_modality != 'text':
+        questions_dataset['choices'].extend(
+            [
+                Separator(),
+                {
+                    'name': '✨ custom',
+                    'value': 'custom',
+                },
+            ]
+        )
+    user_input.dataset = prompt_plus([questions_dataset], 'dataset', **kwargs)
+
+    if user_input.dataset == 'custom':
+        user_input.is_custom_dataset = True
+        ask_data_custom(user_input, **kwargs)
+    else:
+        user_input.is_custom_dataset = False
+
+
 def prompt_plus(questions, attribute, **kwargs):
-    if kwargs and kwargs[attribute]:
+    if kwargs and kwargs.get(attribute):
         return kwargs[attribute]
     else:
         answer = prompt(questions)
@@ -117,47 +182,6 @@ def assign_data_fields(user_input, data):
     else:
         user_input.custom_dataset_type = 'docarray'
         user_input.dataset_secret = data
-
-
-def ask_data(user_input: UserInput, **kwargs):
-    questions = [
-        {
-            'type': 'list',
-            'name': 'dataset',
-            'message': 'What dataset do you want to use?',
-            'choices': [
-                {'name': '🖼  artworks (≈8K docs)', 'value': 'best-artworks'},
-                {
-                    'name': '💰 nft - bored apes (10K docs)',
-                    'value': 'nft-monkey',
-                },
-                {'name': '👬 totally looks like (≈12K docs)', 'value': 'tll'},
-                {'name': '🦆 birds (≈12K docs)', 'value': 'bird-species'},
-                {'name': '🚗 cars (≈16K docs)', 'value': 'stanford-cars'},
-                {
-                    'name': '🏞  geolocation (≈50K docs)',
-                    'value': 'geolocation-geoguessr',
-                },
-                {'name': '👕 fashion (≈53K docs)', 'value': 'deepfashion'},
-                {
-                    'name': '☢️  chest x-ray (≈100K docs)',
-                    'value': 'nih-chest-xrays',
-                },
-                Separator(),
-                {
-                    'name': '✨ custom',
-                    'value': 'custom',
-                },
-            ],
-        },
-    ]
-    user_input.dataset = prompt_plus(questions, 'dataset')
-
-    if user_input.dataset == 'custom':
-        user_input.is_custom_dataset = True
-        ask_data_custom(user_input, **kwargs)
-    else:
-        user_input.is_custom_dataset = False
 
 
 def ask_data_custom(user_input: UserInput, **kwargs):

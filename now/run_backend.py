@@ -32,6 +32,8 @@ def is_finetuning(dataset_name, dataset):
         'stanford-cars',
         # 'bird-species',
         'best-artworks',
+        'lyrics',
+        'lyrics-10000',
     ]:
         return False
     for d in dataset:
@@ -56,6 +58,7 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
     ) = parse_user_input(user_input.model_quality, is_debug)
 
     dataset, ds_type = load_data(
+        user_input.output_modality,
         user_input.dataset,
         user_input.model_quality,
         user_input.is_custom_dataset,
@@ -134,6 +137,7 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         gateway_port_internal,
     ) = deploy_flow(
         executor_name,
+        user_input.output_modality,
         dataset['index'],
         user_input.model_variant,
         final_layer_output_dim,

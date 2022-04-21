@@ -16,7 +16,7 @@ def deploy_streamlit():
     """
     print('Run Streamlit with:', sys.argv)
     print(sys.argv)
-    _, host, port, data = sys.argv
+    _, host, port, output_modality, data = sys.argv
     da_img = None
     da_txt = None
 
@@ -120,7 +120,10 @@ def deploy_streamlit():
         '<style>div.st-bf{flex-direction:column;} div.st-ag{font-weight:bold;padding-right:50px;}</style>',
         unsafe_allow_html=True,
     )
-    media_type = st.radio('', ["text", "Image"])
+    if output_modality == 'image':
+        media_type = st.radio('', ["Text", "Image"])
+    elif output_modality == 'text':
+        media_type = st.radio('', ["Image", "Text"])
 
     if media_type == "Image":
         upload_c, preview_c = st.columns([12, 1])
@@ -134,7 +137,7 @@ def deploy_streamlit():
             txt_cs = st.columns(5)
             for doc, c, txt in zip(da_img, img_cs, txt_cs):
                 with c:
-                    print('type', type(doc.blob), doc.blob)
+                    # print('type', type(doc.blob), doc.blob)
                     st.image(doc.blob if doc.blob else doc.tensor, width=100)
                 with txt:
                     if st.button('Search', key=doc.id):
@@ -142,7 +145,7 @@ def deploy_streamlit():
                             document=doc, server=host, port=port, convert_needed=False
                         )
 
-    elif media_type == "text":
+    elif media_type == "Text":
         query = st.text_input("", key="text_search_box")
         if query:
             matches = search_by_t(input=query, server=host, port=port)
@@ -174,7 +177,21 @@ def deploy_streamlit():
             print('match.tensor', match.tensor)
             if match.tensor is not None:
                 match.convert_image_tensor_to_uri()
-            c.image(match.convert_blob_to_datauri().uri)
+
+            if output_modality == 'text' and match.text is not None:
+                if data == 'lyrics' or data == 'lyrics-10000':
+                    # c.markdown(f"> {match.text}\\"
+                    #            f">― {match.tags['song']} by {match.tags['artist']}")
+                    c.markdown(
+                        body=f"<!DOCTYPE html><html><body><blockquote>{match.text}</blockquote>"
+                        f"<figcaption>{match.tags['artist']}, <cite>{match.tags['song']}</cite></figcaption>"
+                        f"</body></html>",
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    c.text(match.text)
+            elif match.uri is not None:
+                c.image(match.uri)
 
 
 def load_data(data_path: str) -> DocumentArray:
