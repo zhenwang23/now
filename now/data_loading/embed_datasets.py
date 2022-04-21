@@ -156,6 +156,8 @@ def main():
         'stanford-cars',
         'bird-species',
         'best-artworks',
+        'lyrics',
+        'lyrics-10000',
     ]
     models = ['ViT-B/32', 'ViT-B/16', 'ViT-L/14']
     batch_size = 128
