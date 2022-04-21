@@ -1,12 +1,23 @@
 import base64
+import logging
 import os
 import sys
+import warnings
 from copy import deepcopy
 from urllib.request import urlopen
 
+import av
+import numpy as np
 import streamlit as st
 from docarray import DocumentArray
 from jina import Client, Document
+from streamlit_webrtc import ClientSettings, VideoTransformerBase, webrtc_streamer
+
+logger = logging.getLogger('my_module_name')
+WEBRTC_CLIENT_SETTINGS = ClientSettings(
+    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
+    media_stream_constraints={"video": True, "audio": False},
+)
 
 if 'matches' not in st.session_state:
     st.session_state.matches = None
@@ -175,6 +186,47 @@ def deploy_streamlit():
                         st.session_state.matches = search_by_t(
                             input=doc.content, server=host, port=port
                         )
+
+    elif media_type == 'Webcam1':
+        placeholder = st.empty()
+        # st.button('Capture', disabled=True, key='snapshot')
+
+        class VideoProcessor(VideoTransformerBase):
+            snapshot: np.ndarray = None
+
+            def transform(self, frame: av.VideoFrame):
+                self.snapshot = frame.to_ndarray(format="bgr24")
+                return self.snapshot
+
+            # def recv(self, frame: av.VideoFrame):
+            #     pass
+
+        ctx = webrtc_streamer(
+            key="jina-now",
+            video_transformer_factory=VideoProcessor,
+            client_settings=WEBRTC_CLIENT_SETTINGS,
+        )
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("always")
+            if ctx.video_transformer:
+                if placeholder.button('Snapshot'):
+                    query = ctx.video_transformer.snapshot
+                    doc = Document(tensor=query)
+                    doc.convert_image_tensor_to_blob()
+                    st.image(doc.blob, channels="BGR", width=160)
+                    st.session_state.matches = search_by_file(
+                        document=doc, server=host, port=port
+                    )
+    elif media_type == 'Webcam2':
+        from webcam import webcam
+
+        captured_image = webcam()
+        if captured_image is None:
+            st.write("Waiting for capture...")
+        else:
+            st.write("Got an image from the webcam:")
+            st.image(captured_image)
 
     if st.session_state.matches:
         matches = deepcopy(st.session_state.matches)
