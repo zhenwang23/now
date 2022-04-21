@@ -11,7 +11,7 @@ matplotlib==3.5.1
 cryptography==36.0.1
 spacy==3.2.1
 streamlit==1.5.0
-jina>=3.2.8
+jina==3.3.3
 cowsay==4.0
 portforward==0.2.7
 sklearn
@@ -22,3 +22,4 @@ google-cloud-container
 yaspin==2.1.0
 prompt_toolkit==3.0.28
 protobuf==3.19.4
+pytest==7.1.1

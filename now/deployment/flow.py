@@ -154,7 +154,7 @@ def deploy_flow(
         gateway_port,
         gateway_host_internal,
         gateway_port_internal,
-    ) = deploy_k8s(f, ns, 7 if finetuning else 5, tmpdir, **kwargs)
+    ) = deploy_k8s(f, ns, 4 if finetuning else 3, tmpdir, **kwargs)
     print(
         f'▶ indexing {len(index)} documents - if it stays at 0% for a while, it is all good - just wait :)'
     )

@@ -12,6 +12,7 @@ from pyfiglet import Figlet
 from yaspin import yaspin
 
 from now.deployment.deployment import cmd
+from now.frontend.frontend import ds_set
 from now.system_information import get_system_state
 from now.thridparty.PyInquirer import Separator
 from now.thridparty.PyInquirer.prompt import prompt
@@ -24,15 +25,6 @@ QUALITY_MAP = {
     'medium': ('ViT-B32', 'openai/clip-vit-base-patch32'),
     'good': ('ViT-B16', 'openai/clip-vit-base-patch16'),
     'excellent': ('ViT-L14', 'openai/clip-vit-large-patch14'),
-}
-
-LIST_OF_DB = {
-    'artworks',
-    'birds',
-    'cas',
-    'chest x-ray',
-    'deepfashion',
-    'geolocation',
 }
 
 
@@ -176,7 +168,7 @@ def assign_data_fields(user_input, data):
     elif 'http' in data:
         user_input.custom_dataset_type = 'url'
         user_input.dataset_url = data
-    elif data in LIST_OF_DB:
+    elif data in ds_set:
         user_input.dataset = data
         user_input.is_custom_dataset = False
     else:
@@ -277,7 +269,7 @@ def get_context_names(contexts, active_context=None):
     return names
 
 
-def ask_new_cluster(user_input: UserInput, os_type, arch):
+def ask_new_cluster(user_input: UserInput, os_type, arch, **kwargs):
     user_input.cluster = None
     user_input.create_new_cluster = True
     questions = [
@@ -311,7 +303,7 @@ def ask_new_cluster(user_input: UserInput, os_type, arch):
             'filter': lambda val: val.lower(),
         }
     ]
-    user_input.new_cluster_type = prompt_plus(questions, 'cluster_new')
+    user_input.new_cluster_type = prompt_plus(questions, 'cluster_new', **kwargs)
     if user_input.new_cluster_type == 'gke':
         out, _ = cmd('which gcloud')
         if not out:
@@ -352,7 +344,7 @@ def ask_deployment(
     user_input.cluster = cluster
 
     if cluster == NEW_CLUSTER:
-        ask_new_cluster(user_input, os_type, arch)
+        ask_new_cluster(user_input, os_type, arch, **kwargs)
     else:
         if not cluster_running(cluster):
             print(f'Cluster {cluster} is not running. Please select a different one.')
