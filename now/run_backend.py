@@ -53,11 +53,11 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         batch_size,
         train_val_split_ratio,
         num_default_val_queries,
-    ) = parse_user_input(user_input.model_quality, is_debug)
+    ) = parse_user_input(user_input.quality, is_debug)
 
     dataset, ds_type = load_data(
         user_input.dataset,
-        user_input.model_quality,
+        user_input.quality,
         user_input.is_custom_dataset,
         user_input.custom_dataset_type,
         user_input.dataset_secret,
@@ -103,7 +103,7 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
                     warnings.simplefilter("ignore")
                     show_improvement(
                         user_input.dataset,
-                        user_input.model_quality,
+                        user_input.quality,
                         dataset['val_query_image'],
                         dataset['val_index_image'],
                         dataset['val_query'],

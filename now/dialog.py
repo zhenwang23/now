@@ -60,7 +60,7 @@ AVAILABLE_DATASET = [
     'tll',
     'bird-species',
     'stanford-cars',
-    'deep-fashion',
+    'deepfashion',
     'nih-chest-xrays',
     'geolocation-geoguessr',
     'music-genres-small',
@@ -68,7 +68,7 @@ AVAILABLE_DATASET = [
 ]
 
 
-class Modalities(enum.Enum):
+class Modalities(str, enum.Enum):
     IMAGE = 'image'
     AUDIO = 'audio'
 
@@ -377,6 +377,7 @@ class ConfigureCluster(BaseConfigurationStep['str']):
         def __init__(self, **kwargs):
             super().__init__(
                 name='new_cluster_type',
+                cli_value=kwargs.get('new_cluster_type'),
                 choices=[
                     {
                         'name': '📍 local (Kubernetes in Docker)',

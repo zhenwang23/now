@@ -67,6 +67,8 @@ def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
                 gateway_host_internal,
                 gateway_port_internal,
             ) = run_backend.run(user_input, is_debug, tmpdir, **kwargs)
+            if 'dataset' in kwargs:
+                kwargs.pop('dataset')
             frontend_host, frontend_port = run_frontend.run(
                 user_input.dataset,
                 gateway_host,
@@ -88,4 +90,9 @@ def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
 
 
 if __name__ == '__main__':
-    run_k8s()
+    run_k8s(
+        modality='audio',
+        dataset='music-genres-small',
+        cluster='new',
+        new_cluster_type='local',
+    )

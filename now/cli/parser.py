@@ -87,8 +87,13 @@ def set_start_parser(sp=None):
 
     parser.add_argument(
         '--cluster',
-        help='Choose the quality of the model that you would like to finetune',
+        help='Reference an existing cluster or select `new` to create a new one.',
         type=str,
+    )
+
+    parser.add_argument(
+        '--new-cluster-type',
+        help='Only effective if --cluster=new. Optional are `local` and `gke`.',
     )
 
 

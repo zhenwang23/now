@@ -83,7 +83,7 @@ def setup_cluster(
     kind_path='kind',
     **kwargs,
 ):
-    if cluster_name is not None:
+    if cluster_name is not None and cluster_name != 'new':
         cmd(f'{kubectl_path} config use-context {cluster_name}')
         ask_existing(kubectl_path)
     else:

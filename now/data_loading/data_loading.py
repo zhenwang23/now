@@ -10,7 +10,21 @@ from docarray import DocumentArray
 from yaspin import yaspin
 
 from now.data_loading.convert_datasets_to_jpeg import to_thumbnail_jpg
+from now.dialog import QUALITY_MAP
 from now.utils import download, sigmap
+
+
+def get_dataset_url(dataset: str, quality: Optional[str] = None) -> str:
+    if quality is not None:
+        return (
+            'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
+            f'jpeg/{dataset}.{QUALITY_MAP[quality][0]}.bin'
+        )
+    else:
+        return (
+            'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
+            f'audio/{dataset}.bin'
+        )
 
 
 def _fetch_da_from_url(
@@ -33,22 +47,6 @@ def _fetch_da_from_url(
 
 
 def remove_duplicates(da: DocumentArray):
-    """Some da"""
-    # known_set = set()
-    # unique_dataset = DocumentArray()
-    # for i, d in enumerate(da):
-    #     d.id = str(uuid.uuid4())
-    #     l = d.tags['finetuner_label']
-    #     if d.text and l in known_set:
-    #         continue
-    #     unique_dataset.append(d)
-    #     known_set.add(l)
-    # return unique_dataset
-    # da_text = DocumentArray(d for d in da if d.text)
-    # da_img = DocumentArray(d for d in da if not d.text)
-    # da_text.embeddings = da_text.embeddings - da_text.embeddings.mean(0)
-    # da_img.embeddings = da_img.embeddings - da_img.embeddings.mean(0)
-
     new_da = DocumentArray()
     for i, d in enumerate(da):
         new_doc = deepcopy(d)
@@ -59,7 +57,7 @@ def remove_duplicates(da: DocumentArray):
 
 def load_data(
     dataset: str,
-    model_quality: str,
+    quality: str,
     is_custom: bool,
     custom_type: str,
     secret: Optional[str],
@@ -69,10 +67,7 @@ def load_data(
 
     if not is_custom:
         print('⬇  Download data')
-        url = (
-            'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
-            f'jpeg/{dataset}.{model_quality}.bin'
-        )
+        url = get_dataset_url(dataset, quality=quality)
         da = _fetch_da_from_url(url)
         ds_type = 'demo'
 
@@ -117,22 +112,12 @@ def load_data(
                     spinner.ok('🏭')
                 ds_type = 'local_folder'
 
-                # for d in da:
-                #     d.tags['finetuner_label'] = os.path.dirname(d.uri).split('/')[-1]
-
     da = da.shuffle(seed=42)
     da = remove_duplicates(da)
     return da, ds_type
 
 
-# def load_all_data(dataset):
-#     for k, v in dataset.items():
-#         if v is not None:
-#             dataset[k] = load_data(v)
-
-
 def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
-    # ds['index'] = deepcopy(DocumentArray(d for d in ds['index'] if d.tensor is not None))
     if ds['train'] is None:
         ds['train'] = ds['index']
     if ds['val'] is None:
@@ -155,12 +140,8 @@ def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
         ds['val_query'] = DocumentArray(
             [deepcopy(doc) for doc in random.sample(ds['val_index'], num_queries)]
         )
-        # for d in ds['val_query']:
-        #     ds['val_index'].remove(d)
-
     if ds['val_index_image'] is None:
         ds['val_index_image'] = deepcopy(
-            # DocumentArray(d for d in ds['val'] if d.blob is not None)
             DocumentArray(d for d in ds['val'] if d.blob != b'')
         )
     if ds['val_query_image'] is None:
@@ -170,5 +151,3 @@ def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
                 for doc in random.sample(ds['val_index_image'], num_default_val_queries)
             ]
         )
-        # for d in ds['val_query_image']:
-        #     ds['val_index_image'].remove(d)
