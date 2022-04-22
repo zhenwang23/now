@@ -1,8 +1,7 @@
 <p align="center">
-<img src="https://user-images.githubusercontent.com/11627845/160392052-69672e7f-2e4d-45ee-a617-4384256bb6e8.jpg" alt="Jina NOW logo: The data structure for unstructured data" width="300px">
+<img src="https://user-images.githubusercontent.com/11627845/164569571-ffe6167b-a3ad-47fd-96b5-15b736f60d67.svg" alt="Jina NOW logo: The data structure for unstructured data" width="300px">
 <br>
-
-<b>One line to host them all. Bootstrap your image search case in minutes.</b>
+One line to host them all. Bootstrap your image search case in minutes.
 </p>
 
 <p align=center>
@@ -10,14 +9,19 @@
 <a href="https://pypi.org/project/jina-now/"><img src="https://img.shields.io/pypi/v/jina-now?color=%23099cec&amp;label=PyPI&amp;logo=pypi&amp;logoColor=white" alt="PyPI"></a>
 </p>
 
-<!-- start elevator-pitch -->
+<p align="center">
+<img src="https://user-images.githubusercontent.com/11627845/164569398-5ef22a41-e2e1-438a-88a5-2ac43ad9426d.gif" alt="Jina NOW logo: The data structure for unstructured data" width="600px"></p>
+<br>
 
+<!-- start elevator-pitch -->
 NOW gives the world access to customized neural image search in just one line of code.
 Main features
 - 🐥 **Easy**: No engineering skills required
 - 🐎 **Fast**: Set up your search case within minutes
 - 🌈 **Quality**: If you provide labels to your documents, Jina NOW fine-tunes a model for you
 - 🌳 **Reliable**: We take care of the deployment and maintenance (coming soon)
+
+
 
 ### Installation
 
@@ -34,20 +38,20 @@ For the Mac M1 it is generally recommended using a conda environment as outlined
 
 ### Usage
 ```bash
-jina-now [start | stop] --data [pushpullid | localpath | url] --quality [medium | good | excellent] --cluster [k8s-cluster-name]
+jina now [start | stop] --data [<pushpullid> | <localpath> | <url>] --quality [medium | good | excellent] --cluster <k8s-cluster-name>
 ```
 
 ### quick start
 ```bash
-jina-now start
+jina now start
 ```
 ### use cli parameters
 ```bash
-jina-now start --quality medium --data /local/img/folder
+jina now start --quality medium --data /local/img/folder
 ```
 ### Cleanup
 ```bash
-jina-now stop
+jina now stop
 ```
 
 ### Requirements
