@@ -29,6 +29,7 @@ class ConfigureExample(BaseConfigurationStep):
 from __future__ import annotations, print_function, unicode_literals
 
 import abc
+import enum
 import os
 import pathlib
 from dataclasses import dataclass
@@ -46,7 +47,7 @@ from now.thridparty.PyInquirer.prompt import prompt
 from now.utils import sigmap
 
 cur_dir = pathlib.Path(__file__).parent.resolve()
-NEW_CLUSTER = '🐣 create new'
+NEW_CLUSTER = {'name': '🐣 create new', 'value': 'new'}
 AVAILABLE_SOON = 'will be available in upcoming versions'
 QUALITY_MAP = {
     'medium': ('ViT-B32', 'openai/clip-vit-base-patch32'),
@@ -62,30 +63,36 @@ AVAILABLE_DATASET = [
     'deep-fashion',
     'nih-chest-xrays',
     'geolocation-geoguessr',
-    'music-genres',
+    'music-genres-small',
+    'music-genres-large',
 ]
+
+
+class Modalities(enum.Enum):
+    IMAGE = 'image'
+    AUDIO = 'audio'
 
 
 @dataclass
 class UserInput:
-    modality: str = 'image'
+    modality: Optional[Modalities] = None
 
     # data related
-    dataset: Optional[str] = 'deepfashion'
-    is_custom_dataset: Optional[bool] = False
+    dataset: Optional[str] = None
+    is_custom_dataset: Optional[bool] = None
     custom_dataset_type: Optional[str] = None
     dataset_secret: Optional[str] = None
     dataset_url: Optional[str] = None
     dataset_path: Optional[str] = None
 
     # model related
-    model_quality: str = 'medium'
-    model_variant: str = 'ViT-B32'
+    quality: Optional[str] = None
+    model_variant: Optional[str] = None
 
     # cluster related
     cluster: Optional[str] = None
-    create_new_cluster: bool = False
-    new_cluster_type: str = 'local'
+    create_new_cluster: Optional[bool] = None
+    new_cluster_type: Optional[str] = None
 
     is_complete: bool = False
 
@@ -169,8 +176,8 @@ class FinalConfigurationStep(BaseConfigurationStep['str']):
 class ConfigureDataImage(BaseConfigurationStep['str']):
     def __init__(self, **kwargs):
         super().__init__(
-            name='dataset_image',
-            cli_value=kwargs.get('data'),
+            name='dataset',
+            cli_value=kwargs.get('dataset'),
             choices=[
                 {'name': '🖼  artworks (≈8K docs)', 'value': 'best-artworks'},
                 {
@@ -209,6 +216,7 @@ class ConfigureDataImage(BaseConfigurationStep['str']):
         else:
             user_input.is_custom_dataset = True
             if data == 'custom':
+                user_input.dataset = 'custom'
                 return ConfigureCustomDatasetType(**self._kwargs)
             else:
                 _parse_custom_data_from_cli(data, user_input)
@@ -218,8 +226,8 @@ class ConfigureDataImage(BaseConfigurationStep['str']):
 class ConfigureDataAudio(BaseConfigurationStep['str']):
     def __init__(self, **kwargs):
         super().__init__(
-            name='dataset_audio',
-            cli_value=kwargs.get('data'),
+            name='dataset',
+            cli_value=kwargs.get('dataset'),
             choices=[
                 {'name': '🎸 music small (≈2K docs)', 'value': 'music-genres-small'},
                 {'name': '🎸 music large (≈10K docs)', 'value': 'music-genres-large'},
@@ -243,17 +251,18 @@ class ConfigureDataAudio(BaseConfigurationStep['str']):
         else:
             user_input.is_custom_dataset = True
             if data == 'custom':
+                user_input.dataset = 'custom'
                 return ConfigureCustomDatasetType(**self._kwargs)
             else:
                 _parse_custom_data_from_cli(data, user_input)
-                return ConfigureQuality(**self._kwargs)
+                return ConfigureCluster(**self._kwargs)
 
 
 class ConfigureCustomDatasetType(BaseConfigurationStep['str']):
     class ConfigureDocarrayDataset(BaseConfigurationStep['str']):
         def __init__(self, **kwargs):
             super().__init__(
-                name='docarray-dataset',
+                name='dataset_secret',
                 prompt_message='Please enter your docarray secret.',
                 prompt_type='password',
             )
@@ -262,12 +271,15 @@ class ConfigureCustomDatasetType(BaseConfigurationStep['str']):
         def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
             secret = self.get_value()
             user_input.dataset_secret = secret
-            return ConfigureQuality(**self._kwargs)
+            if user_input.modality == Modalities.IMAGE:
+                return ConfigureQuality(**self._kwargs)
+            else:
+                return ConfigureCluster(**self._kwargs)
 
     class ConfigureUrlDataset(BaseConfigurationStep['str']):
         def __init__(self, **kwargs):
             super().__init__(
-                name='url',
+                name='dataset_url',
                 prompt_message='Please paste in your url for the docarray.',
                 prompt_type='input',
             )
@@ -276,12 +288,15 @@ class ConfigureCustomDatasetType(BaseConfigurationStep['str']):
         def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
             dataset_url = self.get_value()
             user_input.dataset_url = dataset_url
-            return ConfigureQuality(**self._kwargs)
+            if user_input.modality == Modalities.IMAGE:
+                return ConfigureQuality(**self._kwargs)
+            else:
+                return ConfigureCluster(**self._kwargs)
 
     class ConfigurePathDataset(BaseConfigurationStep['str']):
         def __init__(self, **kwargs):
             super().__init__(
-                name='local_path',
+                name='dataset_path',
                 prompt_message='Please enter the path to the local folder.',
                 prompt_type='input',
             )
@@ -290,11 +305,14 @@ class ConfigureCustomDatasetType(BaseConfigurationStep['str']):
         def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
             dataset_path = self.get_value()
             user_input.dataset_path = dataset_path
-            return ConfigureQuality(**self._kwargs)
+            if user_input.modality == Modalities.IMAGE:
+                return ConfigureQuality(**self._kwargs)
+            else:
+                return ConfigureCluster(**self._kwargs)
 
     def __init__(self, **kwargs):
         super().__init__(
-            name='custom-data',
+            name='custom_dataset_type',
             choices=[
                 {
                     'name': 'docarray.pull id (recommended)',
@@ -337,8 +355,8 @@ class ConfigureModality(BaseConfigurationStep['str']):
             name='modality',
             cli_value=kwargs.get('modality'),
             choices=[
-                {'name': '🏞 Image Search', 'value': 'image'},
-                {'name': '🔊 Audio Search', 'value': 'audio'},
+                {'name': '🏞 Image Search', 'value': Modalities.IMAGE},
+                {'name': '🔊 Audio Search', 'value': Modalities.AUDIO},
             ],
             prompt_message='Which modalities you want to work with?',
             prompt_type='list',
@@ -348,7 +366,7 @@ class ConfigureModality(BaseConfigurationStep['str']):
     def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
         modality = self.get_value()
         user_input.modality = modality
-        if modality == 'image':
+        if modality == Modalities.IMAGE:
             return ConfigureDataImage(**self._kwargs)
         else:
             return ConfigureDataAudio(**self._kwargs)
@@ -358,7 +376,7 @@ class ConfigureCluster(BaseConfigurationStep['str']):
     class ConfigureNewCluster(BaseConfigurationStep['str']):
         def __init__(self, **kwargs):
             super().__init__(
-                name='cluster_new',
+                name='new_cluster_type',
                 choices=[
                     {
                         'name': '📍 local (Kubernetes in Docker)',
@@ -392,7 +410,7 @@ class ConfigureCluster(BaseConfigurationStep['str']):
             user_input.create_new_cluster = True
             user_input.new_cluster_type = cluster_new
             if user_input.new_cluster_type == 'gke':
-                _maybe_install_gke(**self._kwargs)
+                _maybe_install_gke(self._kwargs['os_type'], self._kwargs['arch'])
             return FinalConfigurationStep(**self._kwargs)
 
     def __init__(self, **kwargs):
@@ -414,8 +432,8 @@ class ConfigureCluster(BaseConfigurationStep['str']):
 
     def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
         cluster = self.get_value()
-
-        if cluster == NEW_CLUSTER:
+        if cluster == NEW_CLUSTER['value']:
+            user_input.cluster = cluster
             return self.ConfigureNewCluster(**self._kwargs).configure_user_input(
                 user_input
             )
@@ -457,7 +475,8 @@ class ConfigureQuality(BaseConfigurationStep['str']):
         elif quality == 'excellent':
             print('  ✨ you trade-off speed to having the best quality')
 
-        user_input.model_quality, user_input.model_variant = QUALITY_MAP[quality]
+        user_input.quality = quality
+        _, user_input.model_variant = QUALITY_MAP[quality]
         return ConfigureCluster(**self._kwargs)
 
 

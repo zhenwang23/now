@@ -73,7 +73,7 @@ def set_start_parser(sp=None):
     )
 
     parser.add_argument(
-        '--data',
+        '--dataset',
         help='Select one of the available datasets or provide local filepath, '
         'docarray url, or docarray secret to use your own dataset',
         type=str,
