@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://user-images.githubusercontent.com/11627845/164569571-ffe6167b-a3ad-47fd-96b5-15b736f60d67.svg" alt="Jina NOW logo: The data structure for unstructured data" width="300px">
+<img src="https://user-images.githubusercontent.com/11627845/164714280-16fa302d-fa2c-43e8-b001-ed985b4f5b7f.svg" alt="Jina NOW logo: The data structure for unstructured data" width="300px">
 <br>
 One line to host them all. Bootstrap your image search case in minutes.
 </p>
@@ -84,31 +84,31 @@ jina now stop
   
 ## Examples
 
-<details><summary>Fashion</summary>
+<details><summary>👕 Fashion</summary>
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157079335-8f36fc73-d826-4c0a-b1f3-ed5d650a1af1.png">
 </details>
 
-<details><summary>Chest X-Ray</summary>
+<details><summary>☢️ Chest X-Ray</summary>
 <img src="https://user-images.githubusercontent.com/11627845/157067695-59851a77-5c43-4f68-80c4-403fec850776.png" width="400">
 </details>
   
-<details><summary>NFT - bored apes</summary>
+<details><summary>💰 NFT - bored apes</summary>
 <img src="https://user-images.githubusercontent.com/11627845/157019002-573cc101-e23b-4020-825c-f37ec66c6ccf.jpeg" width="400">
 </details>
   
-<details><summary>Art</summary>
+<details><summary>🖼 Art</summary>
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157074453-721c0f2d-3f7d-4839-b6ff-bbccbdba2e5f.png">
 </details>
   
-<details><summary>Cars</summary>
+<details><summary>🚗 Cars</summary>
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157081047-792df6bd-544d-420c-b180-df824c802e73.png">
 </details>
   
-<details><summary>Street view</summary>
+<details><summary>🏞 Street view</summary>
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157087532-46ae36a2-c97f-45d7-9c3e-c624dcf6dc46.png">
 </details>
 
-<details><summary>Birds</summary>
+<details><summary>🦆 Birds</summary>
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157069954-615a5cb6-dda0-4a2f-9442-ea807ad4a8d5.png">
 </details>
 
