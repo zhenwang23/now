@@ -219,6 +219,7 @@ def test_configure_user_input(
     expected_user_input.__dict__.update(mocked_user_answers)
     expected_user_input.__dict__.update(configure_kwargs)
     mocker.patch('now.dialog.prompt', CmdPromptMock(mocked_user_answers))
+    mocker.patch('now.dialog._maybe_install_gke', lambda os_type, arch: 0)
 
     user_input = configure_user_input(**configure_kwargs)
 
