@@ -1,3 +1,31 @@
+"""
+This module implements a command-line dialog with the user.
+Its goal is to configure a UserInput object with users specifications.
+Optionally, values can be passed from the command-line when jina-now. In that case,
+the dialog won't ask for the value.
+
+The dialog can be seen as a decision tree, where based on user input new questions (nodes in the tree)
+are asked.
+The module contains one base class `BaseConfigurationStep` for representing nodes in this tree.
+`BaseConfigurationStep` can query value via the command-line dialog or, if provided, use the value from the
+jina-now command. It has one abstract method `configure_user_input(user_input)`.
+
+Each configuration step is implemented via inheritance from `BaseConfigurationStep`.
+The concrete implementations know how to configure the UserInput and what to return as the next
+configuration step.
+
+Example:
+
+class ConfigureExample(BaseConfigurationStep):
+    def __init__(self, **kwargs):
+        super().__init__(name='example')
+        self._kwargs = kwargs
+
+    def configure_user_input(user_input: UserInput) -> BaseConfigurationStep:
+        user_input.some_value = 'foo'
+        return ConfigureNext(**self._kwargs)
+
+"""
 from __future__ import annotations, print_function, unicode_literals
 
 import abc
@@ -193,7 +221,8 @@ class ConfigureDataAudio(BaseConfigurationStep['str']):
             name='dataset_audio',
             cli_value=kwargs.get('data'),
             choices=[
-                {'name': '🎸 music (≈10K docs)', 'value': 'music-genres'},
+                {'name': '🎸 music small (≈2K docs)', 'value': 'music-genres-small'},
+                {'name': '🎸 music large (≈10K docs)', 'value': 'music-genres-large'},
                 Separator(),
                 {
                     'name': '✨ custom',
@@ -370,11 +399,14 @@ class ConfigureCluster(BaseConfigurationStep['str']):
         self.contexts, self.active_context = kwargs.get('contexts'), kwargs.get(
             'active_context'
         )
+        context_names = get_context_names(self.contexts, self.active_context)
+        choices = [NEW_CLUSTER]
+        if len(context_names) > 0 and len(context_names[0]) > 0:
+            choices = context_names + choices
         super().__init__(
             name='cluster',
             cli_value=kwargs.get('cluster'),
-            choices=(get_context_names(self.contexts, self.active_context))
-            + [NEW_CLUSTER],
+            choices=choices,
             prompt_message='Where do you want to deploy your search engine?',
             prompt_type='list',
         )
