@@ -10,8 +10,9 @@ One line to host them all. Bootstrap your image search case in minutes.
 </p>
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/11627845/164569398-5ef22a41-e2e1-438a-88a5-2ac43ad9426d.gif" alt="Jina NOW logo: The data structure for unstructured data" width="600px"></p>
-<br>
+<img src="https://user-images.githubusercontent.com/11627845/164569398-5ef22a41-e2e1-438a-88a5-2ac43ad9426d.gif" alt="Jina NOW logo: The data structure for unstructured data" width="600px">
+
+
 
 <!-- start elevator-pitch -->
 NOW gives the world access to customized neural image search in just one line of code.
@@ -20,6 +21,8 @@ Main features
 - 🐎 **Fast**: Set up your search case within minutes
 - 🌈 **Quality**: If you provide labels to your documents, Jina NOW fine-tunes a model for you
 - 🌳 **Reliable**: We take care of the deployment and maintenance (coming soon)
+
+
 
 
 
@@ -75,6 +78,10 @@ jina now stop
 - [ ] PDF 
 - [ ] ...
 
+[![IMAGE ALT TEXT HERE](https://user-images.githubusercontent.com/11627845/164571632-0e6a6c39-0137-413b-8287-21fc34785665.png)](https://www.youtube.com/watch?v=1rvNakk5MNo)
+</p>
+<br>
+  
 ## Examples
 
 ### Fashion
