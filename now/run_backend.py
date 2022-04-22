@@ -34,6 +34,11 @@ def is_finetuning(dataset_name, dataset):
         'best-artworks',
         'lyrics',
         'lyrics-10000',
+        'rock-lyrics',
+        'pop-lyrics',
+        'rap-lyrics',
+        'indie-lyrics',
+        'metal-lyrics',
     ]:
         return False
     for d in dataset:

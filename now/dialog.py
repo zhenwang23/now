@@ -119,8 +119,12 @@ def ask_data(user_input: UserInput, **kwargs):
         ]
     elif user_input.output_modality == 'text':
         questions_dataset['choices'] = [
-            {'name': '🎤 song lyrics (≈5M docs)', 'value': 'lyrics'},
-            {'name': '🎤 few song lyrics (10K docs)', 'value': 'lyrics-10000'},
+            # {'name': '🎤 song lyrics (≈5M docs)', 'value': 'lyrics'},
+            {'name': '🎤 rock lyrics (200K docs)', 'value': 'rock-lyrics'},
+            {'name': '🎤 pop lyrics (200K docs)', 'value': 'pop-lyrics'},
+            {'name': '🎤 rap lyrics (200K docs)', 'value': 'rap-lyrics'},
+            {'name': '🎤 indie lyrics (200K docs)', 'value': 'indie-lyrics'},
+            {'name': '🎤 metal lyrics (200K docs)', 'value': 'metal-lyrics'},
             # {'name': '💻 python code (≈UNKNOWN docs)', 'value': 'python-code'},
         ]
     if user_input.output_modality != 'text':

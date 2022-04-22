@@ -186,16 +186,15 @@ def deploy_streamlit():
             for m in matches
             if m.scores['cosine'].value > st.session_state.min_confidence
         ]
-        if output_modality == 'text':
-            longest_text = max(map(len, [match.text for match in matches]))
+        # if output_modality == 'text':
+        #     longest_text = max(map(len, [match.text for match in matches]))
         for c, match in zip(all_cs, matches):
             match.mime_type = output_modality
 
             if output_modality == 'text':
-                padded_text = match.text + (longest_text - len(match.text)) * ' '
-                body = (
-                    f"<!DOCTYPE html><html><body><blockquote>{padded_text}</blockquote>"
-                )
+                # display_text = match.text + (longest_text - len(match.text)) * ' '
+                display_text = match.text
+                body = f"<!DOCTYPE html><html><body><blockquote>{display_text}</blockquote>"
                 if match.tags.get('additional_info'):
                     body += (
                         f"<figcaption>{match.tags.get('additional_info')}</figcaption>"
