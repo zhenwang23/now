@@ -84,26 +84,34 @@ jina now stop
   
 ## Examples
 
-### Fashion
+<details><summary>Fashion</summary>
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157079335-8f36fc73-d826-4c0a-b1f3-ed5d650a1af1.png">
+</details>
 
-### Chest X-Ray
+<details><summary>Chest X-Ray</summary>
 <img src="https://user-images.githubusercontent.com/11627845/157067695-59851a77-5c43-4f68-80c4-403fec850776.png" width="400">
-
-### NFT - bored apes
+</details>
+  
+<details><summary>NFT - bored apes</summary>
 <img src="https://user-images.githubusercontent.com/11627845/157019002-573cc101-e23b-4020-825c-f37ec66c6ccf.jpeg" width="400">
-
-### Art
+</details>
+  
+<details><summary>Art</summary>
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157074453-721c0f2d-3f7d-4839-b6ff-bbccbdba2e5f.png">
-
-### Cars
+</details>
+  
+<details><summary>Cars</summary>
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157081047-792df6bd-544d-420c-b180-df824c802e73.png">
-
-### Street view
+</details>
+  
+<details><summary>Street view</summary>
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157087532-46ae36a2-c97f-45d7-9c3e-c624dcf6dc46.png">
+</details>
 
-### Birds
+<details><summary>Birds</summary>
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/11627845/157069954-615a5cb6-dda0-4a2f-9442-ea807ad4a8d5.png">
+</details>
+
 
 ### Now use your custom data :)
 <!-- end elevator-pitch -->
