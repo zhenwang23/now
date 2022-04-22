@@ -2,7 +2,7 @@ import io
 import math
 from typing import TYPE_CHECKING, Callable
 
-import clip
+# import clip
 import torch
 from docarray import Document
 from jina import DocumentArray
