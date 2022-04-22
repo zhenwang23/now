@@ -58,15 +58,15 @@ jina now stop
 ```
 
 ### Requirements
-- `python 3.7`, `3.8` or `3.9`
+- `Python 3.7`, `3.8` or `3.9`
 #### Local execution
-- `docker` installation
+- `Docker` installation
 - 10 GB assigned to docker
-- user must be permitted to run docker containers
+- User must be permitted to run docker containers
 #### Google Cloud deployment
-- billing account enabled
+- Billing account enabled
 #### Jina Flow as a service
-- no further requirements (coming soon)
+- No further requirements (coming soon)
 
 ## Supported Modalities (more will be added)
 
