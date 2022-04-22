@@ -5,7 +5,7 @@ import os
 import pathlib
 from dataclasses import dataclass
 from os.path import expanduser as user
-from typing import Dict, Generic, List, Literal, Optional, TypeVar, Union
+from typing import Dict, Generic, List, Optional, TypeVar, Union
 
 import cowsay
 from kubernetes import client, config
@@ -40,7 +40,7 @@ AVAILABLE_DATASET = [
 
 @dataclass
 class UserInput:
-    modality: Literal['audio', 'image'] = 'image'
+    modality: str = 'image'
 
     # data related
     dataset: Optional[str] = 'deepfashion'
