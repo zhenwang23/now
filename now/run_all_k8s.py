@@ -61,15 +61,15 @@ def run_k8s(os_type='linux', arch='x86_64', **kwargs):
                 gateway_port_internal,
             ) = run_backend.run(user_input, is_debug, tmpdir, **kwargs)
             frontend_host, frontend_port = run_frontend.run(
-                user_input.output_modality,
-                user_input.dataset,
-                gateway_host,
-                gateway_port,
-                gateway_host_internal,
-                gateway_port_internal,
-                docker_frontend_tag,
-                tmpdir,
-                **kwargs,
+                output_modality=user_input.output_modality,
+                dataset=user_input.dataset,
+                gateway_host=gateway_host,
+                gateway_port=gateway_port,
+                gateway_host_internal=gateway_host_internal,
+                gateway_port_internal=gateway_port_internal,
+                docker_frontend_tag=docker_frontend_tag,
+                tmpdir=tmpdir,
+                kubectl_path=kwargs['kubectl_path'],
             )
             url = f'{frontend_host}' + (
                 '' if str(frontend_port) == '80' else f':{frontend_port}'

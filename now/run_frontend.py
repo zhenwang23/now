@@ -21,7 +21,6 @@ def run(
     docker_frontend_tag,
     tmpdir,
     kubectl_path,
-    **kwargs,
 ):
     # deployment
     with yaspin(sigmap=sigmap, text="Deploy frontend", color="green") as spinner:

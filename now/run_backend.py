@@ -141,14 +141,13 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         gateway_host_internal,
         gateway_port_internal,
     ) = deploy_flow(
-        executor_name,
-        user_input.output_modality,
-        dataset['index'],
-        user_input.model_variant,
-        final_layer_output_dim,
-        embedding_size,
-        tmpdir,
-        finetuning,
+        executor_name=executor_name,
+        index=dataset['index'],
+        vision_model=user_input.model_variant,
+        final_layer_output_dim=final_layer_output_dim,
+        embedding_size=embedding_size,
+        tmpdir=tmpdir,
+        finetuning=finetuning,
         **kwargs,
     )
     return gateway_host, gateway_port, gateway_host_internal, gateway_port_internal
