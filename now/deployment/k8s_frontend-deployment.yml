@@ -18,6 +18,6 @@ spec:
           image: jinaaitmp/now-frontend:{docker_frontend_tag}
           imagePullPolicy: Always
           command: ["streamlit"]
-          args: ["run", "frontend.py", "--server.port", "80", "{gateway_host}", "{gateway_port}", "{data}"]
+          args: ["run", "frontend.py", "--server.port", "80", "{gateway_host}", "{gateway_port}", "{output_modality}", "{data}"]
           ports:
             - containerPort: 80

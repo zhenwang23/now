@@ -59,7 +59,7 @@ def wait_for_all_pods_in_ns(ns, num_pods, max_wait=1800):
         sleep(1)
 
 
-def deploy_k8s(f, ns, num_pods, tmpdir, **kwargs):
+def deploy_k8s(f, ns, num_pods, tmpdir, kubectl_path):
     k8_path = os.path.join(tmpdir, f'k8s/{ns}')
     with yaspin(
         sigmap=sigmap, text="Convert Flow to Kubernetes YAML", color="green"
@@ -68,7 +68,7 @@ def deploy_k8s(f, ns, num_pods, tmpdir, **kwargs):
         spinner.ok('🔄')
 
     # create namespace
-    cmd(f'{kwargs["kubectl_path"]} create namespace {ns}')
+    cmd(f'{kubectl_path} create namespace {ns}')
 
     # deploy flow
     with yaspin(
@@ -78,21 +78,19 @@ def deploy_k8s(f, ns, num_pods, tmpdir, **kwargs):
     ) as spinner:
         gateway_host_internal = f'gateway.{ns}.svc.cluster.local'
         gateway_port_internal = 8080
-        if is_local_cluster(**kwargs):
+        if is_local_cluster(kubectl_path):
             apply_replace(
                 f'{cur_dir}/k8s_backend-svc-node.yml',
                 {'ns': ns},
-                kwargs["kubectl_path"],
+                kubectl_path,
             )
             gateway_host = 'localhost'
             gateway_port = 31080
         else:
-            apply_replace(
-                f'{cur_dir}/k8s_backend-svc-lb.yml', {'ns': ns}, kwargs["kubectl_path"]
-            )
+            apply_replace(f'{cur_dir}/k8s_backend-svc-lb.yml', {'ns': ns}, kubectl_path)
             gateway_host = wait_for_lb('gateway-lb', ns)
             gateway_port = 8080
-        cmd(f'{kwargs["kubectl_path"]} apply -R -f {k8_path}')
+        cmd(f'{kubectl_path} apply -R -f {k8_path}')
         # wait for flow to come up
         wait_for_all_pods_in_ns(ns, num_pods)
         spinner.ok("🚀")
@@ -101,13 +99,14 @@ def deploy_k8s(f, ns, num_pods, tmpdir, **kwargs):
 
 def deploy_flow(
     executor_name,
+    output_modality,
     index,
     vision_model,
     final_layer_output_dim,
     embedding_size,
     tmpdir,
     finetuning,
-    **kwargs,
+    kubectl_path,
 ):
     from jina import Flow
     from jina.clients import Client
@@ -143,14 +142,17 @@ def deploy_flow(
     )
     # f.plot('./flow.png', vertical_layout=True)
 
-    index = [x for x in index if x.text == '']
+    if output_modality == 'image':
+        index = [x for x in index if x.text == '']
+    elif output_modality == 'text':
+        index = [x for x in index if x.text != '']
 
     (
         gateway_host,
         gateway_port,
         gateway_host_internal,
         gateway_port_internal,
-    ) = deploy_k8s(f, ns, 3 if finetuning else 2, tmpdir, **kwargs)
+    ) = deploy_k8s(f, ns, 3 if finetuning else 2, tmpdir, kubectl_path=kubectl_path)
     print(
         f'▶ indexing {len(index)} documents - if it stays at 0% for a while, it is all good - just wait :)'
     )

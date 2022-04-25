@@ -58,6 +58,7 @@ def remove_duplicates(da: DocumentArray):
 
 
 def load_data(
+    output_modality: str,
     dataset: str,
     model_quality: str,
     is_custom: bool,
@@ -69,9 +70,13 @@ def load_data(
 
     if not is_custom:
         print('⬇  Download data')
+        if output_modality == 'image':
+            data_folder = 'jpeg'
+        elif output_modality == 'text':
+            data_folder = 'text'
         url = (
             'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
-            f'jpeg/{dataset}.{model_quality}.bin'
+            f'{data_folder}/{dataset}.{model_quality}.bin'
         )
         da = _fetch_da_from_url(url)
         ds_type = 'demo'

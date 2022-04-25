@@ -23,7 +23,7 @@ def deploy_streamlit():
     """
     print('Run Streamlit with:', sys.argv)
     print(sys.argv)
-    _, host, port, data = sys.argv
+    _, host, port, output_modality, data = sys.argv
     da_img = None
     da_txt = None
 
@@ -33,9 +33,17 @@ def deploy_streamlit():
     DATA_DIR = "../data/images/"
 
     if data in ds_set:
-        da_img, da_txt = load_data(root_data_dir + data + '.img10.bin'), load_data(
-            root_data_dir + data + '.txt10.bin'
-        )
+        if output_modality == 'image':
+            output_modality_dir = 'jpeg'
+            data_dir = root_data_dir + output_modality_dir + '/'
+            da_img, da_txt = load_data(data_dir + data + '.img10.bin'), load_data(
+                data_dir + data + '.txt10.bin'
+            )
+        elif output_modality == 'text':
+            # for now deactivated sample images for text
+            output_modality_dir = 'text'
+            data_dir = root_data_dir + output_modality_dir + '/'
+            da_txt = load_data(data_dir + data + '.txt10.bin')
 
     class UI:
         about_block = """
@@ -124,7 +132,10 @@ def deploy_streamlit():
         '<style>div.st-bf{flex-direction:column;} div.st-ag{font-weight:bold;padding-right:50px;}</style>',
         unsafe_allow_html=True,
     )
-    media_type = st.radio('', ["text", "Image"], on_change=clear_match)
+    if output_modality == 'image':
+        media_type = st.radio('', ["Text", "Image"], on_change=clear_match)
+    elif output_modality == 'text':
+        media_type = st.radio('', ["Image", "Text"], on_change=clear_match)
 
     if media_type == "Image":
         upload_c, preview_c = st.columns([12, 1])
@@ -148,7 +159,7 @@ def deploy_streamlit():
                             document=doc, server=host, port=port, convert_needed=False
                         )
 
-    elif media_type == "text":
+    elif media_type == "Text":
         query = st.text_input("", key="text_search_box")
         if query:
             st.session_state.matches = search_by_t(input=query, server=host, port=port)
@@ -184,12 +195,26 @@ def deploy_streamlit():
             if m.scores['cosine'].value > st.session_state.min_confidence
         ]
         for c, match in zip(all_cs, matches):
-            match.mime_type = 'img'
-            if match.blob != b'':
-                match.convert_blob_to_datauri()
-            if match.tensor is not None:
-                match.convert_image_tensor_to_uri()
-            c.image(match.convert_blob_to_datauri().uri)
+            match.mime_type = output_modality
+
+            if output_modality == 'text':
+                display_text = match.text
+                body = f"<!DOCTYPE html><html><body><blockquote>{display_text}</blockquote>"
+                if match.tags.get('additional_info'):
+                    body += (
+                        f"<figcaption>{match.tags.get('additional_info')}</figcaption>"
+                    )
+                body += "</body></html>"
+                c.markdown(
+                    body=body,
+                    unsafe_allow_html=True,
+                )
+            elif match.uri is not None:
+                if match.blob != b'':
+                    match.convert_blob_to_datauri()
+                if match.tensor is not None:
+                    match.convert_image_tensor_to_uri()
+                c.image(match.convert_blob_to_datauri().uri)
         st.markdown("""---""")
         st.session_state.min_confidence = st.slider(
             'Confidence threshold', 0.0, 1.0, key='slider', on_change=update_conf
@@ -241,7 +266,7 @@ def load_data(data_path: str) -> DocumentArray:
 
 TEXT_SAMPLES = ['red shoe', 'blue tops']
 root_data_dir = (
-    'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/jpeg/'
+    'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
 )
 
 ds_set = {
@@ -252,6 +277,11 @@ ds_set = {
     'bird-species',
     'best-artworks',
     'geolocation-geoguessr',
+    'rock-lyrics',
+    'pop-lyrics',
+    'rap-lyrics',
+    'indie-lyrics',
+    'metal-lyrics',
 }
 
 
