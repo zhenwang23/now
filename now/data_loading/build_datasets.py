@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from random import shuffle
 from typing import Any, Dict, Optional
 
+import pandas as pd
 from jina import Document, DocumentArray
 from tqdm import tqdm
 
@@ -17,7 +18,7 @@ IMAGE_SHAPE = (224, 224)
 
 @dataclass
 class _DataPoint:
-    id: str
+    # id: str
     text: Optional[str] = None
     image_path: Optional[str] = None
     content_type: str = 'image'
@@ -27,7 +28,8 @@ class _DataPoint:
 
 
 def _build_doc(datapoint: _DataPoint) -> Document:
-    doc = Document(id=datapoint.id)
+    # doc = Document(id=datapoint.id)
+    doc = Document()
     if datapoint.content_type == 'image':
         doc.uri = datapoint.image_path
         doc.load_uri_to_image_tensor()
@@ -473,6 +475,166 @@ def _build_tll(root: str, num_workers: int = 8) -> DocumentArray:
     return da
 
 
+def _build_lyrics(
+    root: str, num_workers: int = 8, genre: str = '', max_size: int = 0
+) -> DocumentArray:
+    """
+    Builds lyrics dataset of given size and genre if specified, else the entire dataset. Download the CSV files from:
+    https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
+    :param root: the dataset root folder.
+    :param num_workers: the number of parallel workers to use.
+    :param genre: if genre isn't empty string this will only select subset of artist with this genre
+    :param max_size: used to randomly subsample from dataset if greater than 0
+    :return: DocumentArray
+    """
+    artists_path = os.path.join(root, 'artists-data.csv')
+    lyrics_path = os.path.join(root, 'lyrics-data.csv')
+
+    artists_df = pd.read_csv(artists_path).dropna()
+    lyrics = pd.read_csv(lyrics_path).dropna()
+
+    # select English lyrics with <= 100 sentences
+    lyrics = lyrics.query("language == 'en'")
+    lyrics['num_sentences'] = lyrics.apply(
+        lambda x: len(x['Lyric'].split('\n')), axis=1
+    )
+    lyrics = lyrics.query('num_sentences <= 100')
+
+    lyrics = pd.merge(lyrics, artists_df, left_on='ALink', right_on='Link')
+
+    lyrics = lyrics[lyrics['Genres'].str.contains(genre)]
+
+    if 0 < max_size:
+        lyrics = lyrics.sample(frac=1)
+
+    # create sentences from lyrics
+    data = []
+    for idx, row in lyrics.iterrows():
+        if 0 < max_size <= len(data):
+            break
+        row = row.to_dict()
+        _sentences = row.pop('Lyric').split('\n')
+        # filter empty and repeating sentences
+        _sentences = set(filter(lambda x: len(x) > 0, _sentences))
+        for _sentence in _sentences:
+            if 0 < max_size <= len(data):
+                break
+            data.append(
+                _DataPoint(
+                    text=_sentence,
+                    content_type='text',
+                    tags={
+                        # 'artist': row['Artist'],
+                        # 'artist_genres': row['Genres'],
+                        # 'song': row['SName'],
+                        # 'additional_info': [row['Artist'], row['SName']],
+                        'additional_info': f"{row['SName']} by {row['Artist']}",
+                    },
+                )
+            )
+
+    # build docs
+    with mp.Pool(processes=num_workers) as pool:
+        docs = list(tqdm(pool.imap(_build_doc, data)))
+
+    return DocumentArray(docs)
+
+
+def _build_rock_lyrics(
+    root: str, num_workers: int = 8, max_size: int = 200000
+) -> DocumentArray:
+    """
+    Builds the rock lyrics dataset. Download the CSV files from:
+    https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
+    :param root: the dataset root folder.
+    :param num_workers: the number of parallel workers to use.
+    :param max_size: used to randomly subsample from dataset if greater than 0
+    :return: DocumentArray
+    """
+    return _build_lyrics(
+        genre='Rock',
+        root=root.replace('rock-lyrics', 'lyrics'),
+        num_workers=num_workers,
+        max_size=max_size,
+    )
+
+
+def _build_pop_lyrics(
+    root: str, num_workers: int = 8, max_size: int = 200000
+) -> DocumentArray:
+    """
+    Builds the pop lyrics dataset. Download the CSV files from:
+    https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
+    :param root: the dataset root folder.
+    :param num_workers: the number of parallel workers to use.
+    :param max_size: used to randomly subsample from dataset if greater than 0
+    :return: DocumentArray
+    """
+    return _build_lyrics(
+        genre='Pop',
+        root=root.replace('pop-lyrics', 'lyrics'),
+        num_workers=num_workers,
+        max_size=max_size,
+    )
+
+
+def _build_rap_lyrics(
+    root: str, num_workers: int = 8, max_size: int = 200000
+) -> DocumentArray:
+    """
+    Builds the rap lyrics dataset. Download the CSV files from:
+    https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
+    :param root: the dataset root folder.
+    :param num_workers: the number of parallel workers to use.
+    :param max_size: used to randomly subsample from dataset if greater than 0
+    :return: DocumentArray
+    """
+    return _build_lyrics(
+        genre='Rap',
+        root=root.replace('rap-lyrics', 'lyrics'),
+        num_workers=num_workers,
+        max_size=max_size,
+    )
+
+
+def _build_indie_lyrics(
+    root: str, num_workers: int = 8, max_size: int = 200000
+) -> DocumentArray:
+    """
+    Builds the indie lyrics dataset. Download the CSV files from:
+    https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
+    :param root: the dataset root folder.
+    :param num_workers: the number of parallel workers to use.
+    :param max_size: used to randomly subsample from dataset if greater than 0
+    :return: DocumentArray
+    """
+    return _build_lyrics(
+        genre='Indie',
+        root=root.replace('indie-lyrics', 'lyrics'),
+        num_workers=num_workers,
+        max_size=max_size,
+    )
+
+
+def _build_metal_lyrics(
+    root: str, num_workers: int = 8, max_size: int = 200000
+) -> DocumentArray:
+    """
+    Builds the indie lyrics dataset. Download the CSV files from:
+    https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
+    :param root: the dataset root folder.
+    :param num_workers: the number of parallel workers to use.
+    :param max_size: used to randomly subsample from dataset if greater than 0
+    :return: DocumentArray
+    """
+    return _build_lyrics(
+        genre='Metal',
+        root=root.replace('metal-lyrics', 'lyrics'),
+        num_workers=num_workers,
+        max_size=max_size,
+    )
+
+
 def process_dataset(
     datadir: str,
     name: str,
@@ -487,8 +649,8 @@ def process_dataset(
     """
     root = f'{datadir}/{name}'
     out = f'{name}.bin'
-    out_img10 = f'{name}.img10.bin'
-    out_txt10 = f'{name}.txt10.bin'
+    out_img10 = f'{name}.img{k}.bin'
+    out_txt10 = f'{name}.txt{k}.bin'
 
     print(f'===> {name}')
     print(f'  Building {name} from {root} ...')
@@ -549,6 +711,17 @@ def main():
         'stanford-cars',
         'bird-species',
         'best-artworks',
+    ]
+    for name in datasets:
+        process_dataset(localdir, name, project, bucket, location)
+    location = 'data/one-line/datasets/text'
+    datasets = [
+        'rock-lyrics',
+        'pop-lyrics',
+        'rap-lyrics',
+        'indie-lyrics',
+        'metal-lyrics',
+        'lyrics',
     ]
     for name in datasets:
         process_dataset(localdir, name, project, bucket, location)

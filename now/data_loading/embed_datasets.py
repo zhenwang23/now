@@ -2,11 +2,14 @@ import io
 import math
 from typing import TYPE_CHECKING, Callable
 
+# import clip
 import torch
 from docarray import Document
 from jina import DocumentArray
 from PIL import Image
 from tqdm import tqdm
+
+from now.data_loading.utils import upload_to_gcloud_bucket
 
 
 def _text_collate_fn(batch: DocumentArray):
@@ -132,9 +135,9 @@ def embed_dataset(
     docs.save_binary(out)
     print(f'  Saved embedded docs to {out} ...')
 
-    # print(f'  Uploading dataset ...')
-    # upload_to_gcloud_bucket(project, bucket, location, out)
-    # print(f'  Uploaded dataset to gs://{bucket}/{location}/{out}')
+    print(f'  Uploading dataset ...')
+    upload_to_gcloud_bucket(project, bucket, location, out)
+    print(f'  Uploaded dataset to gs://{bucket}/{location}/{out}')
 
 
 def main():
@@ -153,6 +156,8 @@ def main():
         'stanford-cars',
         'bird-species',
         'best-artworks',
+        'lyrics',
+        'lyrics-10000',
     ]
     models = ['ViT-B/32', 'ViT-B/16', 'ViT-L/14']
     batch_size = 128
