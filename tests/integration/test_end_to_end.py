@@ -8,6 +8,7 @@ from now.cli import cli
 from now.dialog import NEW_CLUSTER
 
 
+@pytest.mark.parametrize('sandbox', [True, False])
 @pytest.mark.parametrize(
     'output_modality,dataset',
     [('image', 'best-artworks'), ('image', 'deepfashion'), ('text', 'rock-lyrics')],
@@ -19,9 +20,12 @@ def test_backend(
     output_modality: str,
     dataset: str,
     quality: str,
+    sandbox: bool,
     cluster: str,
     cluster_new: str,
 ):
+    if sandbox and dataset != 'best-artworks':
+        return  # skip redundant sandbox tests => can this be done with annotations instead?
     kwargs = {
         'output_modality': output_modality,
         'dataset': dataset,
