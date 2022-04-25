@@ -69,7 +69,7 @@ def headline():
 def get_user_input(contexts, active_context, os_type, arch, **kwargs) -> UserInput:
     headline()
     user_input = UserInput()
-    if kwargs and kwargs['data']:
+    if kwargs and kwargs.get('data'):
         assign_data_fields(user_input, kwargs['data'])
     else:
         ask_data(user_input, **kwargs)

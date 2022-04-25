@@ -93,7 +93,12 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         from now.hub.hub import push_to_hub
         from now.improvements.improvements import show_improvement
 
-        add_clip_embeddings(dataset, user_input.model_variant, tmpdir, **kwargs)
+        add_clip_embeddings(
+            dataset,
+            user_input.model_variant,
+            tmpdir,
+            kubectl_path=kwargs['kubectl_path'],
+        )
         extend_embeddings(dataset['index'], final_layer_output_dim)
         save_mean(dataset['index'], tmpdir)
         fill_missing(dataset, train_val_split_ratio, num_default_val_queries, is_debug)
@@ -142,13 +147,14 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
         gateway_port_internal,
     ) = deploy_flow(
         executor_name=executor_name,
+        output_modality=user_input.output_modality,
         index=dataset['index'],
         vision_model=user_input.model_variant,
         final_layer_output_dim=final_layer_output_dim,
         embedding_size=embedding_size,
         tmpdir=tmpdir,
         finetuning=finetuning,
-        **kwargs,
+        kubectl_path=kwargs['kubectl_path'],
     )
     return gateway_host, gateway_port, gateway_host_internal, gateway_port_internal
 

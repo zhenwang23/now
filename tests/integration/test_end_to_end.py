@@ -10,7 +10,7 @@ from now.dialog import NEW_CLUSTER
 
 @pytest.mark.parametrize(
     'output_modality,dataset',
-    [('image', 'best-artworks'), ('image', 'deepfashion'), ('text', 'rock-pop')],
+    [('image', 'best-artworks'), ('image', 'deepfashion'), ('text', 'rock-lyrics')],
 )  # art, rock-lyrics -> no finetuning, fashion -> finetuning
 @pytest.mark.parametrize('quality', ['medium'])
 @pytest.mark.parametrize('cluster', [NEW_CLUSTER])
@@ -31,7 +31,7 @@ def test_backend(
         'proceed': True,
     }
     kwargs = Namespace(**kwargs)
-    cli(kwargs=kwargs)
+    cli(args=kwargs)
 
     if dataset == 'best-artworks':
         search_text = 'impressionism'
