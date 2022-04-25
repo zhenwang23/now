@@ -40,6 +40,7 @@ class UserInput:
     dataset_path: Optional[str] = None
     # model related
     model_quality: str = 'medium'
+    sandbox: bool = False
     model_variant: str = 'ViT-B32'
     # cluster related
     cluster: Optional[str] = None
@@ -75,6 +76,7 @@ def get_user_input(contexts, active_context, os_type, arch, **kwargs) -> UserInp
         ask_data(user_input, **kwargs)
     ask_quality(user_input, **kwargs)
     ask_deployment(user_input, contexts, active_context, os_type, arch, **kwargs)
+    ask_sandbox(user_input, **kwargs)
     return user_input
 
 
@@ -263,6 +265,21 @@ def ask_quality(user_input: UserInput, **kwargs):
         print('  ✨ you trade-off speed to having the best quality')
 
     user_input.model_quality, user_input.model_variant = QUALITY_MAP[quality]
+
+
+def ask_sandbox(user_input: UserInput, **kwargs):
+    questions = [
+        {
+            'type': 'list',
+            'name': 'quality',
+            'message': 'Use Sandbox to save memory? (process data on our servers)',
+            'choices': [
+                {'name': '❌ no', 'value': False},
+                {'name': '✅ yes', 'value': True},
+            ],
+        }
+    ]
+    user_input.sandbox = prompt_plus(questions, 'sandbox', **kwargs)
 
 
 def get_context_names(contexts, active_context=None):
