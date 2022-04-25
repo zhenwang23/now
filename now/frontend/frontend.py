@@ -1,5 +1,4 @@
 import base64
-import logging
 import os
 import sys
 from copy import deepcopy
@@ -9,8 +8,6 @@ import numpy as np
 import streamlit as st
 from docarray import DocumentArray
 from jina import Client, Document
-
-logger = logging.getLogger('my_module_name')
 
 if 'matches' not in st.session_state:
     st.session_state.matches = None
