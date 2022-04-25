@@ -31,7 +31,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            is_complete=True,
         ),
     ),
     (
@@ -45,7 +44,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            is_complete=True,
         ),
     ),
     (
@@ -60,7 +58,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            is_complete=True,
             model_variant=QUALITY_MAP['good'][1],
         ),
     ),
@@ -76,7 +73,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            is_complete=True,
             model_variant=QUALITY_MAP['medium'][1],
         ),
     ),
@@ -94,7 +90,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=True,
             create_new_cluster=True,
-            is_complete=True,
             model_variant=QUALITY_MAP['medium'][1],
         ),
     ),
@@ -111,7 +106,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=True,
             create_new_cluster=True,
-            is_complete=True,
         ),
     ),
     (
@@ -127,7 +121,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=True,
             create_new_cluster=True,
-            is_complete=True,
         ),
     ),
     (
@@ -143,7 +136,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=True,
             create_new_cluster=True,
-            is_complete=True,
         ),
     ),
     (
@@ -160,7 +152,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=True,
             create_new_cluster=True,
-            is_complete=True,
             model_variant=QUALITY_MAP['medium'][1],
         ),
     ),
@@ -176,7 +167,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            is_complete=True,
             model_variant=QUALITY_MAP['good'][1],
         ),
     ),
@@ -190,7 +180,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            is_complete=True,
         ),
     ),
     (
@@ -199,7 +188,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            is_complete=True,
             model_variant=QUALITY_MAP['good'][1],
         ),
     ),

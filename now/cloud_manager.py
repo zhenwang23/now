@@ -9,7 +9,7 @@ from kubernetes import client, config
 from yaspin import yaspin
 
 from now.deployment.deployment import cmd
-from now.dialog import prompt_plus
+from now.dialog import maybe_prompt_user
 from now.gke_deploy import create_gke_cluster
 from now.utils import sigmap
 
@@ -36,7 +36,7 @@ def create_local_cluster(kind_path, **kwargs):
                 ],
             },
         ]
-        recreate = prompt_plus(questions, 'proceed', **kwargs)
+        recreate = maybe_prompt_user(questions, 'proceed', **kwargs)
         if recreate:
             with yaspin(
                 sigmap=sigmap, text="Remove local cluster", color="green"
@@ -111,7 +111,7 @@ def ask_existing(kubectl_path):
                 ],
             },
         ]
-        remove = prompt_plus(questions, 'proceed')
+        remove = maybe_prompt_user(questions, 'proceed')
         if remove:
             with yaspin(
                 sigmap=sigmap, text="Remove old deployment", color="green"

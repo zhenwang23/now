@@ -1,40 +1,22 @@
 """
 This module implements a command-line dialog with the user.
 Its goal is to configure a UserInput object with users specifications.
-Optionally, values can be passed from the command-line when jina-now. In that case,
+Optionally, values can be passed from the command-line when jina-now is launched. In that case,
 the dialog won't ask for the value.
 
 The dialog can be seen as a decision tree, where based on user input new questions (nodes in the tree)
-are asked.
-The module contains one base class `BaseConfigurationStep` for representing nodes in this tree.
-`BaseConfigurationStep` can query value via the command-line dialog or, if provided, use the value from the
-jina-now command. It has one abstract method `configure_user_input(user_input)`.
-
-Each configuration step is implemented via inheritance from `BaseConfigurationStep`.
-The concrete implementations know how to configure the UserInput and what to return as the next
-configuration step.
-
-Example:
-
-class ConfigureExample(BaseConfigurationStep):
-    def __init__(self, **kwargs):
-        super().__init__(name='example')
-        self._kwargs = kwargs
-
-    def configure_user_input(user_input: UserInput) -> BaseConfigurationStep:
-        user_input.some_value = 'foo'
-        return ConfigureNext(**self._kwargs)
-
+are asked. This tree is realized by recursive function calls, each function call representing a node
+that modifies the user object based and returns a call to the next configuration step based on the
+user's configuration.
 """
 from __future__ import annotations, print_function, unicode_literals
 
-import abc
 import enum
 import os
 import pathlib
 from dataclasses import dataclass
 from os.path import expanduser as user
-from typing import Dict, Generic, List, Optional, TypeVar, Union
+from typing import Dict, List, Optional, Union
 
 import cowsay
 from kubernetes import client, config
@@ -94,7 +76,34 @@ class UserInput:
     create_new_cluster: Optional[bool] = None
     new_cluster_type: Optional[str] = None
 
-    is_complete: bool = False
+
+def configure_user_input(**kwargs) -> UserInput:
+    print_headline()
+    user_input = _configure_modality(UserInput(), **kwargs)
+    return user_input
+
+
+def maybe_prompt_user(questions, attribute, **kwargs):
+    """
+    Checks the `kwargs` for the `attribute` name. If present, the value is returned directly.
+    If not, the user is prompted via the cmd-line using the `questions` argument.
+
+    :param questions: A dictionary that is passed to `PyInquirer.prompt`
+        See docs: https://github.com/CITGuru/PyInquirer#documentation
+    :param attribute: Name of the value to get. Make sure this matches the name in `kwargs`
+
+    :return: A single value of either from `kwargs` or the user cli input.
+    """
+    if kwargs and attribute in kwargs.keys() and kwargs[attribute]:
+        return kwargs[attribute]
+    else:
+        answer = prompt(questions)
+        if attribute in answer:
+            return answer[attribute]
+        else:
+            print("\n" * 10)
+            cowsay.cow('see you soon 👋')
+            exit(0)
 
 
 def print_headline():
@@ -117,393 +126,273 @@ def print_headline():
     print()
 
 
-T = TypeVar('T')
-
-
-class BaseConfigurationStep(Generic[T]):
-    def __init__(
-        self,
-        name: str,
-        cli_value: Optional[T] = None,
-        choices: Optional[List[Union[Dict, str]]] = None,
-        prompt_message: str = None,
-        prompt_type: str = 'input',
-    ):
-        self._name = name
-        self._cli_value = cli_value
-        self._choices = choices
-        self._prompt_message = (
-            prompt_message if prompt_message is not None else 'Please provide input.'
-        )
-        self._prompt_type = prompt_type
-
-    def get_value(self) -> T:
-        if self._cli_value is not None:
-            return self._cli_value
-        else:
-            answer = prompt(self._get_questions())
-            if self._name in answer:
-                return answer[self._name]
-            else:
-                print("\n" * 10)
-                cowsay.cow('see you soon 👋')
-                exit(0)
-
-    @abc.abstractmethod
-    def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
-        raise NotImplementedError('set_user_input')
-
-    def _get_questions(self) -> Dict:
-        qs = {
-            'name': self._name,
-            'type': self._prompt_type,
-            'message': self._prompt_message,
-        }
-        if self._choices is not None:
-            qs['choices'] = self._choices
-        return qs
-
-
-class FinalConfigurationStep(BaseConfigurationStep['str']):
-    def __init__(self, **kwargs):
-        super().__init__(name='final')
-
-    def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
-        user_input.is_complete = True
-        return self
-
-
-class ConfigureDataImage(BaseConfigurationStep['str']):
-    def __init__(self, **kwargs):
-        super().__init__(
-            name='dataset',
-            cli_value=kwargs.get('dataset'),
-            choices=[
-                {'name': '🖼  artworks (≈8K docs)', 'value': 'best-artworks'},
-                {
-                    'name': '💰 nft - bored apes (10K docs)',
-                    'value': 'nft-monkey',
-                },
-                {'name': '👬 totally looks like (≈12K docs)', 'value': 'tll'},
-                {'name': '🦆 birds (≈12K docs)', 'value': 'bird-species'},
-                {'name': '🚗 cars (≈16K docs)', 'value': 'stanford-cars'},
-                {
-                    'name': '🏞 geolocation (≈50K docs)',
-                    'value': 'geolocation-geoguessr',
-                },
-                {'name': '👕 fashion (≈53K docs)', 'value': 'deepfashion'},
-                {
-                    'name': '☢️ chest x-ray (≈100K docs)',
-                    'value': 'nih-chest-xrays',
-                },
-                Separator(),
-                {
-                    'name': '✨ custom',
-                    'value': 'custom',
-                },
-            ],
-            prompt_message='What dataset do you want to use?',
-            prompt_type='list',
-        )
-        self._kwargs = kwargs
-
-    def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
-        data = self.get_value()
-        if data in AVAILABLE_DATASET:
-            user_input.is_custom_dataset = False
-            user_input.dataset = data
-            return ConfigureQuality(**self._kwargs)
-        else:
-            user_input.is_custom_dataset = True
-            if data == 'custom':
-                user_input.dataset = 'custom'
-                return ConfigureCustomDatasetType(**self._kwargs)
-            else:
-                _parse_custom_data_from_cli(data, user_input)
-                return ConfigureQuality(**self._kwargs)
-
-
-class ConfigureDataAudio(BaseConfigurationStep['str']):
-    def __init__(self, **kwargs):
-        super().__init__(
-            name='dataset',
-            cli_value=kwargs.get('dataset'),
-            choices=[
-                {'name': '🎸 music small (≈2K docs)', 'value': 'music-genres-small'},
-                {'name': '🎸 music large (≈10K docs)', 'value': 'music-genres-large'},
-                Separator(),
-                {
-                    'name': '✨ custom',
-                    'value': 'custom',
-                },
-            ],
-            prompt_message='What dataset do you want to use?',
-            prompt_type='list',
-        )
-        self._kwargs = kwargs
-
-    def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
-        data = self.get_value()
-        if data in AVAILABLE_DATASET:
-            user_input.is_custom_dataset = False
-            user_input.dataset = data
-            return ConfigureCluster(**self._kwargs)
-        else:
-            user_input.is_custom_dataset = True
-            if data == 'custom':
-                user_input.dataset = 'custom'
-                return ConfigureCustomDatasetType(**self._kwargs)
-            else:
-                _parse_custom_data_from_cli(data, user_input)
-                return ConfigureCluster(**self._kwargs)
-
-
-class ConfigureCustomDatasetType(BaseConfigurationStep['str']):
-    class ConfigureDocarrayDataset(BaseConfigurationStep['str']):
-        def __init__(self, **kwargs):
-            super().__init__(
-                name='dataset_secret',
-                prompt_message='Please enter your docarray secret.',
-                prompt_type='password',
-            )
-            self._kwargs = kwargs
-
-        def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
-            secret = self.get_value()
-            user_input.dataset_secret = secret
-            if user_input.modality == Modalities.IMAGE:
-                return ConfigureQuality(**self._kwargs)
-            else:
-                return ConfigureCluster(**self._kwargs)
-
-    class ConfigureUrlDataset(BaseConfigurationStep['str']):
-        def __init__(self, **kwargs):
-            super().__init__(
-                name='dataset_url',
-                prompt_message='Please paste in your url for the docarray.',
-                prompt_type='input',
-            )
-            self._kwargs = kwargs
-
-        def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
-            dataset_url = self.get_value()
-            user_input.dataset_url = dataset_url
-            if user_input.modality == Modalities.IMAGE:
-                return ConfigureQuality(**self._kwargs)
-            else:
-                return ConfigureCluster(**self._kwargs)
-
-    class ConfigurePathDataset(BaseConfigurationStep['str']):
-        def __init__(self, **kwargs):
-            super().__init__(
-                name='dataset_path',
-                prompt_message='Please enter the path to the local folder.',
-                prompt_type='input',
-            )
-            self._kwargs = kwargs
-
-        def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
-            dataset_path = self.get_value()
-            user_input.dataset_path = dataset_path
-            if user_input.modality == Modalities.IMAGE:
-                return ConfigureQuality(**self._kwargs)
-            else:
-                return ConfigureCluster(**self._kwargs)
-
-    def __init__(self, **kwargs):
-        super().__init__(
-            name='custom_dataset_type',
-            choices=[
-                {
-                    'name': 'docarray.pull id (recommended)',
-                    'value': 'docarray',
-                },
-                {
-                    'name': 'docarray URL',
-                    'value': 'url',
-                },
-                {
-                    'name': 'local mounted path',
-                    'value': 'path',
-                },
-            ],
-            prompt_message='How do you want to provide input? (format: https://docarray.jina.ai/)',
-            prompt_type='list',
-        )
-        self._kwargs = kwargs
-
-    def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
-        custom_dataset_type = self.get_value()
-        user_input.custom_dataset_type = custom_dataset_type
-        if custom_dataset_type == 'docarray':
-            return self.ConfigureDocarrayDataset(**self._kwargs).configure_user_input(
-                user_input
-            )
-        if custom_dataset_type == 'url':
-            return self.ConfigureUrlDataset(**self._kwargs).configure_user_input(
-                user_input
-            )
-        if custom_dataset_type == 'path':
-            return self.ConfigurePathDataset(**self._kwargs).configure_user_input(
-                user_input
-            )
-
-
-class ConfigureModality(BaseConfigurationStep['str']):
-    def __init__(self, **kwargs):
-        super().__init__(
-            name='modality',
-            cli_value=kwargs.get('modality'),
-            choices=[
-                {'name': '🏞 Image Search', 'value': Modalities.IMAGE},
-                {'name': '🔊 Audio Search', 'value': Modalities.AUDIO},
-            ],
-            prompt_message='Which modalities you want to work with?',
-            prompt_type='list',
-        )
-        self._kwargs = kwargs
-
-    def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
-        modality = self.get_value()
-        user_input.modality = modality
-        if modality == Modalities.IMAGE:
-            return ConfigureDataImage(**self._kwargs)
-        else:
-            return ConfigureDataAudio(**self._kwargs)
-
-
-class ConfigureCluster(BaseConfigurationStep['str']):
-    class ConfigureNewCluster(BaseConfigurationStep['str']):
-        def __init__(self, **kwargs):
-            super().__init__(
-                name='new_cluster_type',
-                cli_value=kwargs.get('new_cluster_type'),
-                choices=[
-                    {
-                        'name': '📍 local (Kubernetes in Docker)',
-                        'value': 'local',
-                    },
-                    {'name': '⛅️ Google Kubernetes Engine', 'value': 'gke'},
-                    {
-                        'name': '⛅️ Jina - Flow as a Service',
-                        'disabled': AVAILABLE_SOON,
-                    },
-                    {
-                        'name': '⛅️ Amazon Elastic Kubernetes Service',
-                        'disabled': AVAILABLE_SOON,
-                    },
-                    {
-                        'name': '⛅️ Azure Kubernetes Service',
-                        'disabled': AVAILABLE_SOON,
-                    },
-                    {
-                        'name': '⛅️ DigitalOcean Kubernetes',
-                        'disabled': AVAILABLE_SOON,
-                    },
-                ],
-                prompt_message='Where do you want to create a new cluster?',
-                prompt_type='list',
-            )
-            self._kwargs = kwargs
-
-        def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
-            cluster_new = self.get_value()
-            user_input.create_new_cluster = True
-            user_input.new_cluster_type = cluster_new
-            if user_input.new_cluster_type == 'gke':
-                _maybe_install_gke(self._kwargs['os_type'], self._kwargs['arch'])
-            return FinalConfigurationStep(**self._kwargs)
-
-    def __init__(self, **kwargs):
-        self.contexts, self.active_context = kwargs.get('contexts'), kwargs.get(
-            'active_context'
-        )
-        context_names = get_context_names(self.contexts, self.active_context)
-        choices = [NEW_CLUSTER]
-        if len(context_names) > 0 and len(context_names[0]) > 0:
-            choices = context_names + choices
-        super().__init__(
-            name='cluster',
-            cli_value=kwargs.get('cluster'),
-            choices=choices,
-            prompt_message='Where do you want to deploy your search engine?',
-            prompt_type='list',
-        )
-        self._kwargs = kwargs
-
-    def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
-        cluster = self.get_value()
-        if cluster == NEW_CLUSTER['value']:
-            user_input.cluster = cluster
-            return self.ConfigureNewCluster(**self._kwargs).configure_user_input(
-                user_input
-            )
-        else:
-            user_input.cluster = cluster
-            if not cluster_running(cluster):
-                print(
-                    f'Cluster {cluster} is not running. Please select a different one.'
-                )
-                return ConfigureCluster(**self._kwargs)
-            else:
-                return FinalConfigurationStep(**self._kwargs)
-
-
-class ConfigureQuality(BaseConfigurationStep['str']):
-    def __init__(self, **kwargs):
-        super().__init__(
-            name='quality',
-            cli_value=kwargs.get('quality'),
-            choices=[
-                {'name': '🦊 medium (≈3GB mem, 15q/s)', 'value': 'medium'},
-                {'name': '🐻 good (≈3GB mem, 2.5q/s)', 'value': 'good'},
-                {
-                    'name': '🦄 excellent (≈4GB mem, 0.5q/s)',
-                    'value': 'excellent',
-                },
-            ],
-            prompt_message='What quality do you expect?',
-            prompt_type='list',
-        )
-        self._kwargs = kwargs
-
-    def configure_user_input(self, user_input: UserInput) -> BaseConfigurationStep:
-        quality = self.get_value()
-        if quality == 'medium':
-            print('  🚀 you trade-off a bit of quality for having the best speed')
-        elif quality == 'good':
-            print('  ⚖️ you have the best out of speed and quality')
-        elif quality == 'excellent':
-            print('  ✨ you trade-off speed to having the best quality')
-
-        user_input.quality = quality
-        _, user_input.model_variant = QUALITY_MAP[quality]
-        return ConfigureCluster(**self._kwargs)
-
-
-def configure_user_input(**kwargs) -> UserInput:
-    print_headline()
-    user_input = UserInput()
-    config_step = ConfigureModality(**kwargs)
-    while not user_input.is_complete:
-        config_step = config_step.configure_user_input(user_input)
-    return user_input
-
-
-def prompt_plus(questions, attribute, **kwargs):
-    if kwargs and attribute in kwargs.keys() and kwargs[attribute]:
-        return kwargs[attribute]
+def _configure_modality(user_input: UserInput, **kwargs) -> UserInput:
+    modality = _prompt_value(
+        name='modality',
+        choices=[
+            {'name': '🏞 Image Search', 'value': Modalities.IMAGE},
+            {'name': '🔊 Audio Search', 'value': Modalities.AUDIO},
+        ],
+        prompt_message='Which modalities you want to work with?',
+        prompt_type='list',
+        **kwargs,
+    )
+    user_input.modality = modality
+    if modality == Modalities.IMAGE:
+        return _configure_dataset_image(user_input, **kwargs)
     else:
-        answer = prompt(questions)
-        if attribute in answer:
-            return answer[attribute]
+        return _configure_dataset_audio(user_input, **kwargs)
+
+
+def _configure_dataset_image(user_input: UserInput, **kwargs) -> UserInput:
+    dataset = _prompt_value(
+        name='dataset',
+        prompt_message='What dataset do you want to use?',
+        choices=[
+            {'name': '🖼  artworks (≈8K docs)', 'value': 'best-artworks'},
+            {
+                'name': '💰 nft - bored apes (10K docs)',
+                'value': 'nft-monkey',
+            },
+            {'name': '👬 totally looks like (≈12K docs)', 'value': 'tll'},
+            {'name': '🦆 birds (≈12K docs)', 'value': 'bird-species'},
+            {'name': '🚗 cars (≈16K docs)', 'value': 'stanford-cars'},
+            {
+                'name': '🏞 geolocation (≈50K docs)',
+                'value': 'geolocation-geoguessr',
+            },
+            {'name': '👕 fashion (≈53K docs)', 'value': 'deepfashion'},
+            {
+                'name': '☢️ chest x-ray (≈100K docs)',
+                'value': 'nih-chest-xrays',
+            },
+            Separator(),
+            {
+                'name': '✨ custom',
+                'value': 'custom',
+            },
+        ],
+        **kwargs,
+    )
+    if dataset in AVAILABLE_DATASET:
+        user_input.is_custom_dataset = False
+        user_input.dataset = dataset
+        return _configure_quality(user_input, **kwargs)
+    else:
+        user_input.is_custom_dataset = True
+        if dataset == 'custom':
+            user_input.dataset = 'custom'
+            return _configure_custom_dataset(user_input, **kwargs)
         else:
-            print("\n" * 10)
-            cowsay.cow('see you soon 👋')
-            exit(0)
+            _parse_custom_data_from_cli(dataset, user_input)
+            return _configure_quality(user_input, **kwargs)
 
 
-def get_context_names(contexts, active_context=None):
+def _configure_dataset_audio(user_input: UserInput, **kwargs):
+    dataset = _prompt_value(
+        name='dataset',
+        prompt_message='What dataset do you want to use?',
+        choices=[
+            {'name': '🎸 music small (≈2K docs)', 'value': 'music-genres-small'},
+            {'name': '🎸 music large (≈10K docs)', 'value': 'music-genres-large'},
+            Separator(),
+            {
+                'name': '✨ custom',
+                'value': 'custom',
+            },
+        ],
+        **kwargs,
+    )
+    if dataset in AVAILABLE_DATASET:
+        user_input.is_custom_dataset = False
+        user_input.dataset = dataset
+        return _configure_cluster(user_input, **kwargs)
+    else:
+        user_input.is_custom_dataset = True
+        if dataset == 'custom':
+            user_input.dataset = 'custom'
+            return _configure_custom_dataset(user_input, **kwargs)
+        else:
+            _parse_custom_data_from_cli(dataset, user_input)
+            return _configure_cluster(user_input, **kwargs)
+
+
+def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
+    def configure_docarray() -> UserInput:
+        dataset_secret = _prompt_value(
+            name='dataset_secret',
+            prompt_message='Please enter your docarray secret.',
+            prompt_type='password',
+        )
+        user_input.dataset_secret = dataset_secret
+        if user_input.modality == Modalities.IMAGE:
+            return _configure_quality(user_input, **kwargs)
+        else:
+            return _configure_cluster(user_input, **kwargs)
+
+    def configure_url() -> UserInput:
+        dataset_url = _prompt_value(
+            name='dataset_url',
+            prompt_message='Please paste in your url for the docarray.',
+            prompt_type='input',
+        )
+        user_input.dataset_url = dataset_url
+        if user_input.modality == Modalities.IMAGE:
+            return _configure_quality(user_input, **kwargs)
+        else:
+            return _configure_cluster(user_input, **kwargs)
+
+    def configure_path() -> UserInput:
+        dataset_path = _prompt_value(
+            name='dataset_path',
+            prompt_message='Please enter the path to the local folder.',
+            prompt_type='input',
+        )
+        user_input.dataset_path = dataset_path
+        if user_input.modality == Modalities.IMAGE:
+            return _configure_quality(user_input, **kwargs)
+        else:
+            return _configure_cluster(user_input, **kwargs)
+
+    custom_dataset_type = _prompt_value(
+        name='custom_dataset_type',
+        prompt_message='How do you want to provide input? (format: https://docarray.jina.ai/)',
+        choices=[
+            {
+                'name': 'docarray.pull id (recommended)',
+                'value': 'docarray',
+            },
+            {
+                'name': 'docarray URL',
+                'value': 'url',
+            },
+            {
+                'name': 'local mounted path',
+                'value': 'path',
+            },
+        ],
+        **kwargs,
+    )
+
+    user_input.custom_dataset_type = custom_dataset_type
+    if custom_dataset_type == 'docarray':
+        return configure_docarray()
+    if custom_dataset_type == 'url':
+        return configure_url()
+    if custom_dataset_type == 'path':
+        return configure_path()
+
+
+def _configure_cluster(user_input: UserInput, **kwargs) -> UserInput:
+    def configure_new_cluster() -> UserInput:
+        new_cluster_type = _prompt_value(
+            name='new_cluster_type',
+            choices=[
+                {
+                    'name': '📍 local (Kubernetes in Docker)',
+                    'value': 'local',
+                },
+                {'name': '⛅️ Google Kubernetes Engine', 'value': 'gke'},
+                {
+                    'name': '⛅️ Jina - Flow as a Service',
+                    'disabled': AVAILABLE_SOON,
+                },
+                {
+                    'name': '⛅️ Amazon Elastic Kubernetes Service',
+                    'disabled': AVAILABLE_SOON,
+                },
+                {
+                    'name': '⛅️ Azure Kubernetes Service',
+                    'disabled': AVAILABLE_SOON,
+                },
+                {
+                    'name': '⛅️ DigitalOcean Kubernetes',
+                    'disabled': AVAILABLE_SOON,
+                },
+            ],
+            prompt_message='Where do you want to create a new cluster?',
+            prompt_type='list',
+            kwargs=kwargs,
+        )
+        user_input.create_new_cluster = True
+        user_input.new_cluster_type = new_cluster_type
+        if user_input.new_cluster_type == 'gke':
+            _maybe_install_gke(**kwargs)
+        return user_input
+
+    choices = _construct_cluster_choices(
+        active_context=kwargs.get('active_context'), contexts=kwargs.get('contexts')
+    )
+    cluster = _prompt_value(
+        name='cluster',
+        choices=choices,
+        prompt_message='Where do you want to deploy your search engine?',
+        prompt_type='list',
+        **kwargs,
+    )
+    if cluster == NEW_CLUSTER['value']:
+        user_input.cluster = cluster
+        return configure_new_cluster()
+    else:
+        user_input.cluster = cluster
+        if not _cluster_running(cluster):
+            print(f'Cluster {cluster} is not running. Please select a different one.')
+            return _configure_cluster(user_input, **kwargs)
+        else:
+            return user_input
+
+
+def _configure_quality(user_input: UserInput, **kwargs) -> UserInput:
+    quality = _prompt_value(
+        name='quality',
+        choices=[
+            {'name': '🦊 medium (≈3GB mem, 15q/s)', 'value': 'medium'},
+            {'name': '🐻 good (≈3GB mem, 2.5q/s)', 'value': 'good'},
+            {
+                'name': '🦄 excellent (≈4GB mem, 0.5q/s)',
+                'value': 'excellent',
+            },
+        ],
+        prompt_message='What quality do you expect?',
+        prompt_type='list',
+        **kwargs,
+    )
+    if quality == 'medium':
+        print('  🚀 you trade-off a bit of quality for having the best speed')
+    elif quality == 'good':
+        print('  ⚖️ you have the best out of speed and quality')
+    elif quality == 'excellent':
+        print('  ✨ you trade-off speed to having the best quality')
+
+    user_input.quality = quality
+    _, user_input.model_variant = QUALITY_MAP[quality]
+    return _configure_cluster(user_input, **kwargs)
+
+
+def _construct_cluster_choices(active_context, contexts):
+    context_names = _get_context_names(contexts, active_context)
+    choices = [NEW_CLUSTER]
+    if len(context_names) > 0 and len(context_names[0]) > 0:
+        choices = context_names + choices
+    return choices
+
+
+def _prompt_value(
+    name: str,
+    prompt_message: str,
+    prompt_type: str = 'input',
+    choices: Optional[List[Union[Dict, str]]] = None,
+    **kwargs: Dict,
+):
+    qs = {'name': name, 'type': prompt_type, 'message': prompt_message}
+
+    if choices is not None:
+        qs['choices'] = choices
+        qs['type'] = 'list'
+    return maybe_prompt_user(qs, name, **kwargs)
+
+
+def _get_context_names(contexts, active_context=None):
     names = [c for c in contexts] if contexts is not None else []
     if active_context is not None:
         names.remove(active_context)
@@ -511,7 +400,7 @@ def get_context_names(contexts, active_context=None):
     return names
 
 
-def cluster_running(cluster):
+def _cluster_running(cluster):
     config.load_kube_config(context=cluster)
     v1 = client.CoreV1Api()
     try:

@@ -6,13 +6,13 @@ from yaspin import yaspin
 from now import run_backend, run_frontend
 from now.cloud_manager import setup_cluster
 from now.deployment.deployment import cmd
-from now.dialog import configure_user_input, get_context_names, prompt_plus
+from now.dialog import _get_context_names, configure_user_input, maybe_prompt_user
 from now.system_information import get_system_state
 from now.utils import sigmap
 
 
 def stop_now(contexts, active_context, **kwargs):
-    choices = get_context_names(contexts, active_context)
+    choices = _get_context_names(contexts, active_context)
     if len(choices) == 0:
         cowsay.cow('nothing to stop')
         return
@@ -25,7 +25,7 @@ def stop_now(contexts, active_context, **kwargs):
                 'choices': choices,
             }
         ]
-        cluster = prompt_plus(questions, 'cluster')
+        cluster = maybe_prompt_user(questions, 'cluster')
     if cluster == 'kind-jina-now':
         with yaspin(
             sigmap=sigmap, text=f"Remove local cluster {cluster}", color="green"
