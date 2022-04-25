@@ -17,7 +17,7 @@ One line to host them all. Bootstrap your image search case in minutes.
 <!-- start elevator-pitch -->
 NOW gives the world access to customized neural image search in just one line of code.
 Main features
-- 🐥 **Easy**: No engineering skills required
+- 🐥 **Easy**: Minimal effort required to set up your search case
 - 🐎 **Fast**: Set up your search case within minutes
 - 🌈 **Quality**: If you provide labels to your documents, Jina NOW fine-tunes a model for you
 - 🌳 **Reliable**: We take care of the deployment and maintenance (coming soon)
