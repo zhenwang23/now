@@ -2,16 +2,14 @@ import base64
 import logging
 import os
 import sys
-import warnings
 from copy import deepcopy
 from urllib.request import urlopen
 
-import av
 import numpy as np
 import streamlit as st
 from docarray import DocumentArray
 from jina import Client, Document
-from streamlit_webrtc import ClientSettings, VideoTransformerBase, webrtc_streamer
+from streamlit_webrtc import ClientSettings
 
 logger = logging.getLogger('my_module_name')
 WEBRTC_CLIENT_SETTINGS = ClientSettings(
@@ -186,47 +184,18 @@ def deploy_streamlit():
                         st.session_state.matches = search_by_t(
                             input=doc.content, server=host, port=port
                         )
-
-    elif media_type == 'Webcam1':
-        placeholder = st.empty()
-        # st.button('Capture', disabled=True, key='snapshot')
-
-        class VideoProcessor(VideoTransformerBase):
-            snapshot: np.ndarray = None
-
-            def transform(self, frame: av.VideoFrame):
-                self.snapshot = frame.to_ndarray(format="bgr24")
-                return self.snapshot
-
-            # def recv(self, frame: av.VideoFrame):
-            #     pass
-
-        ctx = webrtc_streamer(
-            key="jina-now",
-            video_transformer_factory=VideoProcessor,
-            client_settings=WEBRTC_CLIENT_SETTINGS,
-        )
-
-        with warnings.catch_warnings():
-            warnings.simplefilter("always")
-            if ctx.video_transformer:
-                if placeholder.button('Snapshot'):
-                    query = ctx.video_transformer.snapshot
-                    doc = Document(tensor=query)
-                    doc.convert_image_tensor_to_blob()
-                    st.image(doc.blob, channels="BGR", width=160)
-                    st.session_state.matches = search_by_file(
-                        document=doc, server=host, port=port
-                    )
-    elif media_type == 'Webcam2':
+    elif media_type == 'Webcam':
         from webcam import webcam
 
         captured_image = webcam()
-        if captured_image is None:
-            st.write("Waiting for capture...")
-        else:
-            st.write("Got an image from the webcam:")
-            st.image(captured_image)
+        if captured_image:
+            captured_image = np.array(captured_image)
+            st.image(captured_image, width=160)
+            doc = Document(tensor=captured_image)
+            doc.convert_image_tensor_to_blob()
+            st.session_state.matches = search_by_file(
+                document=doc, server=host, port=port
+            )
 
     if st.session_state.matches:
         matches = deepcopy(st.session_state.matches)
@@ -287,19 +256,16 @@ def clear_text():
     st.session_state.text_search_box = ''
 
 
+def is_local(url):
+    if '127.0.0.1' in url or 'localhost' in url:
+        return True
+    return False
+
+
 def load_data(data_path: str) -> DocumentArray:
-    print('⬇ load data')
     if data_path.startswith('http'):
-        try:
-            # TODO try except is used as workaround
-            # in case load_data is called two times from two frontends it can happen that
-            # one of the calls created the directory right after checking that it does not exist
-            # this caused errors. Now the error will be ignored
-            os.makedirs('data/tmp')
-        except:
-            pass
+        os.makedirs('data/tmp', exist_ok=True)
         url = data_path
-        print('url', url)
         data_path = (
             f"data/tmp/{base64.b64encode(bytes(url, 'utf-8')).decode('utf-8')}.bin"
         )
