@@ -33,9 +33,17 @@ def deploy_streamlit():
     DATA_DIR = "../data/images/"
 
     if data in ds_set:
-        da_img, da_txt = load_data(root_data_dir + data + '.img10.bin'), load_data(
-            root_data_dir + data + '.txt10.bin'
-        )
+        if output_modality == 'image':
+            output_modality_dir = 'jpeg'
+            data_dir = root_data_dir + output_modality_dir + '/'
+            da_img, da_txt = load_data(data_dir + data + '.img10.bin'), load_data(
+                data_dir + data + '.txt10.bin'
+            )
+        elif output_modality == 'text':
+            # for now deactivated sample images for text
+            output_modality_dir = 'text'
+            data_dir = root_data_dir + output_modality_dir + '/'
+            da_txt = load_data(data_dir + data + '.txt10.bin')
 
     class UI:
         about_block = """
@@ -258,7 +266,7 @@ def load_data(data_path: str) -> DocumentArray:
 
 TEXT_SAMPLES = ['red shoe', 'blue tops']
 root_data_dir = (
-    'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/jpeg/'
+    'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
 )
 
 ds_set = {
