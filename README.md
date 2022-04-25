@@ -21,7 +21,7 @@ Main features
 - 🐎 **Fast**: Set up your search case within minutes
 - 🌈 **Quality**: If you provide labels to your documents, Jina NOW fine-tunes a model for you
 - 🌳 **Reliable**: We take care of the deployment and maintenance (coming soon)
-
+- ✨ **Nocode**: Deployment can be done by non-technical people
 
 
 
