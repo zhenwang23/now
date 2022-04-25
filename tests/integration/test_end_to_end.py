@@ -9,7 +9,8 @@ from now.dialog import NEW_CLUSTER
 
 
 @pytest.mark.parametrize(
-    'output_modality,dataset', [('image', 'best-artworks'), ('image', 'deepfashion'), ('text', 'rock-lyrics')]
+    'output_modality,dataset',
+    [('image', 'best-artworks'), ('image', 'deepfashion'), ('text', 'rock-pop')],
 )  # art, rock-lyrics -> no finetuning, fashion -> finetuning
 @pytest.mark.parametrize('quality', ['medium'])
 @pytest.mark.parametrize('cluster', [NEW_CLUSTER])
