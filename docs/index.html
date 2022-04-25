@@ -12,26 +12,26 @@
   
 <meta property="og:site_name" content="NOW 0.0.3 Documentation" />
   
-<meta property="og:description" content="NOW gives the world access to customized neural image search in just one line of code. Main features 🐥 Easy: No engineering skills required, 🐎 Fast: Set up your search case within minutes, 🌈 Quality: If you provide labels to your documents, Jina NOW fine-tunes a model for you, 🌳 Reliable: We take..." />
+<meta property="og:description" content="NOW gives the world access to customized neural image search in just one line of code. Main features 🐥 Easy: Minimal effort required to set up your search case, 🐎 Fast: Set up your search case within minutes, 🌈 Quality: If you provide labels to your documents, Jina NOW fine-tunes a model for you,..." />
   
-<meta property="og:image" content="https://now.jina.ai/_static/banner.png" />
+<meta property="og:image" content="https://user-images.githubusercontent.com/11627845/164571632-0e6a6c39-0137-413b-8287-21fc34785665.png" />
   
-<meta property="og:image:alt" content="NOW 0.0.3 Documentation" />
+<meta property="og:image:alt" content="IMAGE ALT TEXT HERE" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
 <meta name="twitter:creator" content="@JinaAI_">
-<meta name="description" content="Embed images and sentences into fixed-length vectors via CLIP.">
+<meta name="description" content="One line to host them all. Bootstrap your image search case in minutes.">
 <meta property="og:description" content="One line to host them all. Bootstrap your image search case in minutes.">
 
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E63SXVNDXZ"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K8DQ8TXQJH"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-E63SXVNDXZ');
+  gtag('config', 'G-K8DQ8TXQJH');
 </script>
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>
@@ -44,7 +44,7 @@
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="_static/design-style.59c74d8c95b765a7fd995ac71d459ebe.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="_static/main.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" />
@@ -289,10 +289,11 @@
 <p>NOW gives the world access to customized neural image search in just one line of code.
 Main features</p>
 <ul class="simple">
-<li><p>🐥 <strong>Easy</strong>: No engineering skills required</p></li>
+<li><p>🐥 <strong>Easy</strong>: Minimal effort required to set up your search case</p></li>
 <li><p>🐎 <strong>Fast</strong>: Set up your search case within minutes</p></li>
 <li><p>🌈 <strong>Quality</strong>: If you provide labels to your documents, Jina NOW fine-tunes a model for you</p></li>
 <li><p>🌳 <strong>Reliable</strong>: We take care of the deployment and maintenance (coming soon)</p></li>
+<li><p>✨ <strong>Nocode</strong>: Deployment can be done by non-technical people</p></li>
 </ul>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">#</a></h2>
@@ -307,51 +308,51 @@ Main features</p>
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">#</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jina-now <span class="o">[</span>start <span class="p">|</span> stop<span class="o">]</span> --data <span class="o">[</span>pushpullid <span class="p">|</span> localpath <span class="p">|</span> url<span class="o">]</span> --quality <span class="o">[</span>medium <span class="p">|</span> good <span class="p">|</span> excellent<span class="o">]</span> --cluster <span class="o">[</span>k8s-cluster-name<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jina now <span class="o">[</span>start <span class="p">|</span> stop<span class="o">]</span> --data <span class="o">[</span>&lt;pushpullid&gt; <span class="p">|</span> &lt;localpath&gt; <span class="p">|</span> &lt;url&gt;<span class="o">]</span> --quality <span class="o">[</span>medium <span class="p">|</span> good <span class="p">|</span> excellent<span class="o">]</span> --cluster &lt;k8s-cluster-name&gt;
 </pre></div>
 </div>
 </section>
 <section id="quick-start">
 <h2>quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">#</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jina-now start
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jina now start
 </pre></div>
 </div>
 </section>
 <section id="use-cli-parameters">
 <h2>use cli parameters<a class="headerlink" href="#use-cli-parameters" title="Permalink to this headline">#</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jina-now start --quality medium --data /local/img/folder
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jina now start --quality medium --data /local/img/folder
 </pre></div>
 </div>
 </section>
 <section id="cleanup">
 <h2>Cleanup<a class="headerlink" href="#cleanup" title="Permalink to this headline">#</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jina-now stop
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jina now stop
 </pre></div>
 </div>
 </section>
 <section id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">#</a></h2>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">3.7</span></code>, <code class="docutils literal notranslate"><span class="pre">3.8</span></code> or <code class="docutils literal notranslate"><span class="pre">3.9</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Python</span> <span class="pre">3.7</span></code>, <code class="docutils literal notranslate"><span class="pre">3.8</span></code> or <code class="docutils literal notranslate"><span class="pre">3.9</span></code></p></li>
 </ul>
 <section id="local-execution">
 <h3>Local execution<a class="headerlink" href="#local-execution" title="Permalink to this headline">#</a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">docker</span></code> installation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Docker</span></code> installation</p></li>
 <li><p>10 GB assigned to docker</p></li>
-<li><p>user must be permitted to run docker containers</p></li>
+<li><p>User must be permitted to run docker containers</p></li>
 </ul>
 </section>
 <section id="google-cloud-deployment">
 <h3>Google Cloud deployment<a class="headerlink" href="#google-cloud-deployment" title="Permalink to this headline">#</a></h3>
 <ul class="simple">
-<li><p>billing account enabled</p></li>
+<li><p>Billing account enabled</p></li>
 </ul>
 </section>
 <section id="jina-flow-as-a-service">
 <h3>Jina Flow as a service<a class="headerlink" href="#jina-flow-as-a-service" title="Permalink to this headline">#</a></h3>
 <ul class="simple">
-<li><p>no further requirements (coming soon)</p></li>
+<li><p>No further requirements (coming soon)</p></li>
 </ul>
 </section>
 </section>
@@ -366,51 +367,33 @@ Main features</p>
 <li><p>[ ] PDF</p></li>
 <li><p>[ ] …</p></li>
 </ul>
+<p><a class="reference external" href="https://www.youtube.com/watch?v=1rvNakk5MNo"><img alt="IMAGE ALT TEXT HERE" src="https://user-images.githubusercontent.com/11627845/164571632-0e6a6c39-0137-413b-8287-21fc34785665.png"/></a></p>
+
+<br/>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">#</a></h2>
-<section id="fashion">
-<h3>Fashion<a class="headerlink" href="#fashion" title="Permalink to this headline">#</a></h3>
-<p>Fine-tuned on category, gender and product variant
-<br/>
-<img alt="image" src="https://user-images.githubusercontent.com/11627845/157079335-8f36fc73-d826-4c0a-b1f3-ed5d650a1af1.png" width="400"/></p>
-</section>
-<section id="chest-x-ray">
-<h3>Chest X-Ray<a class="headerlink" href="#chest-x-ray" title="Permalink to this headline">#</a></h3>
-<p>Fine-tuned on diagnoses given by doctors
-<br/>
-<img src="https://user-images.githubusercontent.com/11627845/157067695-59851a77-5c43-4f68-80c4-403fec850776.png" width="400"/></p>
-</section>
-<section id="nft-bored-apes">
-<h3>NFT - bored apes<a class="headerlink" href="#nft-bored-apes" title="Permalink to this headline">#</a></h3>
-<p>Fine-tuned on the attributes of the Apes
-<br/>
-<img src="https://user-images.githubusercontent.com/11627845/157019002-573cc101-e23b-4020-825c-f37ec66c6ccf.jpeg" width="400"/></p>
-</section>
-<section id="art">
-<h3>Art<a class="headerlink" href="#art" title="Permalink to this headline">#</a></h3>
-<p>Fine-tuned on the art genre
-<br/>
-<img alt="image" src="https://user-images.githubusercontent.com/11627845/157074453-721c0f2d-3f7d-4839-b6ff-bbccbdba2e5f.png" width="400"/></p>
-</section>
-<section id="cars">
-<h3>Cars<a class="headerlink" href="#cars" title="Permalink to this headline">#</a></h3>
-<p>Color invariant fine-tuning on the car model
-<br/>
-<img alt="image" src="https://user-images.githubusercontent.com/11627845/157081047-792df6bd-544d-420c-b180-df824c802e73.png" width="400"/></p>
-</section>
-<section id="street-view">
-<h3>Street view<a class="headerlink" href="#street-view" title="Permalink to this headline">#</a></h3>
-<p>Fine-tuned on country classification
-<br/>
-<img alt="image" src="https://user-images.githubusercontent.com/11627845/157087532-46ae36a2-c97f-45d7-9c3e-c624dcf6dc46.png" width="400"/></p>
-</section>
-<section id="birds">
-<h3>Birds<a class="headerlink" href="#birds" title="Permalink to this headline">#</a></h3>
-<p>Fine-tuned on bird species
-<br/>
-<img alt="image" src="https://user-images.githubusercontent.com/11627845/157069954-615a5cb6-dda0-4a2f-9442-ea807ad4a8d5.png" width="400"/></p>
-</section>
+<details><summary>👕 Fashion</summary>
+<img alt="image" src="https://user-images.githubusercontent.com/11627845/157079335-8f36fc73-d826-4c0a-b1f3-ed5d650a1af1.png" width="400"/>
+</details>
+<details><summary>☢️ Chest X-Ray</summary>
+<img src="https://user-images.githubusercontent.com/11627845/157067695-59851a77-5c43-4f68-80c4-403fec850776.png" width="400"/>
+</details>
+<details><summary>💰 NFT - bored apes</summary>
+<img src="https://user-images.githubusercontent.com/11627845/157019002-573cc101-e23b-4020-825c-f37ec66c6ccf.jpeg" width="400"/>
+</details>
+<details><summary>🖼 Art</summary>
+<img alt="image" src="https://user-images.githubusercontent.com/11627845/157074453-721c0f2d-3f7d-4839-b6ff-bbccbdba2e5f.png" width="400"/>
+</details>
+<details><summary>🚗 Cars</summary>
+<img alt="image" src="https://user-images.githubusercontent.com/11627845/157081047-792df6bd-544d-420c-b180-df824c802e73.png" width="400"/>
+</details>
+<details><summary>🏞 Street view</summary>
+<img alt="image" src="https://user-images.githubusercontent.com/11627845/157087532-46ae36a2-c97f-45d7-9c3e-c624dcf6dc46.png" width="400"/>
+</details>
+<details><summary>🦆 Birds</summary>
+<img alt="image" src="https://user-images.githubusercontent.com/11627845/157069954-615a5cb6-dda0-4a2f-9442-ea807ad4a8d5.png" width="400"/>
+</details>
 <section id="now-use-your-custom-data">
 <h3>Now use your custom data :)<a class="headerlink" href="#now-use-your-custom-data" title="Permalink to this headline">#</a></h3>
 <div class="toctree-wrapper compound">
@@ -447,7 +430,7 @@ Main features</p>
                             <a href="https://jina.ai">Copyright &#169; Jina AI Limited. All rights reserved.</a>
                         </div>
                         <div class="last-updated">
-                            Last updated on Apr 13, 2022.
+                            Last updated on Apr 25, 2022.
                         </div>
                     </div>
                     <div class="right-details">
@@ -498,13 +481,6 @@ Main features</p>
 </li>
 <li><a class="reference internal" href="#supported-modalities-more-will-be-added">Supported Modalities (more will be added)</a></li>
 <li><a class="reference internal" href="#examples">Examples</a><ul>
-<li><a class="reference internal" href="#fashion">Fashion</a></li>
-<li><a class="reference internal" href="#chest-x-ray">Chest X-Ray</a></li>
-<li><a class="reference internal" href="#nft-bored-apes">NFT - bored apes</a></li>
-<li><a class="reference internal" href="#art">Art</a></li>
-<li><a class="reference internal" href="#cars">Cars</a></li>
-<li><a class="reference internal" href="#street-view">Street view</a></li>
-<li><a class="reference internal" href="#birds">Birds</a></li>
 <li><a class="reference internal" href="#now-use-your-custom-data">Now use your custom data :)</a><ul>
 </ul>
 </li>
@@ -524,7 +500,7 @@ Main features</p>
 
     </div>
 </div>
-<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=54c1ac2c-37ee-49bd-897e-45901a6847a6" /><script data-url_root="#" id="documentation_options" src="_static/documentation_options.js"></script>
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=cc97e3c2-cdb1-4e56-9cc9-ecde64264681" /><script data-url_root="#" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
