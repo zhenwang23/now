@@ -61,14 +61,16 @@ def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
             docker_frontend_tag = '0.0.1'
 
             setup_cluster(user_input.cluster, user_input.new_cluster_type, **kwargs)
+            if 'dataset' in kwargs:
+                kwargs.pop('dataset')
+
             (
                 gateway_host,
                 gateway_port,
                 gateway_host_internal,
                 gateway_port_internal,
             ) = run_backend.run(user_input, is_debug, tmpdir, **kwargs)
-            if 'dataset' in kwargs:
-                kwargs.pop('dataset')
+
             frontend_host, frontend_port = run_frontend.run(
                 user_input.dataset,
                 gateway_host,
