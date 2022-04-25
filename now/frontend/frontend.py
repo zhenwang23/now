@@ -9,13 +9,8 @@ import numpy as np
 import streamlit as st
 from docarray import DocumentArray
 from jina import Client, Document
-from streamlit_webrtc import ClientSettings
 
 logger = logging.getLogger('my_module_name')
-WEBRTC_CLIENT_SETTINGS = ClientSettings(
-    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-    media_stream_constraints={"video": True, "audio": False},
-)
 
 if 'matches' not in st.session_state:
     st.session_state.matches = None
