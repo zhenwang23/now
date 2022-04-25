@@ -312,7 +312,7 @@ def _configure_cluster(user_input: UserInput, **kwargs) -> UserInput:
             ],
             prompt_message='Where do you want to create a new cluster?',
             prompt_type='list',
-            kwargs=kwargs,
+            **kwargs,
         )
         user_input.create_new_cluster = True
         user_input.new_cluster_type = new_cluster_type
