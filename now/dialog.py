@@ -271,10 +271,10 @@ def ask_sandbox(user_input: UserInput, **kwargs):
     questions = [
         {
             'type': 'list',
-            'name': 'quality',
+            'name': 'sandbox',
             'message': 'Use Sandbox to save memory? (process data on our servers)',
             'choices': [
-                {'name': '❌ no', 'value': False},
+                {'name': '⛔ no', 'value': False},
                 {'name': '✅ yes', 'value': True},
             ],
         }
