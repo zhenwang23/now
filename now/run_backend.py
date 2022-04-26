@@ -47,7 +47,7 @@ def is_finetuning(dataset_name, dataset):
     return False
 
 
-def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
+def run(user_input: UserInput, is_debug, tmpdir, kubectl_path: str):
     """
     Args:
         user_input: User input arguments
@@ -97,7 +97,7 @@ def run(user_input: UserInput, is_debug, tmpdir, **kwargs):
             dataset,
             user_input.model_variant,
             tmpdir,
-            kubectl_path=kwargs['kubectl_path'],
+            kubectl_path=kubectl_path,
         )
         extend_embeddings(dataset['index'], final_layer_output_dim)
         save_mean(dataset['index'], tmpdir)
