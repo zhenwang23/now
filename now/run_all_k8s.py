@@ -93,7 +93,7 @@ def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
 
 if __name__ == '__main__':
     run_k8s(
-        modality='audio',
+        modality='music',
         dataset='music-genres-small',
         cluster='new',
         new_cluster_type='local',
