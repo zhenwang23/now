@@ -30,6 +30,7 @@ def test_backend(
         'output_modality': output_modality,
         'dataset': dataset,
         'quality': quality,
+        'sandbox': sandbox,
         'cluster': cluster,
         'cluster_new': cluster_new,
         'proceed': True,
