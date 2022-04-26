@@ -22,7 +22,7 @@ class CmdPromptMock:
 MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
-            'modality': Modalities.AUDIO,
+            'output_modality': Modalities.AUDIO,
             'dataset': 'music-genres-small',
             'cluster': 'new',
             'new_cluster_type': 'local',
@@ -35,7 +35,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'modality': Modalities.AUDIO,
+            'output_modality': Modalities.AUDIO,
             'dataset': 'music-genres-large',
             'cluster': 'new',
             'new_cluster_type': 'local',
@@ -48,7 +48,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'modality': Modalities.IMAGE,
+            'output_modality': Modalities.IMAGE,
             'dataset': 'tll',
             'cluster': 'new',
             'quality': 'good',
@@ -63,7 +63,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'modality': Modalities.IMAGE,
+            'output_modality': Modalities.IMAGE,
             'dataset': 'nih-chest-xrays',
             'cluster': 'new',
             'quality': 'medium',
@@ -78,7 +78,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'modality': Modalities.IMAGE,
+            'output_modality': Modalities.IMAGE,
             'dataset': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
@@ -95,7 +95,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'modality': Modalities.AUDIO,
+            'output_modality': Modalities.AUDIO,
             'dataset': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
@@ -110,7 +110,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'modality': Modalities.AUDIO,
+            'output_modality': Modalities.AUDIO,
             'dataset': 'custom',
             'custom_dataset_type': 'path',
             'dataset_path': 'xxx',
@@ -125,7 +125,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'modality': Modalities.AUDIO,
+            'output_modality': Modalities.AUDIO,
             'dataset': 'custom',
             'custom_dataset_type': 'url',
             'dataset_url': 'xxx',
@@ -140,7 +140,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'modality': Modalities.IMAGE,
+            'output_modality': Modalities.IMAGE,
             'dataset': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
@@ -157,7 +157,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'modality': Modalities.IMAGE,
+            'output_modality': Modalities.IMAGE,
             'dataset': 'tll',
             'cluster': 'new',
             'quality': 'good',
@@ -176,7 +176,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
             'cluster': 'new',
             'new_cluster_type': 'local',
         },
-        {'modality': Modalities.AUDIO},
+        {'output_modality': Modalities.AUDIO},
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
@@ -184,11 +184,36 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {'dataset': 'tll', 'cluster': 'new', 'new_cluster_type': 'local'},
-        {'modality': Modalities.IMAGE, 'quality': 'good'},
+        {'output_modality': Modalities.IMAGE, 'quality': 'good'},
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
             model_variant=QUALITY_MAP['good'][1],
+        ),
+    ),
+    (
+        {'dataset': 'pop-lyrics', 'cluster': 'new', 'new_cluster_type': 'local'},
+        {'output_modality': Modalities.TEXT, 'quality': 'good'},
+        UserInput(
+            is_custom_dataset=False,
+            create_new_cluster=True,
+            model_variant=QUALITY_MAP['good'][1],
+        ),
+    ),
+    (
+        {
+            'output_modality': Modalities.TEXT,
+        },
+        {
+            'dataset': 'pop-lyrics',
+            'cluster': 'new',
+            'new_cluster_type': 'local',
+            'quality': 'medium',
+        },
+        UserInput(
+            is_custom_dataset=False,
+            create_new_cluster=True,
+            model_variant=QUALITY_MAP['medium'][1],
         ),
     ),
 ]

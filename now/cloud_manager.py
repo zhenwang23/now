@@ -63,9 +63,9 @@ def create_local_cluster(kind_path, **kwargs):
         spinner.ok("📦")
 
 
-def is_local_cluster(**kwargs):
-    command = f'{kwargs["kubectl_path"]} get nodes -o json'
-    out, error = cmd(f'{kwargs["kubectl_path"]} get nodes -o json')
+def is_local_cluster(kubectl_path):
+    command = f'{kubectl_path} get nodes -o json'
+    out, error = cmd(f'{kubectl_path} get nodes -o json')
     try:
         out = json.loads(out)
     except:

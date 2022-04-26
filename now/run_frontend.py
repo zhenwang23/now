@@ -12,6 +12,7 @@ cur_dir = pathlib.Path(__file__).parent.resolve()
 
 
 def run(
+    output_modality,
     dataset,
     gateway_host,
     gateway_port,
@@ -20,13 +21,13 @@ def run(
     docker_frontend_tag,
     tmpdir,
     kubectl_path,
-    **kwargs,
 ):
     # deployment
     with yaspin(sigmap=sigmap, text="Deploy frontend", color="green") as spinner:
         apply_replace(
             f'{cur_dir}/deployment/k8s_frontend-deployment.yml',
             {
+                'output_modality': output_modality,
                 'data': dataset,
                 'gateway_host': gateway_host_internal,
                 'gateway_port': gateway_port_internal,
@@ -64,6 +65,6 @@ if __name__ == '__main__':
         None,
         'gateway.nowapi.svc.cluster.local',
         '8080',
-        docker_frontend_tag='0.0.1',
+        docker_frontend_tag='0.0.2',
     )
     # 31080

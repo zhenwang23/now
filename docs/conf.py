@@ -168,17 +168,17 @@ ogp_custom_meta_tags = [
     '<meta name="twitter:card" content="summary_large_image">',
     '<meta name="twitter:site" content="@JinaAI_">',
     '<meta name="twitter:creator" content="@JinaAI_">',
-    '<meta name="description" content="Embed images and sentences into fixed-length vectors via CLIP.">',
+    '<meta name="description" content="One line to host them all. Bootstrap your image search case in minutes.">',
     '<meta property="og:description" content="One line to host them all. Bootstrap your image search case in minutes.">',
     '''
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E63SXVNDXZ"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K8DQ8TXQJH"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-E63SXVNDXZ');
+  gtag('config', 'G-K8DQ8TXQJH');
 </script>
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>

@@ -8,10 +8,10 @@ from now.cli import cli
 from now.dialog import NEW_CLUSTER
 
 
-@pytest.mark.parametrize('modality', ['image'])
 @pytest.mark.parametrize(
-    'dataset', ['best-artworks', 'deepfashion']
-)  # art -> no finetuning, fashion -> finetuning
+    'modality, dataset',
+    [('image', 'best-artworks'), ('image', 'deepfashion'), ('text', 'rock-lyrics')],
+)  # art, rock-lyrics -> no finetuning, fashion -> finetuning
 @pytest.mark.parametrize('quality', ['medium'])
 @pytest.mark.parametrize('cluster', [NEW_CLUSTER['value']])
 @pytest.mark.parametrize('new_cluster_type', ['local'])

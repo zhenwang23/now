@@ -58,7 +58,7 @@ def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
             **kwargs,
         )
         with tempfile.TemporaryDirectory() as tmpdir:
-            docker_frontend_tag = '0.0.1'
+            docker_frontend_tag = '0.0.3'
 
             setup_cluster(user_input.cluster, user_input.new_cluster_type, **kwargs)
             if 'dataset' in kwargs:
@@ -72,14 +72,15 @@ def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
             ) = run_backend.run(user_input, is_debug, tmpdir, **kwargs)
 
             frontend_host, frontend_port = run_frontend.run(
-                user_input.dataset,
-                gateway_host,
-                gateway_port,
-                gateway_host_internal,
-                gateway_port_internal,
-                docker_frontend_tag,
-                tmpdir,
-                **kwargs,
+                output_modality=user_input.output_modality,
+                dataset=user_input.dataset,
+                gateway_host=gateway_host,
+                gateway_port=gateway_port,
+                gateway_host_internal=gateway_host_internal,
+                gateway_port_internal=gateway_port_internal,
+                docker_frontend_tag=docker_frontend_tag,
+                tmpdir=tmpdir,
+                kubectl_path=kwargs['kubectl_path'],
             )
             url = f'{frontend_host}' + (
                 '' if str(frontend_port) == '80' else f':{frontend_port}'

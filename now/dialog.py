@@ -36,32 +36,39 @@ QUALITY_MAP = {
     'good': ('ViT-B16', 'openai/clip-vit-base-patch16'),
     'excellent': ('ViT-L14', 'openai/clip-vit-large-patch14'),
 }
-AVAILABLE_DATASET = [
-    'best-artworks',
-    'nft-monkey',
-    'tll',
-    'bird-species',
-    'stanford-cars',
-    'deepfashion',
-    'nih-chest-xrays',
-    'geolocation-geoguessr',
-    'music-genres-small',
-    'music-genres-large',
-]
+AVAILABLE_DATASET = {
+    'image': [
+        'best-artworks',
+        'nft-monkey',
+        'tll',
+        'bird-species',
+        'stanford-cars',
+        'deepfashion',
+        'nih-chest-xrays',
+        'geolocation-geoguessr',
+    ],
+    'audio': [
+        'music-genres-small',
+        'music-genres-large',
+    ],
+    'text': ['rock-lyrics', 'pop-lyrics', 'rap-lyrics', 'indie-lyrics', 'metal-lyrics'],
+}
 
 
 class Modalities(str, enum.Enum):
     IMAGE = 'image'
     AUDIO = 'audio'
+    TEXT = 'text'
 
 
 @dataclass
 class UserInput:
-    modality: Optional[Modalities] = None
+    output_modality: Optional[Modalities] = None
 
     # data related
     dataset: Optional[str] = None
     is_custom_dataset: Optional[bool] = None
+
     custom_dataset_type: Optional[str] = None
     dataset_secret: Optional[str] = None
     dataset_url: Optional[str] = None
@@ -79,7 +86,7 @@ class UserInput:
 
 def configure_user_input(**kwargs) -> UserInput:
     print_headline()
-    user_input = _configure_modality(UserInput(), **kwargs)
+    user_input = _configure_output_modality(UserInput(), **kwargs)
     return user_input
 
 
@@ -126,20 +133,23 @@ def print_headline():
     print()
 
 
-def _configure_modality(user_input: UserInput, **kwargs) -> UserInput:
+def _configure_output_modality(user_input: UserInput, **kwargs) -> UserInput:
     modality = _prompt_value(
-        name='modality',
+        name='output_modality',
         choices=[
             {'name': '🏞 Image Search', 'value': Modalities.IMAGE},
             {'name': '🔊 Audio Search', 'value': Modalities.AUDIO},
+            {'name': '📝 Text Search', 'value': Modalities.TEXT},
         ],
         prompt_message='Which modalities you want to work with?',
         prompt_type='list',
         **kwargs,
     )
-    user_input.modality = modality
+    user_input.output_modality = modality
     if modality == Modalities.IMAGE:
         return _configure_dataset_image(user_input, **kwargs)
+    elif modality == Modalities.TEXT:
+        return _configure_dataset_text(user_input, **kwargs)
     else:
         return _configure_dataset_audio(user_input, **kwargs)
 
@@ -174,18 +184,25 @@ def _configure_dataset_image(user_input: UserInput, **kwargs) -> UserInput:
         ],
         **kwargs,
     )
-    if dataset in AVAILABLE_DATASET:
-        user_input.is_custom_dataset = False
-        user_input.dataset = dataset
-        return _configure_quality(user_input, **kwargs)
-    else:
-        user_input.is_custom_dataset = True
-        if dataset == 'custom':
-            user_input.dataset = 'custom'
-            return _configure_custom_dataset(user_input, **kwargs)
-        else:
-            _parse_custom_data_from_cli(dataset, user_input)
-            return _configure_quality(user_input, **kwargs)
+    user_input.dataset = dataset
+    return _configure_dataset(user_input, **kwargs)
+
+
+def _configure_dataset_text(user_input: UserInput, **kwargs) -> UserInput:
+    dataset = _prompt_value(
+        name='dataset',
+        prompt_message='What dataset do you want to use?',
+        choices=[
+            {'name': '🎤 rock lyrics (200K docs)', 'value': 'rock-lyrics'},
+            {'name': '🎤 pop lyrics (200K docs)', 'value': 'pop-lyrics'},
+            {'name': '🎤 rap lyrics (200K docs)', 'value': 'rap-lyrics'},
+            {'name': '🎤 indie lyrics (200K docs)', 'value': 'indie-lyrics'},
+            {'name': '🎤 metal lyrics (200K docs)', 'value': 'metal-lyrics'},
+        ],
+        **kwargs,
+    )
+    user_input.dataset = dataset
+    return _configure_dataset(user_input, **kwargs)
 
 
 def _configure_dataset_audio(user_input: UserInput, **kwargs):
@@ -203,18 +220,28 @@ def _configure_dataset_audio(user_input: UserInput, **kwargs):
         ],
         **kwargs,
     )
-    if dataset in AVAILABLE_DATASET:
+    user_input.dataset = dataset
+    return _configure_dataset(user_input, **kwargs)
+
+
+def _configure_dataset(user_input: UserInput, **kwargs) -> UserInput:
+    dataset = user_input.dataset
+    if dataset in AVAILABLE_DATASET[user_input.output_modality]:
         user_input.is_custom_dataset = False
-        user_input.dataset = dataset
-        return _configure_cluster(user_input, **kwargs)
+        if user_input.output_modality == Modalities.AUDIO:
+            return _configure_cluster(user_input, **kwargs)
+        else:
+            return _configure_quality(user_input, **kwargs)
     else:
         user_input.is_custom_dataset = True
         if dataset == 'custom':
-            user_input.dataset = 'custom'
             return _configure_custom_dataset(user_input, **kwargs)
         else:
             _parse_custom_data_from_cli(dataset, user_input)
-            return _configure_cluster(user_input, **kwargs)
+            if user_input.output_modality == Modalities.AUDIO:
+                return _configure_cluster(user_input, **kwargs)
+            else:
+                return _configure_quality(user_input, **kwargs)
 
 
 def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
@@ -225,7 +252,7 @@ def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
             prompt_type='password',
         )
         user_input.dataset_secret = dataset_secret
-        if user_input.modality == Modalities.IMAGE:
+        if user_input.output_modality == Modalities.IMAGE:
             return _configure_quality(user_input, **kwargs)
         else:
             return _configure_cluster(user_input, **kwargs)
@@ -237,7 +264,7 @@ def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
             prompt_type='input',
         )
         user_input.dataset_url = dataset_url
-        if user_input.modality == Modalities.IMAGE:
+        if user_input.output_modality == Modalities.IMAGE:
             return _configure_quality(user_input, **kwargs)
         else:
             return _configure_cluster(user_input, **kwargs)
@@ -249,7 +276,7 @@ def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
             prompt_type='input',
         )
         user_input.dataset_path = dataset_path
-        if user_input.modality == Modalities.IMAGE:
+        if user_input.output_modality == Modalities.IMAGE:
             return _configure_quality(user_input, **kwargs)
         else:
             return _configure_cluster(user_input, **kwargs)
