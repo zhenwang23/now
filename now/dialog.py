@@ -101,7 +101,7 @@ def maybe_prompt_user(questions, attribute, **kwargs):
 
     :return: A single value of either from `kwargs` or the user cli input.
     """
-    if kwargs and attribute in kwargs.keys() and kwargs[attribute]:
+    if kwargs and kwargs.get(attribute):
         return kwargs[attribute]
     else:
         answer = prompt(questions)
