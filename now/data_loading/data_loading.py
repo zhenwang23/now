@@ -76,8 +76,8 @@ def load_data(
             data_folder = 'jpeg'
         elif output_modality == Modalities.TEXT:
             data_folder = 'text'
-        elif output_modality == Modalities.AUDIO:
-            data_folder = 'audio'
+        elif output_modality == Modalities.MUSIC:
+            data_folder = 'music'
         url = (
             'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
             f'{data_folder}/{dataset}.{QUALITY_MAP[model_quality][0]}.bin'
