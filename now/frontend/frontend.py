@@ -135,9 +135,17 @@ def deploy_streamlit():
         unsafe_allow_html=True,
     )
     if output_modality == 'image':
-        media_type = st.radio('', ["Text", "Image"], on_change=clear_match)
+        media_type = st.radio(
+            '',
+            ["Text", "Image"] + (['Webcam'] if is_local(host) else []),
+            on_change=clear_match,
+        )
     elif output_modality == 'text':
-        media_type = st.radio('', ["Image", "Text"], on_change=clear_match)
+        media_type = st.radio(
+            '',
+            ["Image", "Text"] + (['Webcam'] if is_local(host) else []),
+            on_change=clear_match,
+        )
 
     if media_type == "Image":
         upload_c, preview_c = st.columns([12, 1])
