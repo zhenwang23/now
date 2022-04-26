@@ -1,4 +1,5 @@
 import base64
+import ipaddress
 import os
 import sys
 from copy import deepcopy
@@ -249,9 +250,10 @@ def clear_text():
 
 
 def is_local(url):
-    if '127.0.0.1' in url or 'localhost' in url:
+    if '0.0.0.0' in url or 'localhost' in url:
         return True
-    return False
+    ip = ipaddress.IPv4Interface(url)
+    return ip.is_loopback
 
 
 def load_data(data_path: str) -> DocumentArray:
