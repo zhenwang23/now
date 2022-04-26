@@ -1,5 +1,4 @@
 import base64
-import ipaddress
 import os
 import sys
 from copy import deepcopy
@@ -110,8 +109,6 @@ def deploy_streamlit():
         doc = Document(blob=data)
         return doc
 
-    matches = []
-
     # Layout
     st.set_page_config(page_title="NOW", page_icon='https://jina.ai/favicon.ico')
 
@@ -137,13 +134,13 @@ def deploy_streamlit():
     if output_modality == 'image':
         media_type = st.radio(
             '',
-            ["Text", "Image"] + (['Webcam'] if is_local(host) else []),
+            ["Text", "Image", 'Webcam'],
             on_change=clear_match,
         )
     elif output_modality == 'text':
         media_type = st.radio(
             '',
-            ["Image", "Text"] + (['Webcam'] if is_local(host) else []),
+            ["Image", "Text", 'Webcam'],
             on_change=clear_match,
         )
 
@@ -255,13 +252,6 @@ def clear_match():
 
 def clear_text():
     st.session_state.text_search_box = ''
-
-
-def is_local(url):
-    if '0.0.0.0' in url or 'localhost' in url:
-        return True
-    ip = ipaddress.IPv4Interface(url)
-    return ip.is_loopback
 
 
 def load_data(data_path: str) -> DocumentArray:
