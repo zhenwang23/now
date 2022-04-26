@@ -138,8 +138,12 @@ def _configure_output_modality(user_input: UserInput, **kwargs) -> UserInput:
         name='output_modality',
         choices=[
             {'name': '🏞 Image Search', 'value': Modalities.IMAGE},
-            {'name': '🔊 Audio Search', 'value': Modalities.AUDIO},
-            {'name': '📝 Text Search', 'value': Modalities.TEXT},
+            {'name': '📝 Text Search (experimental)', 'value': Modalities.TEXT},
+            {
+                'name': '🔊 Audio Search',
+                'value': Modalities.AUDIO,
+                'disabled': AVAILABLE_SOON,
+            },
         ],
         prompt_message='Which modalities you want to work with?',
         prompt_type='list',
