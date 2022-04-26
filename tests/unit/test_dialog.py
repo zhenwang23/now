@@ -8,7 +8,12 @@ from typing import Dict
 import pytest
 from pytest_mock import MockerFixture
 
-from now.dialog import QUALITY_MAP, Modalities, UserInput, configure_user_input
+from now.dialog import (
+    IMAGE_MODEL_QUALITY_MAP,
+    Modality,
+    UserInput,
+    configure_user_input,
+)
 
 
 class CmdPromptMock:
@@ -22,7 +27,7 @@ class CmdPromptMock:
 MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
-            'output_modality': Modalities.AUDIO,
+            'output_modality': Modality.AUDIO,
             'dataset': 'music-genres-small',
             'cluster': 'new',
             'new_cluster_type': 'local',
@@ -35,7 +40,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modalities.AUDIO,
+            'output_modality': Modality.AUDIO,
             'dataset': 'music-genres-large',
             'cluster': 'new',
             'new_cluster_type': 'local',
@@ -48,7 +53,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modalities.IMAGE,
+            'output_modality': Modality.IMAGE,
             'dataset': 'tll',
             'cluster': 'new',
             'quality': 'good',
@@ -58,12 +63,12 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            model_variant=QUALITY_MAP['good'][1],
+            model_variant=IMAGE_MODEL_QUALITY_MAP['good'][1],
         ),
     ),
     (
         {
-            'output_modality': Modalities.IMAGE,
+            'output_modality': Modality.IMAGE,
             'dataset': 'nih-chest-xrays',
             'cluster': 'new',
             'quality': 'medium',
@@ -73,12 +78,12 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            model_variant=QUALITY_MAP['medium'][1],
+            model_variant=IMAGE_MODEL_QUALITY_MAP['medium'][1],
         ),
     ),
     (
         {
-            'output_modality': Modalities.IMAGE,
+            'output_modality': Modality.IMAGE,
             'dataset': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
@@ -90,12 +95,12 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=True,
             create_new_cluster=True,
-            model_variant=QUALITY_MAP['medium'][1],
+            model_variant=IMAGE_MODEL_QUALITY_MAP['medium'][1],
         ),
     ),
     (
         {
-            'output_modality': Modalities.AUDIO,
+            'output_modality': Modality.AUDIO,
             'dataset': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
@@ -110,7 +115,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modalities.AUDIO,
+            'output_modality': Modality.AUDIO,
             'dataset': 'custom',
             'custom_dataset_type': 'path',
             'dataset_path': 'xxx',
@@ -125,7 +130,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modalities.AUDIO,
+            'output_modality': Modality.AUDIO,
             'dataset': 'custom',
             'custom_dataset_type': 'url',
             'dataset_url': 'xxx',
@@ -140,7 +145,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modalities.IMAGE,
+            'output_modality': Modality.IMAGE,
             'dataset': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
@@ -152,12 +157,12 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=True,
             create_new_cluster=True,
-            model_variant=QUALITY_MAP['medium'][1],
+            model_variant=IMAGE_MODEL_QUALITY_MAP['medium'][1],
         ),
     ),
     (
         {
-            'output_modality': Modalities.IMAGE,
+            'output_modality': Modality.IMAGE,
             'dataset': 'tll',
             'cluster': 'new',
             'quality': 'good',
@@ -167,7 +172,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            model_variant=QUALITY_MAP['good'][1],
+            model_variant=IMAGE_MODEL_QUALITY_MAP['good'][1],
         ),
     ),
     (
@@ -176,7 +181,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
             'cluster': 'new',
             'new_cluster_type': 'local',
         },
-        {'output_modality': Modalities.AUDIO},
+        {'output_modality': Modality.AUDIO},
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
@@ -184,25 +189,25 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {'dataset': 'tll', 'cluster': 'new', 'new_cluster_type': 'local'},
-        {'output_modality': Modalities.IMAGE, 'quality': 'good'},
+        {'output_modality': Modality.IMAGE, 'quality': 'good'},
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            model_variant=QUALITY_MAP['good'][1],
+            model_variant=IMAGE_MODEL_QUALITY_MAP['good'][1],
         ),
     ),
     (
         {'dataset': 'pop-lyrics', 'cluster': 'new', 'new_cluster_type': 'local'},
-        {'output_modality': Modalities.TEXT, 'quality': 'good'},
+        {'output_modality': Modality.TEXT, 'quality': 'good'},
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            model_variant=QUALITY_MAP['good'][1],
+            model_variant=IMAGE_MODEL_QUALITY_MAP['good'][1],
         ),
     ),
     (
         {
-            'output_modality': Modalities.TEXT,
+            'output_modality': Modality.TEXT,
         },
         {
             'dataset': 'pop-lyrics',
@@ -213,7 +218,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
-            model_variant=QUALITY_MAP['medium'][1],
+            model_variant=IMAGE_MODEL_QUALITY_MAP['medium'][1],
         ),
     ),
 ]

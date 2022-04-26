@@ -1,4 +1,5 @@
 import base64
+import enum
 import os
 import random
 import uuid
@@ -9,9 +10,16 @@ from typing import Optional, Tuple
 from docarray import DocumentArray
 from yaspin import yaspin
 
+from now.constants import BASE_STORAGE_URL, IMAGE_MODEL_QUALITY_MAP, Modality, Quality
 from now.data_loading.convert_datasets_to_jpeg import to_thumbnail_jpg
-from now.dialog import QUALITY_MAP, Modalities
 from now.utils import download, sigmap
+
+
+class DatasetType(str, enum.Enum):
+    DEMO = 'demo'
+    PATH = 'path'
+    URL = 'url'
+    DOCARRAY = 'docarray'
 
 
 def _fetch_da_from_url(
@@ -33,23 +41,7 @@ def _fetch_da_from_url(
     return da
 
 
-def remove_duplicates(da: DocumentArray):
-    """Some da"""
-    # known_set = set()
-    # unique_dataset = DocumentArray()
-    # for i, d in enumerate(da):
-    #     d.id = str(uuid.uuid4())
-    #     l = d.tags['finetuner_label']
-    #     if d.text and l in known_set:
-    #         continue
-    #     unique_dataset.append(d)
-    #     known_set.add(l)
-    # return unique_dataset
-    # da_text = DocumentArray(d for d in da if d.text)
-    # da_img = DocumentArray(d for d in da if not d.text)
-    # da_text.embeddings = da_text.embeddings - da_text.embeddings.mean(0)
-    # da_img.embeddings = da_img.embeddings - da_img.embeddings.mean(0)
-
+def _deep_copy_da(da: DocumentArray) -> DocumentArray:
     new_da = DocumentArray()
     for i, d in enumerate(da):
         new_doc = deepcopy(d)
@@ -59,29 +51,19 @@ def remove_duplicates(da: DocumentArray):
 
 
 def load_data(
-    output_modality: str,
+    output_modality: Modality,
     dataset: str,
-    model_quality: str,
+    model_quality: Quality,
     is_custom: bool,
     custom_type: str,
     secret: Optional[str],
     url: Optional[str],
     path: Optional[str],
-) -> Tuple[DocumentArray, str]:
+) -> Tuple[DocumentArray, DatasetType]:
 
-    data_folder = None
     if not is_custom:
         print('⬇  Download data')
-        if output_modality == Modalities.IMAGE:
-            data_folder = 'jpeg'
-        elif output_modality == Modalities.TEXT:
-            data_folder = 'text'
-        elif output_modality == Modalities.AUDIO:
-            data_folder = 'audio'
-        url = (
-            'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
-            f'{data_folder}/{dataset}.{QUALITY_MAP[model_quality][0]}.bin'
-        )
+        url = _get_dataset_url(dataset, model_quality, output_modality)
         da = _fetch_da_from_url(url)
         ds_type = 'demo'
 
@@ -130,14 +112,25 @@ def load_data(
                 #     d.tags['finetuner_label'] = os.path.dirname(d.uri).split('/')[-1]
 
     da = da.shuffle(seed=42)
-    da = remove_duplicates(da)
+    da = _deep_copy_da(da)
     return da, ds_type
 
 
-# def load_all_data(dataset):
-#     for k, v in dataset.items():
-#         if v is not None:
-#             dataset[k] = load_data(v)
+def _get_dataset_url(
+    dataset: str, model_quality: Optional[str], output_modality: Modality
+) -> str:
+    data_folder = None
+    if output_modality == Modality.IMAGE:
+        data_folder = 'jpeg'
+    elif output_modality == Modality.TEXT:
+        data_folder = 'text'
+    elif output_modality == Modality.AUDIO:
+        data_folder = 'audio'
+
+    if model_quality is not None:
+        return f'{BASE_STORAGE_URL}/{data_folder}/{dataset}.{IMAGE_MODEL_QUALITY_MAP[model_quality][0]}.bin'
+    else:
+        return f'{BASE_STORAGE_URL}/{data_folder}/{dataset}.bin'
 
 
 def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):

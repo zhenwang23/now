@@ -11,7 +11,6 @@ user's configuration.
 """
 from __future__ import annotations, print_function, unicode_literals
 
-import enum
 import os
 import pathlib
 from dataclasses import dataclass
@@ -23,6 +22,8 @@ from kubernetes import client, config
 from pyfiglet import Figlet
 from yaspin import yaspin
 
+from now.constants import AVAILABLE_DATASET, IMAGE_MODEL_QUALITY_MAP, Modality, Quality
+from now.data_loading.data_loading import DatasetType
 from now.deployment.deployment import cmd
 from now.thridparty.PyInquirer import Separator
 from now.thridparty.PyInquirer.prompt import prompt
@@ -31,51 +32,23 @@ from now.utils import sigmap
 cur_dir = pathlib.Path(__file__).parent.resolve()
 NEW_CLUSTER = {'name': '🐣 create new', 'value': 'new'}
 AVAILABLE_SOON = 'will be available in upcoming versions'
-QUALITY_MAP = {
-    'medium': ('ViT-B32', 'openai/clip-vit-base-patch32'),
-    'good': ('ViT-B16', 'openai/clip-vit-base-patch16'),
-    'excellent': ('ViT-L14', 'openai/clip-vit-large-patch14'),
-}
-AVAILABLE_DATASET = {
-    'image': [
-        'best-artworks',
-        'nft-monkey',
-        'tll',
-        'bird-species',
-        'stanford-cars',
-        'deepfashion',
-        'nih-chest-xrays',
-        'geolocation-geoguessr',
-    ],
-    'audio': [
-        'music-genres-small',
-        'music-genres-large',
-    ],
-    'text': ['rock-lyrics', 'pop-lyrics', 'rap-lyrics', 'indie-lyrics', 'metal-lyrics'],
-}
-
-
-class Modalities(str, enum.Enum):
-    IMAGE = 'image'
-    AUDIO = 'audio'
-    TEXT = 'text'
 
 
 @dataclass
 class UserInput:
-    output_modality: Optional[Modalities] = None
+    output_modality: Optional[Modality] = None
 
     # data related
     dataset: Optional[str] = None
     is_custom_dataset: Optional[bool] = None
 
-    custom_dataset_type: Optional[str] = None
+    custom_dataset_type: Optional[DatasetType] = None
     dataset_secret: Optional[str] = None
     dataset_url: Optional[str] = None
     dataset_path: Optional[str] = None
 
     # model related
-    quality: Optional[str] = None
+    quality: Optional[Quality] = None
     model_variant: Optional[str] = None
 
     # cluster related
@@ -137,12 +110,12 @@ def _configure_output_modality(user_input: UserInput, **kwargs) -> UserInput:
     modality = _prompt_value(
         name='output_modality',
         choices=[
-            {'name': '🏞 Image Search', 'value': Modalities.IMAGE},
-            {'name': '📝 Text Search (experimental)', 'value': Modalities.TEXT},
+            {'name': '🏞 Image Search', 'value': Modality.IMAGE},
+            {'name': '📝 Text Search (experimental)', 'value': Modality.TEXT},
             {
-                'name': '🔊 Audio Search',
-                'value': Modalities.AUDIO,
-                'disabled': AVAILABLE_SOON,
+                'name': '🔊 Audio Search (experimental)',
+                'value': Modality.AUDIO,
+                # 'disabled': AVAILABLE_SOON,
             },
         ],
         prompt_message='Which modalities you want to work with?',
@@ -150,9 +123,9 @@ def _configure_output_modality(user_input: UserInput, **kwargs) -> UserInput:
         **kwargs,
     )
     user_input.output_modality = modality
-    if modality == Modalities.IMAGE:
+    if modality == Modality.IMAGE:
         return _configure_dataset_image(user_input, **kwargs)
-    elif modality == Modalities.TEXT:
+    elif modality == Modality.TEXT:
         return _configure_dataset_text(user_input, **kwargs)
     else:
         return _configure_dataset_audio(user_input, **kwargs)
@@ -232,7 +205,7 @@ def _configure_dataset(user_input: UserInput, **kwargs) -> UserInput:
     dataset = user_input.dataset
     if dataset in AVAILABLE_DATASET[user_input.output_modality]:
         user_input.is_custom_dataset = False
-        if user_input.output_modality == Modalities.AUDIO:
+        if user_input.output_modality == Modality.AUDIO:
             return _configure_cluster(user_input, **kwargs)
         else:
             return _configure_quality(user_input, **kwargs)
@@ -242,7 +215,7 @@ def _configure_dataset(user_input: UserInput, **kwargs) -> UserInput:
             return _configure_custom_dataset(user_input, **kwargs)
         else:
             _parse_custom_data_from_cli(dataset, user_input)
-            if user_input.output_modality == Modalities.AUDIO:
+            if user_input.output_modality == Modality.AUDIO:
                 return _configure_cluster(user_input, **kwargs)
             else:
                 return _configure_quality(user_input, **kwargs)
@@ -256,7 +229,7 @@ def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
             prompt_type='password',
         )
         user_input.dataset_secret = dataset_secret
-        if user_input.output_modality == Modalities.IMAGE:
+        if user_input.output_modality == Modality.IMAGE:
             return _configure_quality(user_input, **kwargs)
         else:
             return _configure_cluster(user_input, **kwargs)
@@ -268,7 +241,7 @@ def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
             prompt_type='input',
         )
         user_input.dataset_url = dataset_url
-        if user_input.output_modality == Modalities.IMAGE:
+        if user_input.output_modality == Modality.IMAGE:
             return _configure_quality(user_input, **kwargs)
         else:
             return _configure_cluster(user_input, **kwargs)
@@ -280,7 +253,7 @@ def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
             prompt_type='input',
         )
         user_input.dataset_path = dataset_path
-        if user_input.output_modality == Modalities.IMAGE:
+        if user_input.output_modality == Modality.IMAGE:
             return _configure_quality(user_input, **kwargs)
         else:
             return _configure_cluster(user_input, **kwargs)
@@ -377,11 +350,11 @@ def _configure_quality(user_input: UserInput, **kwargs) -> UserInput:
     quality = _prompt_value(
         name='quality',
         choices=[
-            {'name': '🦊 medium (≈3GB mem, 15q/s)', 'value': 'medium'},
-            {'name': '🐻 good (≈3GB mem, 2.5q/s)', 'value': 'good'},
+            {'name': '🦊 medium (≈3GB mem, 15q/s)', 'value': Quality.MEDIUM},
+            {'name': '🐻 good (≈3GB mem, 2.5q/s)', 'value': Quality.GOOD},
             {
                 'name': '🦄 excellent (≈4GB mem, 0.5q/s)',
-                'value': 'excellent',
+                'value': Quality.EXCELLENT,
             },
         ],
         prompt_message='What quality do you expect?',
@@ -396,7 +369,7 @@ def _configure_quality(user_input: UserInput, **kwargs) -> UserInput:
         print('  ✨ you trade-off speed to having the best quality')
 
     user_input.quality = quality
-    _, user_input.model_variant = QUALITY_MAP[quality]
+    _, user_input.model_variant = IMAGE_MODEL_QUALITY_MAP[quality]
     return _configure_cluster(user_input, **kwargs)
 
 
@@ -460,11 +433,11 @@ def _parse_custom_data_from_cli(data: str, user_input: UserInput):
     except Exception:
         pass
     if os.path.exists(data):
-        user_input.custom_dataset_type = 'path'
+        user_input.custom_dataset_type = DatasetType.PATH
         user_input.dataset_path = data
     elif 'http' in data:
-        user_input.custom_dataset_type = 'url'
+        user_input.custom_dataset_type = DatasetType.URL
         user_input.dataset_url = data
     else:
-        user_input.custom_dataset_type = 'docarray'
+        user_input.custom_dataset_type = DatasetType.DOCARRAY
         user_input.dataset_secret = data
