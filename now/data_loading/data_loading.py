@@ -1,5 +1,4 @@
 import base64
-import enum
 import os
 import random
 import uuid
@@ -10,16 +9,15 @@ from typing import Optional, Tuple
 from docarray import DocumentArray
 from yaspin import yaspin
 
-from now.constants import BASE_STORAGE_URL, IMAGE_MODEL_QUALITY_MAP, Modality, Quality
+from now.constants import (
+    BASE_STORAGE_URL,
+    IMAGE_MODEL_QUALITY_MAP,
+    DatasetType,
+    Modality,
+)
 from now.data_loading.convert_datasets_to_jpeg import to_thumbnail_jpg
+from now.dialog import UserInput
 from now.utils import download, sigmap
-
-
-class DatasetType(str, enum.Enum):
-    DEMO = 'demo'
-    PATH = 'path'
-    URL = 'url'
-    DOCARRAY = 'docarray'
 
 
 def _fetch_da_from_url(
@@ -50,70 +48,72 @@ def _deep_copy_da(da: DocumentArray) -> DocumentArray:
     return new_da
 
 
-def load_data(
-    output_modality: Modality,
-    dataset: str,
-    model_quality: Quality,
-    is_custom: bool,
-    custom_type: str,
-    secret: Optional[str],
-    url: Optional[str],
-    path: Optional[str],
-) -> Tuple[DocumentArray, DatasetType]:
+def load_data(user_input: UserInput) -> Tuple[DocumentArray, DatasetType]:
+    da = None
+    ds_type = None
 
-    if not is_custom:
+    if not user_input.is_custom_dataset:
         print('⬇  Download data')
-        url = _get_dataset_url(dataset, model_quality, output_modality)
+        url = _get_dataset_url(
+            user_input.dataset, user_input.quality, user_input.output_modality
+        )
         da = _fetch_da_from_url(url)
-        ds_type = 'demo'
+        ds_type = DatasetType.DEMO
 
     else:
-        if custom_type == 'docarray':
-            print('⬇  pull docarray')
-            try:
-                da = DocumentArray.pull(token=secret, show_progress=True)
-                ds_type = 'docarray_pull'
-            except Exception:
-                print(
-                    '💔 oh no, the secret of your docarray is wrong, or it was deleted after 14 days'
-                )
-                exit(1)
-        elif custom_type == 'url':
+        if user_input.custom_dataset_type == DatasetType.DOCARRAY:
+            print('⬇  Pull docarray')
+            da, ds_type = _pull_docarray(user_input.dataset_secret)
+            ds_type = DatasetType.DOCARRAY
+        elif user_input.custom_dataset_type == DatasetType.URL:
             print('⬇  Download data')
-            da = _fetch_da_from_url(url)
-            ds_type = 'url'
-        else:
-            if os.path.isfile(path):
-                try:
-                    da = DocumentArray.load_binary(path)
-                    ds_type = 'local_da'
-                except Exception as e:
-                    print('Failed to load the binary file provided')
-                    exit(1)
-            else:
-                da = DocumentArray.from_files(path + '/**')
+            da = _fetch_da_from_url(user_input.dataset_url)
+            ds_type = DatasetType.URL
+        elif user_input.custom_dataset_type == DatasetType.PATH:
+            print('💿  Loading data from disk')
+            da = _load_from_disk(user_input.dataset_path)
+            ds_type = DatasetType.PATH
 
-                def convert_fn(d):
-                    try:
-                        d.load_uri_to_image_tensor()
-                        return to_thumbnail_jpg(d)
-                    except:
-                        return d
-
-                with yaspin(
-                    sigmap=sigmap, text="Pre-processing data", color="green"
-                ) as spinner:
-                    da.apply(convert_fn)
-                    da = DocumentArray(d for d in da if d.blob != b'')
-                    spinner.ok('🏭')
-                ds_type = 'local_folder'
-
-                # for d in da:
-                #     d.tags['finetuner_label'] = os.path.dirname(d.uri).split('/')[-1]
-
-    da = da.shuffle(seed=42)
+    da = da.shuffle(seed=42)  # why?
     da = _deep_copy_da(da)
     return da, ds_type
+
+
+def _pull_docarray(dataset_secret: str):
+    try:
+        return DocumentArray.pull(token=dataset_secret, show_progress=True)
+    except Exception:
+        print(
+            '💔 oh no, the secret of your docarray is wrong, or it was deleted after 14 days'
+        )
+        exit(1)
+
+
+def _load_from_disk(dataset_path: str) -> DocumentArray:
+    if os.path.isfile(dataset_path):
+        try:
+            return DocumentArray.load_binary(dataset_path)
+        except Exception as e:
+            print('Failed to load the binary file provided')
+            exit(1)
+    else:
+        da = DocumentArray.from_files(dataset_path + '/**')
+
+        def convert_fn(d):
+            try:
+                d.load_uri_to_image_tensor()
+                return to_thumbnail_jpg(d)
+            except Exception as e:
+                return d
+
+        with yaspin(
+            sigmap=sigmap, text="Pre-processing data", color="green"
+        ) as spinner:
+            da.apply(convert_fn)
+            da = DocumentArray(d for d in da if d.blob != b'')
+            spinner.ok('🏭')
+
+        return da
 
 
 def _get_dataset_url(
@@ -124,7 +124,7 @@ def _get_dataset_url(
         data_folder = 'jpeg'
     elif output_modality == Modality.TEXT:
         data_folder = 'text'
-    elif output_modality == Modality.AUDIO:
+    elif output_modality == Modality.MUSIC:
         data_folder = 'audio'
 
     if model_quality is not None:

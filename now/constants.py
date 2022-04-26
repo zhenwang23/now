@@ -3,8 +3,15 @@ import enum
 
 class Modality(str, enum.Enum):
     IMAGE = 'image'
-    AUDIO = 'audio'
+    MUSIC = 'music'
     TEXT = 'text'
+
+
+class DatasetType(str, enum.Enum):
+    DEMO = 'demo'
+    PATH = 'path'
+    URL = 'url'
+    DOCARRAY = 'docarray'
 
 
 class Quality(str, enum.Enum):
@@ -35,7 +42,7 @@ AVAILABLE_DATASET = {
         'nih-chest-xrays',
         'geolocation-geoguessr',
     ],
-    Modality.AUDIO: [
+    Modality.MUSIC: [
         'music-genres-small',
         'music-genres-large',
     ],

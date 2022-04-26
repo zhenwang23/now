@@ -92,7 +92,7 @@ def print_headline():
     print(f.renderText('Jina NOW'))
     print('Get your search case up and running - end to end.\n')
     print(
-        'You can choose between image and audio search. \nJina now trains a model, pushes it to the jina hub'
+        'You can choose between image and text search. \nJina now trains a model, pushes it to the jina hub'
         ', deploys a flow and a frontend app in the cloud or locally. \nCheckout one of the demo cases or bring '
         'your own data.\n'
     )
@@ -113,8 +113,8 @@ def _configure_output_modality(user_input: UserInput, **kwargs) -> UserInput:
             {'name': '🏞 Image Search', 'value': Modality.IMAGE},
             {'name': '📝 Text Search (experimental)', 'value': Modality.TEXT},
             {
-                'name': '🔊 Audio Search (experimental)',
-                'value': Modality.AUDIO,
+                'name': '🥁 Music Search',
+                'value': Modality.MUSIC,
                 # 'disabled': AVAILABLE_SOON,
             },
         ],
@@ -128,7 +128,7 @@ def _configure_output_modality(user_input: UserInput, **kwargs) -> UserInput:
     elif modality == Modality.TEXT:
         return _configure_dataset_text(user_input, **kwargs)
     else:
-        return _configure_dataset_audio(user_input, **kwargs)
+        return _configure_dataset_music(user_input, **kwargs)
 
 
 def _configure_dataset_image(user_input: UserInput, **kwargs) -> UserInput:
@@ -182,7 +182,7 @@ def _configure_dataset_text(user_input: UserInput, **kwargs) -> UserInput:
     return _configure_dataset(user_input, **kwargs)
 
 
-def _configure_dataset_audio(user_input: UserInput, **kwargs):
+def _configure_dataset_music(user_input: UserInput, **kwargs):
     dataset = _prompt_value(
         name='dataset',
         prompt_message='What dataset do you want to use?',
@@ -205,7 +205,7 @@ def _configure_dataset(user_input: UserInput, **kwargs) -> UserInput:
     dataset = user_input.dataset
     if dataset in AVAILABLE_DATASET[user_input.output_modality]:
         user_input.is_custom_dataset = False
-        if user_input.output_modality == Modality.AUDIO:
+        if user_input.output_modality == Modality.MUSIC:
             return _configure_cluster(user_input, **kwargs)
         else:
             return _configure_quality(user_input, **kwargs)
@@ -215,7 +215,7 @@ def _configure_dataset(user_input: UserInput, **kwargs) -> UserInput:
             return _configure_custom_dataset(user_input, **kwargs)
         else:
             _parse_custom_data_from_cli(dataset, user_input)
-            if user_input.output_modality == Modality.AUDIO:
+            if user_input.output_modality == Modality.MUSIC:
                 return _configure_cluster(user_input, **kwargs)
             else:
                 return _configure_quality(user_input, **kwargs)

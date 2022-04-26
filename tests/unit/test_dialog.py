@@ -27,7 +27,7 @@ class CmdPromptMock:
 MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
-            'output_modality': Modality.AUDIO,
+            'output_modality': Modality.MUSIC,
             'dataset': 'music-genres-small',
             'cluster': 'new',
             'new_cluster_type': 'local',
@@ -40,7 +40,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.AUDIO,
+            'output_modality': Modality.MUSIC,
             'dataset': 'music-genres-large',
             'cluster': 'new',
             'new_cluster_type': 'local',
@@ -100,7 +100,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.AUDIO,
+            'output_modality': Modality.MUSIC,
             'dataset': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
@@ -115,7 +115,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.AUDIO,
+            'output_modality': Modalities.MUSIC,
             'dataset': 'custom',
             'custom_dataset_type': 'path',
             'dataset_path': 'xxx',
@@ -130,7 +130,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.AUDIO,
+            'output_modality': Modality.MUSIC,
             'dataset': 'custom',
             'custom_dataset_type': 'url',
             'dataset_url': 'xxx',
@@ -181,7 +181,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
             'cluster': 'new',
             'new_cluster_type': 'local',
         },
-        {'output_modality': Modality.AUDIO},
+        {'output_modality': Modality.MUSIC},
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,

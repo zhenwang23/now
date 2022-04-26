@@ -42,7 +42,7 @@ def stop_now(contexts, active_context, **kwargs):
 
 
 def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
-
+    print(kwargs)
     contexts, active_context, is_debug = get_system_state(**kwargs)
     if ('cli' in kwargs and kwargs['cli'] == 'stop') or (
         'now' in kwargs and kwargs['now'] == 'stop'
@@ -60,15 +60,14 @@ def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
             docker_frontend_tag = '0.0.3'
 
             # setup_cluster(user_input.cluster, user_input.new_cluster_type, **kwargs)
-            if 'dataset' in kwargs:
-                kwargs.pop('dataset')
-
             (
                 gateway_host,
                 gateway_port,
                 gateway_host_internal,
                 gateway_port_internal,
-            ) = run_backend.run(user_input, is_debug, tmpdir, **kwargs)
+            ) = run_backend.run(
+                user_input, is_debug, tmpdir, kubectl_path=kwargs['kubectl_path']
+            )
 
             frontend_host, frontend_port = run_frontend.run(
                 output_modality=user_input.output_modality,
@@ -93,8 +92,9 @@ def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
 
 if __name__ == '__main__':
     run_k8s(
-        modality='audio',
+        output_modality='music',
         dataset='music-genres-small',
         cluster='new',
         new_cluster_type='local',
+        kubectl_path='/usr/local/bin/kubectl',
     )
