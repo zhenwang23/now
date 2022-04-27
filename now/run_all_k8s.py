@@ -93,7 +93,7 @@ def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
 if __name__ == '__main__':
     run_k8s(
         output_modality='music',
-        dataset='music-genres-small',
+        data='music-genres-small',
         cluster='new',
         new_cluster_type='local',
         kubectl_path='/usr/local/bin/kubectl',
