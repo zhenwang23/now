@@ -22,7 +22,7 @@ def test_backend(
     cluster: str,
     cluster_new: str,
 ):
-    sandbox = dataset == 'deepfashion'
+    sandbox = dataset != 'best-artworks'
     kwargs = {
         'output_modality': output_modality,
         'dataset': dataset,
