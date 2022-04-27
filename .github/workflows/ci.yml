@@ -207,7 +207,7 @@ jobs:
         env:
           DOCKER_TAG_USED: ${{ env.DOCKER_TAG_USED }}
         run:
-          if DOCKER_TAG_FALSE == 'true'; then
+          if DOCKER_TAG_USED == 'true'; then
             echo "Docker tag is used already"
             exit 1
           else
@@ -217,7 +217,7 @@ jobs:
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
 #          DOCKER_TAG_USED: ${{ env.DOCKER_TAG_USED }}
-#        if: DOCKER_TAG_FALSE == 'true'
+#        if: DOCKER_TAG_USED == 'true'
         run: |
           docker build -t now-frontend  now/frontend/.
           docker tag now-frontend jinaaitmp/now-frontend:$IMAGE_TAG
