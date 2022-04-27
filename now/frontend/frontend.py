@@ -106,7 +106,7 @@ def deploy_streamlit():
 
         return response[0].matches
 
-    def search_by_file(document, server, port, limit=TOP_K, convert_needed=True):
+    def search_by_file(document, server, port, limit=TOP_K):
         """
         Wrap file in Jina Document for searching, and do all necessary conversion to make similar to indexed Docs
         """
@@ -207,31 +207,7 @@ def deploy_streamlit():
                             input=doc.content, server=host, port=port
                         )
 
-    elif media_type == 'Webcam1':
-        from PIL import ImageChops
-        from webcam import webcam
-
-        cont = True
-        captured_image = webcam(key='webcam')
-        # Compare if the image is new. If it is then call search else skip
-        if st.session_state.im and captured_image:
-            diff = ImageChops.difference(
-                captured_image.convert('RGB'), st.session_state.im.convert('RGB')
-            )
-            if diff.getbbox() is None:  # Returns true if they are same
-                cont = False
-                st.image(captured_image, width=160)
-        if captured_image and cont:
-            st.session_state.im = captured_image
-            captured_image = np.array(captured_image)
-            st.image(captured_image, width=160)
-            doc = Document(tensor=captured_image)
-            doc.convert_image_tensor_to_blob()
-            st.session_state.matches = search_by_file(
-                document=doc, server=host, port=port
-            )
-
-    elif media_type == 'Webcam2':
+    elif media_type == 'Webcam':
         snapshot = st.button('Snapshot')
 
         class VideoProcessor:
