@@ -28,7 +28,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
             'output_modality': Modality.MUSIC,
-            'dataset': 'music-genres-small',
+            'data': 'music-genres-small',
             'cluster': 'new',
             'new_cluster_type': 'local',
         },
@@ -41,7 +41,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
             'output_modality': Modality.MUSIC,
-            'dataset': 'music-genres-large',
+            'data': 'music-genres-large',
             'cluster': 'new',
             'new_cluster_type': 'local',
         },
@@ -54,7 +54,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
             'output_modality': Modality.IMAGE,
-            'dataset': 'tll',
+            'data': 'tll',
             'cluster': 'new',
             'quality': 'good',
             'new_cluster_type': 'local',
@@ -69,7 +69,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
             'output_modality': Modality.IMAGE,
-            'dataset': 'nih-chest-xrays',
+            'data': 'nih-chest-xrays',
             'cluster': 'new',
             'quality': 'medium',
             'new_cluster_type': 'local',
@@ -84,7 +84,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
             'output_modality': Modality.IMAGE,
-            'dataset': 'custom',
+            'data': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
             'cluster': 'new',
@@ -101,7 +101,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
             'output_modality': Modality.MUSIC,
-            'dataset': 'custom',
+            'data': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
             'cluster': 'new',
@@ -115,8 +115,8 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modalities.MUSIC,
-            'dataset': 'custom',
+            'output_modality': Modality.MUSIC,
+            'data': 'custom',
             'custom_dataset_type': 'path',
             'dataset_path': 'xxx',
             'cluster': 'new',
@@ -132,6 +132,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         {
             'output_modality': Modality.MUSIC,
             'dataset': 'custom',
+            'data': 'custom',
             'custom_dataset_type': 'url',
             'dataset_url': 'xxx',
             'cluster': 'new',
@@ -146,7 +147,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
             'output_modality': Modality.IMAGE,
-            'dataset': 'custom',
+            'data': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
             'quality': 'medium',
@@ -163,7 +164,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
             'output_modality': Modality.IMAGE,
-            'dataset': 'tll',
+            'data': 'tll',
             'cluster': 'new',
             'quality': 'good',
             'new_cluster_type': 'gke',
@@ -177,7 +178,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'dataset': 'music-genres-small',
+            'data': 'music-genres-small',
             'cluster': 'new',
             'new_cluster_type': 'local',
         },
@@ -188,7 +189,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         ),
     ),
     (
-        {'dataset': 'tll', 'cluster': 'new', 'new_cluster_type': 'local'},
+        {'data': 'tll', 'cluster': 'new', 'new_cluster_type': 'local'},
         {'output_modality': Modality.IMAGE, 'quality': 'good'},
         UserInput(
             is_custom_dataset=False,
@@ -197,7 +198,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
         ),
     ),
     (
-        {'dataset': 'pop-lyrics', 'cluster': 'new', 'new_cluster_type': 'local'},
+        {'data': 'pop-lyrics', 'cluster': 'new', 'new_cluster_type': 'local'},
         {'output_modality': Modality.TEXT, 'quality': 'good'},
         UserInput(
             is_custom_dataset=False,
@@ -210,7 +211,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
             'output_modality': Modality.TEXT,
         },
         {
-            'dataset': 'pop-lyrics',
+            'data': 'pop-lyrics',
             'cluster': 'new',
             'new_cluster_type': 'local',
             'quality': 'medium',

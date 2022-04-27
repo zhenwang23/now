@@ -20,42 +20,15 @@ from now.dialog import UserInput
 from now.utils import download, sigmap
 
 
-def _fetch_da_from_url(
-    url: str, downloaded_path: str = '~/.cache/jina-now'
-) -> DocumentArray:
-    data_dir = os.path.expanduser(downloaded_path)
-    if not os.path.exists(osp(data_dir, 'data/tmp')):
-        os.makedirs(osp(data_dir, 'data/tmp'))
-    data_path = (
-        data_dir
-        + f"/data/tmp/{base64.b64encode(bytes(url, 'utf-8')).decode('utf-8')}.bin"
-    )
-    if not os.path.exists(data_path):
-        download(url, data_path)
-
-    with yaspin(sigmap=sigmap, text="Extracting dataset", color="green") as spinner:
-        da = DocumentArray.load_binary(data_path)
-        spinner.ok("📂")
-    return da
-
-
-def _deep_copy_da(da: DocumentArray) -> DocumentArray:
-    new_da = DocumentArray()
-    for i, d in enumerate(da):
-        new_doc = deepcopy(d)
-        new_doc.id = str(uuid.uuid4())
-        new_da.append(new_doc)
-    return new_da
-
-
 def load_data(user_input: UserInput) -> Tuple[DocumentArray, DatasetType]:
+    # TODO: Write docs
     da = None
     ds_type = None
 
     if not user_input.is_custom_dataset:
         print('⬇  Download data')
         url = _get_dataset_url(
-            user_input.dataset, user_input.quality, user_input.output_modality
+            user_input.data, user_input.quality, user_input.output_modality
         )
         da = _fetch_da_from_url(url)
         ds_type = DatasetType.DEMO
@@ -74,9 +47,28 @@ def load_data(user_input: UserInput) -> Tuple[DocumentArray, DatasetType]:
             da = _load_from_disk(user_input.dataset_path)
             ds_type = DatasetType.PATH
 
-    da = da.shuffle(seed=42)  # why?
+    da = da.shuffle(seed=42)  # TODO: why?
     da = _deep_copy_da(da)
     return da, ds_type
+
+
+def _fetch_da_from_url(
+    url: str, downloaded_path: str = '~/.cache/jina-now'
+) -> DocumentArray:
+    data_dir = os.path.expanduser(downloaded_path)
+    if not os.path.exists(osp(data_dir, 'data/tmp')):
+        os.makedirs(osp(data_dir, 'data/tmp'))
+    data_path = (
+        data_dir
+        + f"/data/tmp/{base64.b64encode(bytes(url, 'utf-8')).decode('utf-8')}.bin"
+    )
+    if not os.path.exists(data_path):
+        download(url, data_path)
+
+    with yaspin(sigmap=sigmap, text="Extracting dataset", color="green") as spinner:
+        da = DocumentArray.load_binary(data_path)
+        spinner.ok("📂")
+    return da
 
 
 def _pull_docarray(dataset_secret: str):
@@ -133,8 +125,16 @@ def _get_dataset_url(
         return f'{BASE_STORAGE_URL}/{data_folder}/{dataset}.bin'
 
 
+def _deep_copy_da(da: DocumentArray) -> DocumentArray:
+    new_da = DocumentArray()
+    for i, d in enumerate(da):
+        new_doc = deepcopy(d)
+        new_doc.id = str(uuid.uuid4())
+        new_da.append(new_doc)
+    return new_da
+
+
 def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
-    # ds['index'] = deepcopy(DocumentArray(d for d in ds['index'] if d.tensor is not None))
     if ds['train'] is None:
         ds['train'] = ds['index']
     if ds['val'] is None:

@@ -22,8 +22,13 @@ from kubernetes import client, config
 from pyfiglet import Figlet
 from yaspin import yaspin
 
-from now.constants import AVAILABLE_DATASET, IMAGE_MODEL_QUALITY_MAP, Modality, Quality
-from now.data_loading.data_loading import DatasetType
+from now.constants import (
+    AVAILABLE_DATASET,
+    IMAGE_MODEL_QUALITY_MAP,
+    DatasetType,
+    Modality,
+    Quality,
+)
 from now.deployment.deployment import cmd
 from now.thridparty.PyInquirer import Separator
 from now.thridparty.PyInquirer.prompt import prompt
@@ -39,7 +44,7 @@ class UserInput:
     output_modality: Optional[Modality] = None
 
     # data related
-    dataset: Optional[str] = None
+    data: Optional[str] = None
     is_custom_dataset: Optional[bool] = None
 
     custom_dataset_type: Optional[DatasetType] = None
@@ -74,7 +79,7 @@ def maybe_prompt_user(questions, attribute, **kwargs):
 
     :return: A single value of either from `kwargs` or the user cli input.
     """
-    if kwargs and attribute in kwargs.keys() and kwargs[attribute]:
+    if kwargs and kwargs.get(attribute):
         return kwargs[attribute]
     else:
         answer = prompt(questions)
@@ -133,7 +138,7 @@ def _configure_output_modality(user_input: UserInput, **kwargs) -> UserInput:
 
 def _configure_dataset_image(user_input: UserInput, **kwargs) -> UserInput:
     dataset = _prompt_value(
-        name='dataset',
+        name='data',
         prompt_message='What dataset do you want to use?',
         choices=[
             {'name': '🖼  artworks (≈8K docs)', 'value': 'best-artworks'},
@@ -161,13 +166,13 @@ def _configure_dataset_image(user_input: UserInput, **kwargs) -> UserInput:
         ],
         **kwargs,
     )
-    user_input.dataset = dataset
+    user_input.data = dataset
     return _configure_dataset(user_input, **kwargs)
 
 
 def _configure_dataset_text(user_input: UserInput, **kwargs) -> UserInput:
     dataset = _prompt_value(
-        name='dataset',
+        name='data',
         prompt_message='What dataset do you want to use?',
         choices=[
             {'name': '🎤 rock lyrics (200K docs)', 'value': 'rock-lyrics'},
@@ -178,13 +183,13 @@ def _configure_dataset_text(user_input: UserInput, **kwargs) -> UserInput:
         ],
         **kwargs,
     )
-    user_input.dataset = dataset
+    user_input.data = dataset
     return _configure_dataset(user_input, **kwargs)
 
 
 def _configure_dataset_music(user_input: UserInput, **kwargs):
     dataset = _prompt_value(
-        name='dataset',
+        name='data',
         prompt_message='What dataset do you want to use?',
         choices=[
             {'name': '🎸 music small (≈2K docs)', 'value': 'music-genres-small'},
@@ -197,12 +202,12 @@ def _configure_dataset_music(user_input: UserInput, **kwargs):
         ],
         **kwargs,
     )
-    user_input.dataset = dataset
+    user_input.data = dataset
     return _configure_dataset(user_input, **kwargs)
 
 
 def _configure_dataset(user_input: UserInput, **kwargs) -> UserInput:
-    dataset = user_input.dataset
+    dataset = user_input.data
     if dataset in AVAILABLE_DATASET[user_input.output_modality]:
         user_input.is_custom_dataset = False
         if user_input.output_modality == Modality.MUSIC:
