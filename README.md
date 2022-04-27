@@ -1,5 +1,8 @@
 <p align="center">
-<img src="https://user-images.githubusercontent.com/11627845/164714280-16fa302d-fa2c-43e8-b001-ed985b4f5b7f.svg" alt="Jina NOW logo: The data structure for unstructured data" width="300px">
+
+<img src="https://github.com/jina-ai/now/blob/main/docs/_static/logo-light.svg?raw=true" alt="Jina NOW logo: The data structure for unstructured data" width="300px">  
+
+
 <br>
 One line to host them all. Bootstrap your image search case in minutes.
 </p>
@@ -9,12 +12,12 @@ One line to host them all. Bootstrap your image search case in minutes.
 <a href="https://pypi.org/project/jina-now/"><img src="https://img.shields.io/pypi/v/jina-now?color=%23099cec&amp;label=PyPI&amp;logo=pypi&amp;logoColor=white" alt="PyPI"></a>
 </p>
 
+<!-- start elevator-pitch -->
+
 <p align="center">
 <img src="https://user-images.githubusercontent.com/11627845/164569398-5ef22a41-e2e1-438a-88a5-2ac43ad9426d.gif" alt="Jina NOW logo: The data structure for unstructured data" width="600px">
 
 
-
-<!-- start elevator-pitch -->
 NOW gives the world access to customized neural image search in just one line of code.
 Main features
 - 🐥 **Easy**: Minimal effort required to set up your search case
