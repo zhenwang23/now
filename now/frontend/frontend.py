@@ -155,13 +155,13 @@ def deploy_streamlit():
     if output_modality == 'image':
         media_type = st.radio(
             '',
-            ["Text", "Image", 'Webcam1', 'Webcam2'],
+            ["Text", "Image", 'Webcam'],
             on_change=clear_match,
         )
     elif output_modality == 'text':
         media_type = st.radio(
             '',
-            ["Image", "Text", 'Webcam1', 'Webcam2'],
+            ["Image", "Text", 'Webcam'],
             on_change=clear_match,
         )
 
