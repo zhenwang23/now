@@ -303,7 +303,15 @@ def clear_text():
 
 def load_data(data_path: str) -> DocumentArray:
     if data_path.startswith('http'):
-        os.makedirs('data/tmp', exist_ok=True)
+        try:
+            # TODO try except is used as workaround
+            # in case load_data is called two times from two frontends it can happen that
+            # one of the calls created the directory right after checking that it does not exist
+            # this caused errors. Now the error will be ignored.
+            # Can not use `exist=True` because it is not available in py3.7
+            os.makedirs('data/tmp')
+        except:
+            pass
         url = data_path
         data_path = (
             f"data/tmp/{base64.b64encode(bytes(url, 'utf-8')).decode('utf-8')}.bin"
