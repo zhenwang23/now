@@ -168,7 +168,7 @@ jobs:
     needs: [commit-lint, lint-flake-8, check-black]
     runs-on: ubuntu-latest
     outputs:
-      frontend_changed: ${{ steps.check_frontend_changed.frontend_changed }}
+      frontend_changed: ${{ steps.check_frontend_changed.outputs.frontend_changed }}
     steps:
       - uses: actions/checkout@v2
 #        with:
@@ -188,6 +188,8 @@ jobs:
 #          $SourceDiff = $diff | Where-Object { $_ -match '^now/frontend' }
 #          $HasDiff = $SourceDiff.Length -gt 0
 #          Write-Host "::set-output name=frontend_changed::$HasDiff"
+      - if: steps.check_frontend_changed.outputs.frontend_changed == 'true'
+        run: echo "HI"
 
   dockerize-and-push-frontend:
     runs-on: ubuntu-latest
