@@ -187,7 +187,6 @@ def deploy_streamlit():
                             document=doc,
                             server=host,
                             port=port,
-                            convert_needed=False,
                         )
 
     elif media_type == "Text":
