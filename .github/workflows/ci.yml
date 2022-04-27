@@ -192,7 +192,7 @@ jobs:
         run: |
           FILE='now/run_all_k8s.py'
           FRONTEND_TAG=$(sed -n '/docker_frontend_tag =/p' $FILE | cut -d \' -f2)
-          echo "FRONTEND_TAG=FRONTEND_TAG" >> $GITHUB_ENV
+          echo "FRONTEND_TAG=$FRONTEND_TAG" >> $GITHUB_ENV
       - name: Retrieve any exiting images with tag
         id: get_docker_tag
         env:
