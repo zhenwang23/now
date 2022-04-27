@@ -211,7 +211,7 @@ jobs:
       - name: Check that no images exist with tag
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
-        if: steps.get_docker_tag.outputs.docker_image_avail != ""
+        if: steps.get_docker_tag.outputs.docker_image_avail != ''
         run: exit 1
       - name: Build, tag, and push image Hub
         env:
