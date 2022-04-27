@@ -199,7 +199,7 @@ jobs:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
         run: |
           DOCKER_IMAGE_AVAIL="$(docker manifest inspect jinaaitmp/now-frontend:$IMAGE_TAG)"
-          Write-Host "::set-output name=docker_image_avail::DOCKER_IMAGE_AVAIL"
+          Write-Host "::set-output name=docker_image_avail::$DOCKER_IMAGE_AVAIL"
       - name: Check that no images exist with tag
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
