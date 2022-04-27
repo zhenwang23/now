@@ -178,9 +178,9 @@ jobs:
         id: check_frontend_changed
         run: |
           git fetch origin main
-          DIFF = $(git diff --name-only HEAD origin/main)
-          SOURCE_DIFF = $(DIFF | Where-Object { $_ -match '^now/frontend' })
-          HAS_DIFF = $(SOURCE_DIFF.Length -gt 0)
+          DIFF=$(git diff --name-only HEAD origin/main)
+          SOURCE_DIFF=$(DIFF | Where-Object { $_ -match '^now/frontend' })
+          HAS_DIFF=$(SOURCE_DIFF.Length -gt 0)
           Write-Host "::set-output name=frontend_changed::HAS_DIFF"
 
   dockerize-and-push-frontend:
