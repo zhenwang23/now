@@ -154,6 +154,7 @@ def run(user_input: UserInput, is_debug, tmpdir, kubectl_path: str):
         embedding_size=embedding_size,
         tmpdir=tmpdir,
         finetuning=finetuning,
+        sandbox=user_input.sandbox,
         kubectl_path=kubectl_path,
     )
     return gateway_host, gateway_port, gateway_host_internal, gateway_port_internal

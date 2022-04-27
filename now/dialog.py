@@ -75,6 +75,7 @@ class UserInput:
 
     # model related
     quality: Optional[str] = None
+    sandbox: bool = False
     model_variant: Optional[str] = None
 
     # cluster related
@@ -86,6 +87,7 @@ class UserInput:
 def configure_user_input(**kwargs) -> UserInput:
     print_headline()
     user_input = _configure_output_modality(UserInput(), **kwargs)
+    user_input = _configure_sandbox(user_input, **kwargs)
     return user_input
 
 
@@ -100,7 +102,7 @@ def maybe_prompt_user(questions, attribute, **kwargs):
 
     :return: A single value of either from `kwargs` or the user cli input.
     """
-    if kwargs and kwargs.get(attribute):
+    if kwargs and kwargs.get(attribute) is not None:
         return kwargs[attribute]
     else:
         answer = prompt(questions)
@@ -225,6 +227,20 @@ def _configure_dataset_music(user_input: UserInput, **kwargs):
     )
     user_input.data = dataset
     return _configure_dataset(user_input, **kwargs)
+
+
+def _configure_sandbox(user_input: UserInput, **kwargs):
+    sandbox = _prompt_value(
+        name='sandbox',
+        prompt_message='Use Sandbox to save memory? (process data on our servers)',
+        choices=[
+            {'name': '⛔ no', 'value': False},
+            {'name': '✅ yes', 'value': True},
+        ],
+        **kwargs,
+    )
+    user_input.sandbox = sandbox
+    return user_input
 
 
 def _configure_dataset(user_input: UserInput, **kwargs) -> UserInput:
