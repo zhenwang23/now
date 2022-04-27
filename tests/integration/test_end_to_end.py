@@ -8,7 +8,6 @@ from now.cli import cli
 from now.dialog import NEW_CLUSTER
 
 
-@pytest.mark.parametrize('sandbox', [False, True])
 @pytest.mark.parametrize(
     'output_modality,dataset',
     [('image', 'best-artworks'), ('image', 'deepfashion'), ('text', 'rock-lyrics')],
@@ -20,12 +19,10 @@ def test_backend(
     output_modality: str,
     dataset: str,
     quality: str,
-    sandbox: bool,
     cluster: str,
     cluster_new: str,
 ):
-    if sandbox and dataset != 'best-artworks':
-        pytest.skip("doesn't need to be tested")
+    sandbox = dataset == 'deepfashion'
     kwargs = {
         'output_modality': output_modality,
         'dataset': dataset,
