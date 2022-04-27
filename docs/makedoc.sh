@@ -2,6 +2,6 @@
 
 set -ex
 
-rm -rf api && make clean
+rm -rf _build && make clean
 
 make dirhtml
