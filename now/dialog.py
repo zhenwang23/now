@@ -239,7 +239,7 @@ def _configure_sandbox(user_input: UserInput, **kwargs):
         ],
         **kwargs,
     )
-    user_input.data = sandbox
+    user_input.sandbox = sandbox
     return user_input
 
 
