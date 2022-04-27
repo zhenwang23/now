@@ -206,7 +206,7 @@ jobs:
       - name: Fail if tag exists
         env:
           DOCKER_TAG_USED: ${{ env.DOCKER_TAG_USED }}
-        run:
+        run: |
           if DOCKER_TAG_USED == 'true'; then
             echo "Docker tag is used already"
             exit 1
