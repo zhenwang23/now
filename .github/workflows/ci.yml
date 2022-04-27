@@ -193,31 +193,29 @@ jobs:
           FILE='now/run_all_k8s.py'
           FRONTEND_TAG=$(sed -n '/docker_frontend_tag =/p' $FILE | cut -d \' -f2)
           echo "FRONTEND_TAG=$FRONTEND_TAG" >> $GITHUB_ENV
-      - name: Retrieve any exiting images with tag
-        id: get_docker_tag
+      - name: Check that Docker isn't used already
+#        id: get_docker_tag
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
         run: |
           if docker manifest inspect jinaaitmp/now-frontend:$IMAGE_TAG; then
-            echo "DOCKER_TAG_USED=true" >> $GITHUB_ENV
-          else
-            echo "DOCKER_TAG_USED=false" >> $GITHUB_ENV
-          fi
-      - name: Fail if tag exists
-        env:
-          DOCKER_TAG_USED: ${{ env.DOCKER_TAG_USED }}
-        run: |
-          if DOCKER_TAG_USED == 'true'; then
-            echo "Docker tag is used already"
+#            echo "DOCKER_TAG_USED=true" >> $GITHUB_ENV
+            echo "Docker tag $IMAGE_TAG is used already. Please update tag"
             exit 1
-          else
-            echo "Docker tag isn't used already -> Build docker image"
+#          else
+#            echo "DOCKER_TAG_USED=false" >> $GITHUB_ENV
           fi
+#      - name: Fail if Docker tag exists
+#        env:
+#          DOCKER_TAG_USED: ${{ env.DOCKER_TAG_USED }}
+#        run: |
+#          if DOCKER_TAG_USED == 'true'; then
+#            echo "Docker tag is used already. Please update tag"
+#            exit 1
+#          fi
       - name: Build, tag, and push image Hub
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
-#          DOCKER_TAG_USED: ${{ env.DOCKER_TAG_USED }}
-#        if: DOCKER_TAG_USED == 'true'
         run: |
           docker build -t now-frontend  now/frontend/.
           docker tag now-frontend jinaaitmp/now-frontend:$IMAGE_TAG
