@@ -174,7 +174,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      - shell: pwsh
+      - name: Check if there is a difference
         id: check_frontend_changed
         run: |
           git fetch origin main
