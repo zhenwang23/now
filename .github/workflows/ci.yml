@@ -200,14 +200,16 @@ jobs:
         run: |
           if docker manifest inspect jinaaitmp/now-frontend:$IMAGE_TAG; then
             echo "::set-output name=docker_image_avail::true"
+            echo "Docker IMAGE AVAIL"
           else
             echo "::set-output name=docker_image_avail::true"
+            echo "NOOOOO Docker IMAGE AVAIL"
           fi
 #          DOCKER_IMAGE_AVAIL="$(docker manifest inspect jinaaitmp/now-frontend:$IMAGE_TAG)"
 #          echo "::set-output name=docker_image_avail::$DOCKER_IMAGE_AVAIL"
       - name: Check that no images exist with tag
-        env:
-          IMAGE_TAG: ${{ env.FRONTEND_TAG }}
+#        env:
+#          IMAGE_TAG: ${{ env.FRONTEND_TAG }}
         if: steps.get_docker_tag.outputs.docker_image_avail == true
         run: exit 1
       - name: Build, tag, and push image Hub
