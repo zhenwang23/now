@@ -194,7 +194,6 @@ jobs:
           FRONTEND_TAG=$(sed -n '/docker_frontend_tag =/p' $FILE | cut -d \' -f2)
           echo "FRONTEND_TAG=$FRONTEND_TAG" >> $GITHUB_ENV
       - name: Check Docker tag is not used already
-#        id: get_docker_tag
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
         run: |
