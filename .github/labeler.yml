@@ -10,7 +10,6 @@ area/setup:
   - setup.py
   - setup.cfg
   - requirements.txt
-  - requirements_pip.txt
   - MANIFEST.in
 
 area/core:
