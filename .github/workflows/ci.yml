@@ -193,7 +193,7 @@ jobs:
           FILE='now/run_all_k8s.py'
           FRONTEND_TAG=$(sed -n '/docker_frontend_tag =/p' $FILE | cut -d \' -f2)
           echo "FRONTEND_TAG=$FRONTEND_TAG" >> $GITHUB_ENV
-      - name: Check that Docker isn't used already
+      - name: Check Docker tag is not used already
 #        id: get_docker_tag
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
