@@ -6,7 +6,7 @@ import cowsay
 from yaspin import yaspin
 
 from now.deployment.deployment import cmd
-from now.dialog import prompt_plus
+from now.dialog import maybe_prompt_user
 from now.utils import custom_spinner, sigmap
 
 cur_dir = pathlib.Path(__file__).parent.resolve()
@@ -22,7 +22,7 @@ def ask_projects(options):
             'choices': options,
         }
     ]
-    return prompt_plus(questions, 'project')
+    return maybe_prompt_user(questions, 'project')
 
 
 def ask_regions(options):
@@ -35,7 +35,7 @@ def ask_regions(options):
             'filter': lambda val: val.lower(),
         }
     ]
-    return prompt_plus(questions, 'region')
+    return maybe_prompt_user(questions, 'region')
 
 
 def ask_zones(options):
@@ -47,7 +47,7 @@ def ask_zones(options):
             'choices': options,
         }
     ]
-    return prompt_plus(questions, 'zone')
+    return maybe_prompt_user(questions, 'zone')
 
 
 # Google cloud authentication ->
@@ -108,7 +108,7 @@ def final_confirmation():
             ],
         }
     ]
-    proceed = prompt_plus(questions, 'proceed')
+    proceed = maybe_prompt_user(questions, 'proceed')
     if not proceed:
         cowsay.cow('see you soon 👋')
         exit(0)

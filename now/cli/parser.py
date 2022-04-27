@@ -20,12 +20,7 @@ def set_base_parser():
     url_str = '\n'.join(f'- {v[0]:<10} {k:10.10}\t{v[1]}' for k, v in urls.items())
 
     parser = argparse.ArgumentParser(
-        epilog=f'''
-Jina NOW - get your neural search case up in minutes.
-
-{url_str}
-
-''',
+        epilog=f'Jina NOW - get your neural search case up in minutes. \n\n {url_str}',
         formatter_class=_chf,
         description='Command Line Interface of `%(prog)s`',
     )
@@ -72,6 +67,12 @@ def set_start_parser(sp=None):
     )
 
     parser.add_argument(
+        '--modality',
+        help='Select the modality you want to develop a search flow for.',
+        type=str,
+    )
+
+    parser.add_argument(
         '--data',
         help='Select one of the available datasets or provide local filepath, '
         'docarray url, or docarray secret to use your own dataset',
@@ -86,8 +87,13 @@ def set_start_parser(sp=None):
 
     parser.add_argument(
         '--cluster',
-        help='Choose the quality of the model that you would like to finetune',
+        help='Reference an existing cluster or select `new` to create a new one.',
         type=str,
+    )
+
+    parser.add_argument(
+        '--new-cluster-type',
+        help='Only effective if --cluster=new. Optional are `local` and `gke`.',
     )
 
 
@@ -113,10 +119,6 @@ def get_main_parser():
     )
     set_start_parser(sp)
     set_stop_parser(sp)
-
-    # set_stop_parser(
-    #
-    # )
 
     return parser
 

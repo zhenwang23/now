@@ -6,13 +6,13 @@ from yaspin import yaspin
 from now import run_backend, run_frontend
 from now.cloud_manager import setup_cluster
 from now.deployment.deployment import cmd
-from now.dialog import get_context_names, get_user_input, prompt_plus
+from now.dialog import _get_context_names, configure_user_input, maybe_prompt_user
 from now.system_information import get_system_state
 from now.utils import sigmap
 
 
 def stop_now(contexts, active_context, **kwargs):
-    choices = get_context_names(contexts, active_context)
+    choices = _get_context_names(contexts, active_context)
     if len(choices) == 0:
         cowsay.cow('nothing to stop')
         return
@@ -25,7 +25,7 @@ def stop_now(contexts, active_context, **kwargs):
                 'choices': choices,
             }
         ]
-        cluster = prompt_plus(questions, 'cluster')
+        cluster = maybe_prompt_user(questions, 'cluster')
     if cluster == 'kind-jina-now':
         with yaspin(
             sigmap=sigmap, text=f"Remove local cluster {cluster}", color="green"
@@ -42,14 +42,21 @@ def stop_now(contexts, active_context, **kwargs):
         cowsay.cow(f'nowapi namespace removed from {cluster}')
 
 
-def run_k8s(os_type='linux', arch='x86_64', **kwargs):
+def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
+
     contexts, active_context, is_debug = get_system_state(**kwargs)
     if ('cli' in kwargs and kwargs['cli'] == 'stop') or (
         'now' in kwargs and kwargs['now'] == 'stop'
     ):
         stop_now(contexts, active_context, **kwargs)
     else:
-        user_input = get_user_input(contexts, active_context, os_type, arch, **kwargs)
+        user_input = configure_user_input(
+            contexts=contexts,
+            active_context=active_context,
+            os_type=os_type,
+            arch=arch,
+            **kwargs,
+        )
         with tempfile.TemporaryDirectory() as tmpdir:
             docker_frontend_tag = '0.0.3'
 
@@ -59,10 +66,13 @@ def run_k8s(os_type='linux', arch='x86_64', **kwargs):
                 gateway_port,
                 gateway_host_internal,
                 gateway_port_internal,
-            ) = run_backend.run(user_input, is_debug, tmpdir, **kwargs)
+            ) = run_backend.run(
+                user_input, is_debug, tmpdir, kubectl_path=kwargs['kubectl_path']
+            )
+
             frontend_host, frontend_port = run_frontend.run(
                 output_modality=user_input.output_modality,
-                dataset=user_input.dataset,
+                dataset=user_input.data,
                 gateway_host=gateway_host,
                 gateway_port=gateway_port,
                 gateway_host_internal=gateway_host_internal,
@@ -82,4 +92,9 @@ def run_k8s(os_type='linux', arch='x86_64', **kwargs):
 
 
 if __name__ == '__main__':
-    run_k8s()
+    run_k8s(
+        modality='music',
+        dataset='music-genres-small',
+        cluster='new',
+        new_cluster_type='local',
+    )

@@ -9,25 +9,25 @@ from now.dialog import NEW_CLUSTER
 
 
 @pytest.mark.parametrize(
-    'output_modality,dataset',
+    'output_modality, dataset',
     [('image', 'best-artworks'), ('image', 'deepfashion'), ('text', 'rock-lyrics')],
 )  # art, rock-lyrics -> no finetuning, fashion -> finetuning
 @pytest.mark.parametrize('quality', ['medium'])
-@pytest.mark.parametrize('cluster', [NEW_CLUSTER])
-@pytest.mark.parametrize('cluster_new', ['local'])
+@pytest.mark.parametrize('cluster', [NEW_CLUSTER['value']])
+@pytest.mark.parametrize('new_cluster_type', ['local'])
 def test_backend(
     output_modality: str,
     dataset: str,
     quality: str,
     cluster: str,
-    cluster_new: str,
+    new_cluster_type: str,
 ):
     kwargs = {
         'output_modality': output_modality,
-        'dataset': dataset,
+        'data': dataset,
         'quality': quality,
         'cluster': cluster,
-        'cluster_new': cluster_new,
+        'new_cluster_type': new_cluster_type,
         'proceed': True,
     }
     kwargs = Namespace(**kwargs)

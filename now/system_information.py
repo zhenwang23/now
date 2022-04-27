@@ -14,7 +14,7 @@ def get_system_state(kubectl_path='kubectl', **kwargs):
     #     contexts = None
     #     active_context = None
 
-    # TODO: Replace the below code with python-client when the above missue is resolved
+    # TODO: Replace the below code with python-client when the above issue is resolved
 
     contexts, _ = cmd(f'{kubectl_path} config get-contexts --output=name')
     contexts = contexts.decode('utf-8').strip().split('\n')
