@@ -4,16 +4,37 @@ import sys
 from copy import deepcopy
 from urllib.request import urlopen
 
+import av
 import numpy as np
 import streamlit as st
 from docarray import DocumentArray
 from jina import Client, Document
+from streamlit_webrtc import ClientSettings, webrtc_streamer
 
-if 'matches' not in st.session_state:
-    st.session_state.matches = None
+WEBRTC_CLIENT_SETTINGS = ClientSettings(
+    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
+    media_stream_constraints={"video": True, "audio": False},
+)
 
-if 'min_confidence' not in st.session_state:
-    st.session_state.min_confidence = 0.0
+
+root_data_dir = (
+    'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
+)
+
+ds_set = {
+    'nft-monkey',
+    'deepfashion',
+    'nih-chest-xrays',
+    'stanford-cars',
+    'bird-species',
+    'best-artworks',
+    'geolocation-geoguessr',
+    'rock-lyrics',
+    'pop-lyrics',
+    'rap-lyrics',
+    'indie-lyrics',
+    'metal-lyrics',
+}
 
 
 def deploy_streamlit():
@@ -22,8 +43,8 @@ def deploy_streamlit():
     Please deploy a streamlit frontend on k8s/local to access the api.
     You can get the starting point for the streamlit application from alex.
     """
+    setup_session_state()
     print('Run Streamlit with:', sys.argv)
-    print(sys.argv)
     _, host, port, output_modality, data = sys.argv
     da_img = None
     da_txt = None
@@ -134,13 +155,13 @@ def deploy_streamlit():
     if output_modality == 'image':
         media_type = st.radio(
             '',
-            ["Text", "Image", 'Webcam'],
+            ["Text", "Image", 'Webcam1', 'Webcam2'],
             on_change=clear_match,
         )
     elif output_modality == 'text':
         media_type = st.radio(
             '',
-            ["Image", "Text", 'Webcam'],
+            ["Image", "Text", 'Webcam1', 'Webcam2'],
             on_change=clear_match,
         )
 
@@ -163,7 +184,10 @@ def deploy_streamlit():
                 with txt:
                     if st.button('Search', key=doc.id):
                         st.session_state.matches = search_by_file(
-                            document=doc, server=host, port=port, convert_needed=False
+                            document=doc,
+                            server=host,
+                            port=port,
+                            convert_needed=False,
                         )
 
     elif media_type == "Text":
@@ -182,11 +206,23 @@ def deploy_streamlit():
                         st.session_state.matches = search_by_t(
                             input=doc.content, server=host, port=port
                         )
-    elif media_type == 'Webcam':
+
+    elif media_type == 'Webcam1':
+        from PIL import ImageChops
         from webcam import webcam
 
-        captured_image = webcam()
-        if captured_image:
+        cont = True
+        captured_image = webcam(key='webcam')
+        # Compare if the image is new. If it is then call search else skip
+        if st.session_state.im and captured_image:
+            diff = ImageChops.difference(
+                captured_image.convert('RGB'), st.session_state.im.convert('RGB')
+            )
+            if diff.getbbox() is None:  # Returns true if they are same
+                cont = False
+                st.image(captured_image, width=160)
+        if captured_image and cont:
+            st.session_state.im = captured_image
             captured_image = np.array(captured_image)
             st.image(captured_image, width=160)
             doc = Document(tensor=captured_image)
@@ -194,6 +230,37 @@ def deploy_streamlit():
             st.session_state.matches = search_by_file(
                 document=doc, server=host, port=port
             )
+
+    elif media_type == 'Webcam2':
+        placeholder = st.empty()
+
+        class VideoProcessor:
+            snapshot: np.ndarray = None
+
+            def recv(self, frame):
+                self.snapshot = frame.to_ndarray(format="rgb24")
+                return av.VideoFrame.from_ndarray(self.snapshot, format='rgb24')
+
+        ctx = webrtc_streamer(
+            key="jina-now",
+            video_processor_factory=VideoProcessor,
+            client_settings=WEBRTC_CLIENT_SETTINGS,
+        )
+
+        placeholder_img = st.empty()
+
+        if ctx.video_processor:
+            if st.session_state.snap is not None:
+                placeholder_img.image(st.session_state.snap, width=160)
+            if placeholder.button('Snapshot'):
+                query = ctx.video_processor.snapshot
+                placeholder_img.image(query, width=160)
+                st.session_state.snap = query
+                doc = Document(tensor=query)
+                doc.convert_image_tensor_to_blob()
+                st.session_state.matches = search_by_file(
+                    document=doc, server=host, port=port
+                )
 
     if st.session_state.matches:
         matches = deepcopy(st.session_state.matches)
@@ -236,7 +303,11 @@ def deploy_streamlit():
                 c.image(match.convert_blob_to_datauri().uri)
         st.markdown("""---""")
         st.session_state.min_confidence = st.slider(
-            'Confidence threshold', 0.0, 1.0, key='slider', on_change=update_conf
+            'Confidence threshold',
+            0.0,
+            1.0,
+            key='slider',
+            on_change=update_conf,
         )
 
 
@@ -248,6 +319,7 @@ def clear_match():
     st.session_state.matches = None
     st.session_state.slider = 0.0
     st.session_state.min_confidence = 0.0
+    st.session_state.snap = None
 
 
 def clear_text():
@@ -274,25 +346,18 @@ def load_data(data_path: str) -> DocumentArray:
     return da
 
 
-TEXT_SAMPLES = ['red shoe', 'blue tops']
-root_data_dir = (
-    'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
-)
+def setup_session_state():
+    if 'matches' not in st.session_state:
+        st.session_state.matches = None
 
-ds_set = {
-    'nft-monkey',
-    'deepfashion',
-    'nih-chest-xrays',
-    'stanford-cars',
-    'bird-species',
-    'best-artworks',
-    'geolocation-geoguessr',
-    'rock-lyrics',
-    'pop-lyrics',
-    'rap-lyrics',
-    'indie-lyrics',
-    'metal-lyrics',
-}
+    if 'min_confidence' not in st.session_state:
+        st.session_state.min_confidence = 0.0
+
+    if 'im' not in st.session_state:
+        st.session_state.im = None
+
+    if 'snap' not in st.session_state:
+        st.session_state.snap = None
 
 
 if __name__ == '__main__':
