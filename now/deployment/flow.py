@@ -127,7 +127,7 @@ def deploy_flow(
     if finetuning:
         f = f.add(
             name='linear_head',
-            uses=f'jinahub+{"+sandbox" if sandbox else "+docker"}://{executor_name}',
+            uses=f'jinahub{"+sandbox" if sandbox else "+docker"}://{executor_name}',
             uses_with={
                 'final_layer_output_dim': final_layer_output_dim,
                 'embedding_size': embedding_size,
