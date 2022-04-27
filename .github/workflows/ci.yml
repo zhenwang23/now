@@ -193,17 +193,17 @@ jobs:
           FILE='now/run_all_k8s.py'
           FRONTEND_TAG=$(sed -n '/docker_frontend_tag =/p' $FILE | cut -d \' -f2)
           echo "FRONTEND_TAG=$FRONTEND_TAG" >> $GITHUB_ENV
-      - name: Retrieve any exiting images with tag
+      - name: Check that tag isn't used already
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
         run: |
           if docker manifest inspect jinaaitmp/now-frontend:$IMAGE_TAG; then
-            echo "Docker tag isn used already. Please update frontend tag"
+            echo "Docker tag is used already. Please update frontend tag"
             exit 1
           else
-            echo "Docker tag isn't used already so continue to build..."
+            echo "Docker tag isn't used already, continue to build..."
           fi
-      - name: Build, tag, and push image Hub
+      - name: Build, tag, and push image to Hub
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
         run: |
