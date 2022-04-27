@@ -64,7 +64,7 @@ def run(user_input: UserInput, is_debug, tmpdir, kubectl_path: str):
 
     dataset, ds_type = load_data(
         user_input.output_modality,
-        user_input.dataset,
+        user_input.data,
         user_input.quality,
         user_input.is_custom_dataset,
         user_input.custom_dataset_type,
@@ -73,7 +73,7 @@ def run(user_input: UserInput, is_debug, tmpdir, kubectl_path: str):
         user_input.dataset_path,
     )
 
-    finetuning = is_finetuning(user_input.dataset, dataset)
+    finetuning = is_finetuning(user_input.data, dataset)
 
     if not finetuning:
         embedding_size = int(final_layer_output_dim / 2)
@@ -115,7 +115,7 @@ def run(user_input: UserInput, is_debug, tmpdir, kubectl_path: str):
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     show_improvement(
-                        user_input.dataset,
+                        user_input.data,
                         user_input.quality,
                         dataset['val_query_image'],
                         dataset['val_index_image'],

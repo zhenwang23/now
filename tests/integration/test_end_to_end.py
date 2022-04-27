@@ -24,7 +24,7 @@ def test_backend(
 ):
     kwargs = {
         'output_modality': output_modality,
-        'dataset': dataset,
+        'data': dataset,
         'quality': quality,
         'cluster': cluster,
         'new_cluster_type': new_cluster_type,

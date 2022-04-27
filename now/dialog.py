@@ -66,7 +66,7 @@ class UserInput:
     output_modality: Optional[Modalities] = None
 
     # data related
-    dataset: Optional[str] = None
+    data: Optional[str] = None
     is_custom_dataset: Optional[bool] = None
 
     custom_dataset_type: Optional[str] = None
@@ -160,7 +160,7 @@ def _configure_output_modality(user_input: UserInput, **kwargs) -> UserInput:
 
 def _configure_dataset_image(user_input: UserInput, **kwargs) -> UserInput:
     dataset = _prompt_value(
-        name='dataset',
+        name='data',
         prompt_message='What dataset do you want to use?',
         choices=[
             {'name': '🖼  artworks (≈8K docs)', 'value': 'best-artworks'},
@@ -188,13 +188,13 @@ def _configure_dataset_image(user_input: UserInput, **kwargs) -> UserInput:
         ],
         **kwargs,
     )
-    user_input.dataset = dataset
+    user_input.data = dataset
     return _configure_dataset(user_input, **kwargs)
 
 
 def _configure_dataset_text(user_input: UserInput, **kwargs) -> UserInput:
     dataset = _prompt_value(
-        name='dataset',
+        name='data',
         prompt_message='What dataset do you want to use?',
         choices=[
             {'name': '🎤 rock lyrics (200K docs)', 'value': 'rock-lyrics'},
@@ -205,13 +205,13 @@ def _configure_dataset_text(user_input: UserInput, **kwargs) -> UserInput:
         ],
         **kwargs,
     )
-    user_input.dataset = dataset
+    user_input.data = dataset
     return _configure_dataset(user_input, **kwargs)
 
 
 def _configure_dataset_music(user_input: UserInput, **kwargs):
     dataset = _prompt_value(
-        name='dataset',
+        name='data',
         prompt_message='What dataset do you want to use?',
         choices=[
             {'name': '🎸 music small (≈2K docs)', 'value': 'music-genres-small'},
@@ -224,12 +224,12 @@ def _configure_dataset_music(user_input: UserInput, **kwargs):
         ],
         **kwargs,
     )
-    user_input.dataset = dataset
+    user_input.data = dataset
     return _configure_dataset(user_input, **kwargs)
 
 
 def _configure_dataset(user_input: UserInput, **kwargs) -> UserInput:
-    dataset = user_input.dataset
+    dataset = user_input.data
     if dataset in AVAILABLE_DATASET[user_input.output_modality]:
         user_input.is_custom_dataset = False
         if user_input.output_modality == Modalities.MUSIC:

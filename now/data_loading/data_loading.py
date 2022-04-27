@@ -60,7 +60,7 @@ def remove_duplicates(da: DocumentArray):
 
 def load_data(
     output_modality: str,
-    dataset: str,
+    data: str,
     model_quality: str,
     is_custom: bool,
     custom_type: str,
@@ -80,7 +80,7 @@ def load_data(
             data_folder = 'music'
         url = (
             'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
-            f'{data_folder}/{dataset}.{QUALITY_MAP[model_quality][0]}.bin'
+            f'{data_folder}/{data}.{QUALITY_MAP[model_quality][0]}.bin'
         )
         da = _fetch_da_from_url(url)
         ds_type = 'demo'
