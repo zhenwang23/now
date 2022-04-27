@@ -171,17 +171,23 @@ jobs:
       frontend_changed: ${{ steps.check_frontend_changed.frontend_changed }}
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-      - name: Check if there is a difference
+#        with:
+#          ref: ${{ github.event.pull_request.head.sha }}
+#          fetch-depth: 0
+      - uses: dorny/paths-filter@v2
         id: check_frontend_changed
-        run: |
-          git fetch origin main
-          DIFF=$(git diff --name-only HEAD origin/main)
-          SOURCE_DIFF=$(DIFF | Where-Object { $_ -match '^now/frontend' })
-          HAS_DIFF=$(SOURCE_DIFF.Length -gt 0)
-          Write-Host "::set-output name=frontend_changed::HAS_DIFF"
+        with:
+          filters: |
+            frontend_changed:
+              - 'now/frontend/**'
+#      - shell: pwsh
+#        id: check_frontend_changed
+#        run: |
+#          git fetch origin main
+#          $diff = git diff --name-only HEAD origin/main
+#          $SourceDiff = $diff | Where-Object { $_ -match '^now/frontend' }
+#          $HasDiff = $SourceDiff.Length -gt 0
+#          Write-Host "::set-output name=frontend_changed::$HasDiff"
 
   dockerize-and-push-frontend:
     runs-on: ubuntu-latest
