@@ -1,8 +1,9 @@
 <p align="center">
-<img src="https://user-images.githubusercontent.com/11627845/164714280-16fa302d-fa2c-43e8-b001-ed985b4f5b7f.svg" alt="Jina NOW logo: The data structure for unstructured data" width="300px">
-  
+
+<img src="https://github.com/jina-ai/now/blob/main/docs/_static/logo-light.svg?raw=true" alt="Jina NOW logo: The data structure for unstructured data" width="300px">  
+
 <!-- start elevator-pitch -->
-  
+
 <br>
 One line to host them all. Bootstrap your image search case in minutes.
 </p>
