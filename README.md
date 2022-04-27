@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/jina-ai/docarray/blob/main/docs/_static/logo-light.svg?raw=true" alt="Jina NOW logo: The data structure for unstructured data" width="300px">
+<img src="https://github.com/jina-ai/now/blob/main/docs/_static/logo-light.svg?raw=true" alt="Jina NOW logo: The data structure for unstructured data" width="300px">
 <br>
 One line to host them all. Bootstrap your image search case in minutes.
 </p>
