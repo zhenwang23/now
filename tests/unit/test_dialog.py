@@ -131,7 +131,6 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
             'output_modality': Modality.MUSIC,
-            'dataset': 'custom',
             'data': 'custom',
             'custom_dataset_type': 'url',
             'dataset_url': 'xxx',
