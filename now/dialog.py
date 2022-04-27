@@ -11,7 +11,6 @@ user's configuration.
 """
 from __future__ import annotations, print_function, unicode_literals
 
-import enum
 import os
 import pathlib
 from dataclasses import dataclass
@@ -55,7 +54,7 @@ AVAILABLE_DATASET = {
 }
 
 
-class Modalities(str, enum.Enum):
+class Modalities:
     IMAGE = 'image'
     MUSIC = 'music'
     TEXT = 'text'
