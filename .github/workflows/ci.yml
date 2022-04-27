@@ -212,7 +212,7 @@ jobs:
             exit 1
           else
             echo "Docker tag isn't used already -> Build docker image"
-        fi
+          fi
       - name: Build, tag, and push image Hub
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
