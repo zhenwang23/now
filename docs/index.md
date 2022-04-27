@@ -13,7 +13,6 @@ user-guides/faq
 
 ```
 
-
 ```{toctree}
 :caption: Developer References
 :hidden:
