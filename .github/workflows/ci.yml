@@ -194,12 +194,12 @@ jobs:
           FRONTEND_TAG=$(sed -n '/docker_frontend_tag =/p' $FILE | cut -d \' -f2)
           echo "FRONTEND_TAG=$FRONTEND_TAG" >> $GITHUB_ENV
       - name: Retrieve any exiting images with tag
-        id: get_docker_tag
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
         run: |
           if docker manifest inspect jinaaitmp/now-frontend:$IMAGE_TAG; then
             echo "DOCKER_TAG_USED=true" >> $GITHUB_ENV
+            exit 1
           else
             echo "DOCKER_TAG_USED=false" >> $GITHUB_ENV
           fi
