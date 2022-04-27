@@ -232,7 +232,7 @@ def deploy_streamlit():
             )
 
     elif media_type == 'Webcam2':
-        placeholder = st.empty()
+        snapshot = st.button('Snapshot')
 
         class VideoProcessor:
             snapshot: np.ndarray = None
@@ -247,20 +247,20 @@ def deploy_streamlit():
             client_settings=WEBRTC_CLIENT_SETTINGS,
         )
 
-        placeholder_img = st.empty()
-
         if ctx.video_processor:
-            if st.session_state.snap is not None:
-                placeholder_img.image(st.session_state.snap, width=160)
-            if placeholder.button('Snapshot'):
+            if snapshot:
                 query = ctx.video_processor.snapshot
-                placeholder_img.image(query, width=160)
+                st.image(query, width=160)
                 st.session_state.snap = query
                 doc = Document(tensor=query)
                 doc.convert_image_tensor_to_blob()
                 st.session_state.matches = search_by_file(
                     document=doc, server=host, port=port
                 )
+            elif st.session_state.snap is not None:
+                st.image(st.session_state.snap, width=160)
+        else:
+            clear_match()
 
     if st.session_state.matches:
         matches = deepcopy(st.session_state.matches)
