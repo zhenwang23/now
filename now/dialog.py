@@ -87,7 +87,7 @@ def ask_data(user_input: UserInput, **kwargs):
         'message': 'In what data modality do you want to search?',
         'choices': [
             {'name': '📷 images', 'value': 'image'},
-            {'name': '📝 text', 'value': 'text'},
+            {'name': '📝 text (experimental)', 'value': 'text'},
         ],
     }
     user_input.output_modality = prompt_plus(
