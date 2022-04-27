@@ -192,7 +192,7 @@ jobs:
   dockerize-and-push-frontend:
     runs-on: ubuntu-latest
     needs: check-if-frontend-has-changed
-    if: needs.check-if-frontend-has-changed.outputs.frontend_changed == 'True'
+    if: needs.check-if-frontend-has-changed.outputs.frontend_changed == 'true'
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.7
