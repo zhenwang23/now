@@ -149,7 +149,7 @@ def ask_data(user_input: UserInput, **kwargs):
 
 
 def prompt_plus(questions, attribute, **kwargs):
-    if kwargs and attribute in kwargs:
+    if kwargs and kwargs.get(attribute) is not None:
         return kwargs[attribute]
     else:
         answer = prompt(questions)
