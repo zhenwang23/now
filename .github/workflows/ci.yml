@@ -96,65 +96,6 @@ jobs:
       - name: Test basic import
         run: python -c 'from now import run_all_k8s'
 
-  check-if-frontend-has-changed:
-#    needs: success-all-test
-    needs: [commit-lint, lint-flake-8, check-black, import-test]
-    runs-on: ubuntu-latest
-    outputs:
-      frontend_changed: ${{ steps.check_frontend_changed.frontend_changed }}
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-      - shell: pwsh
-        id: check_frontend_changed
-        run: |
-          git fetch origin main
-          # Diff HEAD with main HEAD
-          $diff = git diff --name-only HEAD origin/main
-          # Check if a file in frontend folder has changed
-          $SourceDiff = $diff | Where-Object { $_ -match '^now/frontend' }
-          $HasDiff = $SourceDiff.Length -gt 0
-          # Set the output named "frontend_changed"
-          Write-Host "::set-output name=frontend_changed::$HasDiff"
-
-  dockerize-and-push-frontend:
-    runs-on: ubuntu-latest
-    needs: check-if-frontend-has-changed
-    if: needs.check-if-frontend-has-changed.outputs.frontend_changed == 'True'
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.7
-      - name: Get frontend tag
-        run: |
-          FILE='now/run_all_k8s.py'
-          FRONTEND_TAG=$(sed -n '/docker_frontend_tag =/p' $FILE | cut -d \' -f2)
-          echo "FRONTEND_TAG=FRONTEND_TAG" >> $GITHUB_ENV
-      - name: Retrieve any exiting images with tag
-        id: get_docker_tag
-        env:
-          IMAGE_TAG: ${{ env.FRONTEND_TAG }}
-        run: |
-          $docker_image_avail = "$(docker manifest inspect jinaaitmp/now-frontend:IMAGE_TAG)"
-          Write-Host "::set-output name=docker_image_avail::$docker_image_avail"
-      - name: Check that no images exist with tag
-        env:
-          IMAGE_TAG: ${{ env.FRONTEND_TAG }}
-        if: steps.get_docker_tag.outputs.docker_image_avail != ''
-        run: exit 1
-      - name: Build, tag, and push image Hub
-        env:
-          IMAGE_TAG: ${{ env.FRONTEND_TAG }}
-        run: |
-          docker build -t now-frontend  now/frontend/.
-          docker tag now-frontend jinaaitmp/now-frontend:$IMAGE_TAG
-          docker push jinaaitmp/now-frontend:$IMAGE_TAG
-
-
   prep-testbed:
     runs-on: ubuntu-latest
     needs: [commit-lint, lint-flake-8, check-black, import-test]
@@ -221,3 +162,58 @@ jobs:
       - name: Success
         if: ${{ success() }}
         run: echo "All Done"
+
+  check-if-frontend-has-changed:
+#    needs: success-all-test
+    needs: [commit-lint, lint-flake-8, check-black]
+    runs-on: ubuntu-latest
+    outputs:
+      frontend_changed: ${{ steps.check_frontend_changed.frontend_changed }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - shell: pwsh
+        id: check_frontend_changed
+        run: |
+          git fetch origin main
+          diff = $(git diff --name-only HEAD origin/main)
+          SourceDiff = $($diff | Where-Object { $_ -match '^now/frontend' })
+          HasDiff = $($SourceDiff.Length -gt 0)
+          Write-Host "::set-output name=frontend_changed::$HasDiff"
+
+  dockerize-and-push-frontend:
+    runs-on: ubuntu-latest
+    needs: check-if-frontend-has-changed
+    if: needs.check-if-frontend-has-changed.outputs.frontend_changed == 'True'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Get frontend tag
+        run: |
+          FILE='now/run_all_k8s.py'
+          FRONTEND_TAG=$(sed -n '/docker_frontend_tag =/p' $FILE | cut -d \' -f2)
+          echo "FRONTEND_TAG=FRONTEND_TAG" >> $GITHUB_ENV
+      - name: Retrieve any exiting images with tag
+        id: get_docker_tag
+        env:
+          IMAGE_TAG: ${{ env.FRONTEND_TAG }}
+        run: |
+          $docker_image_avail = "$(docker manifest inspect jinaaitmp/now-frontend:IMAGE_TAG)"
+          Write-Host "::set-output name=docker_image_avail::$docker_image_avail"
+      - name: Check that no images exist with tag
+        env:
+          IMAGE_TAG: ${{ env.FRONTEND_TAG }}
+        if: steps.get_docker_tag.outputs.docker_image_avail != ''
+        run: exit 1
+      - name: Build, tag, and push image Hub
+        env:
+          IMAGE_TAG: ${{ env.FRONTEND_TAG }}
+        run: |
+          docker build -t now-frontend  now/frontend/.
+          docker tag now-frontend jinaaitmp/now-frontend:$IMAGE_TAG
+          docker push jinaaitmp/now-frontend:$IMAGE_TAG
