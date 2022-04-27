@@ -208,13 +208,13 @@ jobs:
       - name: Fail if image exists
         env:
           DOCKER_TAG_USED: ${{ env.DOCKER_TAG_USED }}
-#        if: steps.get_docker_tag.outputs.docker_image_avail == true
-        run:
-          echo "$DOCKER_TAG_USED"
-#          exit 1
+        if: DOCKER_TAG_FALSE == 'true'
+        run: exit 1
       - name: Build, tag, and push image Hub
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
+          DOCKER_TAG_USED: ${{ env.DOCKER_TAG_USED }}
+        if: DOCKER_TAG_FALSE == 'true'
         run: |
           docker build -t now-frontend  now/frontend/.
           docker tag now-frontend jinaaitmp/now-frontend:$IMAGE_TAG
