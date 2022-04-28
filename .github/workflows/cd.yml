@@ -40,15 +40,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install --no-cache-dir ".[test]"
-      - name: Authenticate GCloud
-        run: |
-          echo $SERVICE_ACCOUNT_JSON >> $HOME/service_account.json
-        env:
-          SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
       - name: Test
         id: test
         run: |
-          export GOOGLE_APPLICATION_CREDENTIALS=$HOME/service_account.json
           pytest --suppress-no-test-exit-code --cov=now --cov-report=xml \
             -v -s -m "not gpu" ${{ matrix.test-path }}
           echo "::set-output name=codecov_flag::now"
