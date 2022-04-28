@@ -212,7 +212,7 @@ jobs:
         env:
           IMAGE_TAG: ${{ env.FRONTEND_TAG }}
           DOCKERHUB_USER: ${{ secrets.DOCKERHUB_DEVBOT_USER }}
-          DOCKERHUB_PWD: ${{ secrets.DOCKERHUB_DEVBOT_TOKEN }}
+          DOCKERHUB_PWD: ${{ secrets.DOCKERHUB_DEVBOT_PWD }}
         run: |
           docker login -u=$DOCKERHUB_USER -p=$DOCKERHUB_PWD
           docker build -t now-frontend  now/frontend/.
