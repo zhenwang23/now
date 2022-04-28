@@ -10,6 +10,7 @@ from docarray import DocumentArray
 from yaspin import yaspin
 
 from now.data_loading.convert_datasets_to_jpeg import to_thumbnail_jpg
+from now.dialog import QUALITY_MAP, Modalities
 from now.utils import download, sigmap
 
 
@@ -59,7 +60,7 @@ def remove_duplicates(da: DocumentArray):
 
 def load_data(
     output_modality: str,
-    dataset: str,
+    data: str,
     model_quality: str,
     is_custom: bool,
     custom_type: str,
@@ -68,15 +69,18 @@ def load_data(
     path: Optional[str],
 ) -> Tuple[DocumentArray, str]:
 
+    data_folder = None
     if not is_custom:
         print('⬇  Download data')
-        if output_modality == 'image':
+        if output_modality == Modalities.IMAGE:
             data_folder = 'jpeg'
-        elif output_modality == 'text':
+        elif output_modality == Modalities.TEXT:
             data_folder = 'text'
+        elif output_modality == Modalities.MUSIC:
+            data_folder = 'music'
         url = (
             'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
-            f'{data_folder}/{dataset}.{model_quality}.bin'
+            f'{data_folder}/{data}.{QUALITY_MAP[model_quality][0]}.bin'
         )
         da = _fetch_da_from_url(url)
         ds_type = 'demo'
@@ -175,5 +179,3 @@ def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
                 for doc in random.sample(ds['val_index_image'], num_default_val_queries)
             ]
         )
-        # for d in ds['val_query_image']:
-        #     ds['val_index_image'].remove(d)

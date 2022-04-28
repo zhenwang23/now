@@ -4,15 +4,37 @@ import sys
 from copy import deepcopy
 from urllib.request import urlopen
 
+import av
+import numpy as np
 import streamlit as st
 from docarray import DocumentArray
 from jina import Client, Document
+from streamlit_webrtc import ClientSettings, webrtc_streamer
 
-if 'matches' not in st.session_state:
-    st.session_state.matches = None
+WEBRTC_CLIENT_SETTINGS = ClientSettings(
+    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
+    media_stream_constraints={"video": True, "audio": False},
+)
 
-if 'min_confidence' not in st.session_state:
-    st.session_state.min_confidence = 0.0
+
+root_data_dir = (
+    'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
+)
+
+ds_set = {
+    'nft-monkey',
+    'deepfashion',
+    'nih-chest-xrays',
+    'stanford-cars',
+    'bird-species',
+    'best-artworks',
+    'geolocation-geoguessr',
+    'rock-lyrics',
+    'pop-lyrics',
+    'rap-lyrics',
+    'indie-lyrics',
+    'metal-lyrics',
+}
 
 
 def deploy_streamlit():
@@ -21,8 +43,8 @@ def deploy_streamlit():
     Please deploy a streamlit frontend on k8s/local to access the api.
     You can get the starting point for the streamlit application from alex.
     """
+    setup_session_state()
     print('Run Streamlit with:', sys.argv)
-    print(sys.argv)
     _, host, port, output_modality, data = sys.argv
     da_img = None
     da_txt = None
@@ -85,7 +107,7 @@ def deploy_streamlit():
 
         return response[0].matches
 
-    def search_by_file(document, server, port, limit=TOP_K, convert_needed=True):
+    def search_by_file(document, server, port, limit=TOP_K):
         """
         Wrap file in Jina Document for searching, and do all necessary conversion to make similar to indexed Docs
         """
@@ -108,8 +130,6 @@ def deploy_streamlit():
         data = query.read()
         doc = Document(blob=data)
         return doc
-
-    matches = []
 
     # Layout
     st.set_page_config(page_title="NOW", page_icon='https://jina.ai/favicon.ico')
@@ -134,9 +154,17 @@ def deploy_streamlit():
         unsafe_allow_html=True,
     )
     if output_modality == 'image':
-        media_type = st.radio('', ["Text", "Image"], on_change=clear_match)
+        media_type = st.radio(
+            '',
+            ["Text", "Image", 'Webcam'],
+            on_change=clear_match,
+        )
     elif output_modality == 'text':
-        media_type = st.radio('', ["Image", "Text"], on_change=clear_match)
+        media_type = st.radio(
+            '',
+            ["Image", "Text", 'Webcam'],
+            on_change=clear_match,
+        )
 
     if media_type == "Image":
         upload_c, preview_c = st.columns([12, 1])
@@ -157,7 +185,9 @@ def deploy_streamlit():
                 with txt:
                     if st.button('Search', key=doc.id):
                         st.session_state.matches = search_by_file(
-                            document=doc, server=host, port=port, convert_needed=False
+                            document=doc,
+                            server=host,
+                            port=port,
                         )
 
     elif media_type == "Text":
@@ -176,6 +206,37 @@ def deploy_streamlit():
                         st.session_state.matches = search_by_t(
                             input=doc.content, server=host, port=port
                         )
+
+    elif media_type == 'Webcam':
+        snapshot = st.button('Snapshot')
+
+        class VideoProcessor:
+            snapshot: np.ndarray = None
+
+            def recv(self, frame):
+                self.snapshot = frame.to_ndarray(format="rgb24")
+                return av.VideoFrame.from_ndarray(self.snapshot, format='rgb24')
+
+        ctx = webrtc_streamer(
+            key="jina-now",
+            video_processor_factory=VideoProcessor,
+            client_settings=WEBRTC_CLIENT_SETTINGS,
+        )
+
+        if ctx.video_processor:
+            if snapshot:
+                query = ctx.video_processor.snapshot
+                st.image(query, width=160)
+                st.session_state.snap = query
+                doc = Document(tensor=query)
+                doc.convert_image_tensor_to_blob()
+                st.session_state.matches = search_by_file(
+                    document=doc, server=host, port=port
+                )
+            elif st.session_state.snap is not None:
+                st.image(st.session_state.snap, width=160)
+        else:
+            clear_match()
 
     if st.session_state.matches:
         matches = deepcopy(st.session_state.matches)
@@ -218,7 +279,11 @@ def deploy_streamlit():
                 c.image(match.convert_blob_to_datauri().uri)
         st.markdown("""---""")
         st.session_state.min_confidence = st.slider(
-            'Confidence threshold', 0.0, 1.0, key='slider', on_change=update_conf
+            'Confidence threshold',
+            0.0,
+            1.0,
+            key='slider',
+            on_change=update_conf,
         )
 
 
@@ -230,6 +295,7 @@ def clear_match():
     st.session_state.matches = None
     st.session_state.slider = 0.0
     st.session_state.min_confidence = 0.0
+    st.session_state.snap = None
 
 
 def clear_text():
@@ -237,18 +303,17 @@ def clear_text():
 
 
 def load_data(data_path: str) -> DocumentArray:
-    print('⬇ load data')
     if data_path.startswith('http'):
         try:
             # TODO try except is used as workaround
             # in case load_data is called two times from two frontends it can happen that
             # one of the calls created the directory right after checking that it does not exist
-            # this caused errors. Now the error will be ignored
+            # this caused errors. Now the error will be ignored.
+            # Can not use `exist=True` because it is not available in py3.7
             os.makedirs('data/tmp')
         except:
             pass
         url = data_path
-        print('url', url)
         data_path = (
             f"data/tmp/{base64.b64encode(bytes(url, 'utf-8')).decode('utf-8')}.bin"
         )
@@ -265,25 +330,18 @@ def load_data(data_path: str) -> DocumentArray:
     return da
 
 
-TEXT_SAMPLES = ['red shoe', 'blue tops']
-root_data_dir = (
-    'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets/'
-)
+def setup_session_state():
+    if 'matches' not in st.session_state:
+        st.session_state.matches = None
 
-ds_set = {
-    'nft-monkey',
-    'deepfashion',
-    'nih-chest-xrays',
-    'stanford-cars',
-    'bird-species',
-    'best-artworks',
-    'geolocation-geoguessr',
-    'rock-lyrics',
-    'pop-lyrics',
-    'rap-lyrics',
-    'indie-lyrics',
-    'metal-lyrics',
-}
+    if 'min_confidence' not in st.session_state:
+        st.session_state.min_confidence = 0.0
+
+    if 'im' not in st.session_state:
+        st.session_state.im = None
+
+    if 'snap' not in st.session_state:
+        st.session_state.snap = None
 
 
 if __name__ == '__main__':
