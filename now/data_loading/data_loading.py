@@ -1,10 +1,9 @@
 import base64
 import os
-import random
 import uuid
 from copy import deepcopy
 from os.path import join as osp
-from typing import Optional, Tuple
+from typing import Optional
 
 from docarray import DocumentArray
 from yaspin import yaspin
@@ -14,42 +13,47 @@ from now.constants import (
     IMAGE_MODEL_QUALITY_MAP,
     DatasetType,
     Modality,
+    Quality,
 )
 from now.data_loading.convert_datasets_to_jpeg import to_thumbnail_jpg
 from now.dialog import UserInput
 from now.utils import download, sigmap
 
 
-def load_data(user_input: UserInput) -> Tuple[DocumentArray, DatasetType]:
-    # TODO: Write docs
+def load_data(user_input: UserInput) -> DocumentArray:
+    """
+    Based on the user input, this function will pull the configured DocArray.
+
+    :param user_input: The configured user object. Result from the Jina Now cli dialog.
+    :return: The loaded DocumentArray.
+    """
     da = None
-    ds_type = None
 
     if not user_input.is_custom_dataset:
-        print('⬇  Download data')
-        url = _get_dataset_url(
+        print('⬇  Download DocArray')
+        url = get_dataset_url(
             user_input.data, user_input.quality, user_input.output_modality
         )
         da = _fetch_da_from_url(url)
-        ds_type = DatasetType.DEMO
 
     else:
         if user_input.custom_dataset_type == DatasetType.DOCARRAY:
-            print('⬇  Pull docarray')
-            da, ds_type = _pull_docarray(user_input.dataset_secret)
-            ds_type = DatasetType.DOCARRAY
+            print('⬇  Pull DocArray')
+            da = _pull_docarray(user_input.dataset_secret)
         elif user_input.custom_dataset_type == DatasetType.URL:
-            print('⬇  Download data')
+            print('⬇  Pull DocArray')
             da = _fetch_da_from_url(user_input.dataset_url)
-            ds_type = DatasetType.URL
         elif user_input.custom_dataset_type == DatasetType.PATH:
-            print('💿  Loading data from disk')
+            print('💿  Loading DocArray from disk')
             da = _load_from_disk(user_input.dataset_path)
-            ds_type = DatasetType.PATH
 
+    if da is None:
+        raise ValueError(
+            f'Could not load DocArray. Please check your configuration: {user_input}.'
+        )
     da = da.shuffle(seed=42)  # TODO: why?
     da = _deep_copy_da(da)
-    return da, ds_type
+    return da
 
 
 def _fetch_da_from_url(
@@ -108,8 +112,8 @@ def _load_from_disk(dataset_path: str) -> DocumentArray:
         return da
 
 
-def _get_dataset_url(
-    dataset: str, model_quality: Optional[str], output_modality: Modality
+def get_dataset_url(
+    dataset: str, model_quality: Optional[Quality], output_modality: Modality
 ) -> str:
     data_folder = None
     if output_modality == Modality.IMAGE:
@@ -117,7 +121,7 @@ def _get_dataset_url(
     elif output_modality == Modality.TEXT:
         data_folder = 'text'
     elif output_modality == Modality.MUSIC:
-        data_folder = 'audio'
+        data_folder = 'music'
 
     if model_quality is not None:
         return f'{BASE_STORAGE_URL}/{data_folder}/{dataset}.{IMAGE_MODEL_QUALITY_MAP[model_quality][0]}.bin'
@@ -132,43 +136,3 @@ def _deep_copy_da(da: DocumentArray) -> DocumentArray:
         new_doc.id = str(uuid.uuid4())
         new_da.append(new_doc)
     return new_da
-
-
-def fill_missing(ds, train_val_split_ratio, num_default_val_queries, is_debug):
-    if ds['train'] is None:
-        ds['train'] = ds['index']
-    if ds['val'] is None:
-        # TODO makes split based on classes rather than instances
-        split_index = max(
-            int(len(ds['train']) * train_val_split_ratio),
-            len(ds['train']) - 5000,
-        )
-        train = ds['train']
-        ds['train'], ds['val'] = train[:split_index], train[split_index:]
-
-    if ds['val_index'] is None:
-        ds['val_index'] = deepcopy(ds['val'])
-    if ds['val_query'] is None:
-        if is_debug:
-            num_queries = 10
-        else:
-            num_queries = 100
-
-        ds['val_query'] = DocumentArray(
-            [deepcopy(doc) for doc in random.sample(ds['val_index'], num_queries)]
-        )
-        # for d in ds['val_query']:
-        #     ds['val_index'].remove(d)
-
-    if ds['val_index_image'] is None:
-        ds['val_index_image'] = deepcopy(
-            # DocumentArray(d for d in ds['val'] if d.blob is not None)
-            DocumentArray(d for d in ds['val'] if d.blob != b'')
-        )
-    if ds['val_query_image'] is None:
-        ds['val_query_image'] = DocumentArray(
-            [
-                deepcopy(doc)
-                for doc in random.sample(ds['val_index_image'], num_default_val_queries)
-            ]
-        )

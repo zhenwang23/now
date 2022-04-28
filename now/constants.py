@@ -19,6 +19,9 @@ class Quality(str, enum.Enum):
     GOOD = 'good'
     EXCELLENT = 'excellent'
 
+    def __str__(self):
+        return str(self.__str__())
+
 
 BASE_STORAGE_URL = (
     'https://storage.googleapis.com/jina-fashion-data/data/one-line/datasets'

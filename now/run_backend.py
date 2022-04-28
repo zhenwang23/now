@@ -5,9 +5,10 @@ from os.path import join as osp
 
 from yaspin import yaspin
 
-from now.data_loading.data_loading import fill_missing, load_data
+from now.data_loading.data_loading import load_data
 from now.deployment.flow import deploy_flow
 from now.dialog import UserInput
+from now.finetuning.finetuning import fill_missing
 from now.utils import sigmap
 
 
@@ -62,7 +63,7 @@ def run(user_input: UserInput, is_debug, tmpdir, kubectl_path: str):
         num_default_val_queries,
     ) = parse_user_input(user_input.quality, is_debug)
 
-    dataset, ds_type = load_data(user_input)
+    dataset = load_data(user_input)
 
     finetuning = is_finetuning(user_input.data, dataset)
 
