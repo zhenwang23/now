@@ -1,11 +1,12 @@
 import base64
+import glob
 import os
 import uuid
 from copy import deepcopy
 from os.path import join as osp
-from typing import Optional
+from typing import Optional, Set
 
-from docarray import DocumentArray
+from docarray import Document, DocumentArray
 from yaspin import yaspin
 
 from now.constants import (
@@ -16,8 +17,12 @@ from now.constants import (
     Quality,
 )
 from now.data_loading.convert_datasets_to_jpeg import to_thumbnail_jpg
+from now.data_loading.utils import load_mp3
 from now.dialog import UserInput
 from now.utils import download, sigmap
+
+IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif'}
+MUSIC_EXTENSIONS = {'.mp3'}
 
 
 def load_data(user_input: UserInput) -> DocumentArray:
@@ -45,7 +50,7 @@ def load_data(user_input: UserInput) -> DocumentArray:
             da = _fetch_da_from_url(user_input.dataset_url)
         elif user_input.custom_dataset_type == DatasetType.PATH:
             print('💿  Loading DocArray from disk')
-            da = _load_from_disk(user_input.dataset_path)
+            da = _load_from_disk(user_input.dataset_path, user_input.output_modality)
 
     if da is None:
         raise ValueError(
@@ -85,31 +90,61 @@ def _pull_docarray(dataset_secret: str):
         exit(1)
 
 
-def _load_from_disk(dataset_path: str) -> DocumentArray:
+def _folder_contains_only(path: str, extensions: Set) -> bool:
+    def valid_file(filename: str) -> bool:
+        return filename.endswith(tuple(extensions))
+
+    files = glob.glob(os.path.join(path, '/**'))
+    map(valid_file, files)
+    return all(files)
+
+
+def _load_from_disk(dataset_path: str, modality: Modality) -> DocumentArray:
     if os.path.isfile(dataset_path):
         try:
             return DocumentArray.load_binary(dataset_path)
         except Exception as e:
-            print('Failed to load the binary file provided')
+            print(f'Failed to load the binary file provided under path {dataset_path}')
             exit(1)
-    else:
+    elif os.path.isdir(dataset_path):
         da = DocumentArray.from_files(dataset_path + '/**')
+        convert_fn = None
+        if modality == Modality.IMAGE:
+            assert _folder_contains_only(dataset_path, IMAGE_EXTENSIONS)
 
-        def convert_fn(d):
-            try:
-                d.load_uri_to_image_tensor()
-                return to_thumbnail_jpg(d)
-            except Exception as e:
+            def convert_fn(d: Document):
+                try:
+                    d.load_uri_to_image_tensor()
+                    return to_thumbnail_jpg(d)
+                except Exception as e:
+                    return d
+
+        elif modality == Modality.MUSIC:
+            assert _folder_contains_only(dataset_path, MUSIC_EXTENSIONS)
+
+            def convert_fn(d: Document):
+                arr, sr = load_mp3(d.uri)
+                d.tensor = arr
+                d.tags['sr'] = sr
                 return d
 
-        with yaspin(
-            sigmap=sigmap, text="Pre-processing data", color="green"
-        ) as spinner:
-            da.apply(convert_fn)
-            da = DocumentArray(d for d in da if d.blob != b'')
-            spinner.ok('🏭')
+        if convert_fn is not None:
+            with yaspin(
+                sigmap=sigmap, text="Pre-processing data", color="green"
+            ) as spinner:
+                da.apply(convert_fn)
+                if modality == Modality.IMAGE:
+                    da = DocumentArray(d for d in da if d.blob != b'')
+                elif modality == Modality.MUSIC:
+                    da = DocumentArray(d for d in da if d.tensor is not None)
+        spinner.ok('🏭')
 
         return da
+    else:
+        raise ValueError(
+            f'The provided dataset path {dataset_path} does not'
+            f' appear to be a valid file or folder on your system.'
+        )
 
 
 def get_dataset_url(

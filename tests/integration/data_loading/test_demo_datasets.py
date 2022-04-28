@@ -3,9 +3,9 @@ This suite tests that the demo datasets are available
 with the correct names in the GC bucket
 
 To run the test locally you need to set the `GOOGLE_APPLICATION_CREDENTIALS`
-environment variable to point to your service account json file.
+environment variable to point to your service account json file or
+place the file `service_account.json` in the root of the project.
 """
-import base64
 import os
 from typing import Tuple
 
@@ -21,19 +21,9 @@ base_url = 'https://storage.googleapis.com/jina-fashion-data/'
 
 
 @pytest.fixture(scope='session')
-def gc_storage() -> Tuple[storage.Client, storage.Bucket]:
-    with open(
-        '/Users/sebastianlettner/Repositories/Jina/now/jina-simpsons-florian-e051d5f4bf04.json',
-        'r',
-    ) as f:
-        import json
-
-        key = json.load(f)
-
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = base64.urlsafe_b64encode(
-        json.dumps(key).encode()
-    ).decode()
-
+def gc_storage(service_account_file_path: str) -> Tuple[storage.Client, storage.Bucket]:
+    if 'GOOGLE_APPLICATION_CREDENTIALS' not in os.environ:
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = service_account_file_path
     client = storage.Client(project=project)
     return client, client.get_bucket(bucket_name)
 

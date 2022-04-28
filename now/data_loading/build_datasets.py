@@ -287,13 +287,13 @@ def _build_bird_species(root: str, num_workers: int = 8) -> DocumentArray:
 
     extension = '.jpg'
     root = os.path.join(root, 'CUB_200_2011', 'CUB_200_2011')
-    fimages = os.path.join(root, 'images.txt')
+    fimages = os.path.join(root, 'image.txt')
     fclasses = os.path.join(root, 'classes.txt')
     flabels = os.path.join(root, 'image_class_labels.txt')
     fsplit = os.path.join(root, 'train_test_split.txt')
-    contentdir = os.path.join(root, 'images')
+    contentdir = os.path.join(root, 'image')
 
-    # read images.txt
+    # read image.txt
     image2id = {}
     with open(fimages, 'r') as f:
         for line in f.read().splitlines():
@@ -372,7 +372,7 @@ def _build_best_artworks(root: str, num_workers: int = 8) -> DocumentArray:
 
     extension = '.jpg'
     fartists = os.path.join(root, 'artists.csv')
-    contentdir = os.path.join(root, 'images', 'images')
+    contentdir = os.path.join(root, 'image', 'image')
 
     # read artists.csv
     with open(fartists, 'r') as f:
