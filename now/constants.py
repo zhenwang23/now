@@ -6,12 +6,18 @@ class Modality(str, enum.Enum):
     MUSIC = 'music'
     TEXT = 'text'
 
+    def __str__(self):
+        return str(self.__str__())
+
 
 class DatasetType(str, enum.Enum):
     DEMO = 'demo'
     PATH = 'path'
     URL = 'url'
     DOCARRAY = 'docarray'
+
+    def __str__(self):
+        return str(self.__str__())
 
 
 class Quality(str, enum.Enum):

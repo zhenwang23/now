@@ -106,6 +106,7 @@ def deploy_flow(
     embedding_size,
     tmpdir,
     finetuning,
+    sandbox,
     kubectl_path,
 ):
     from jina import Flow
@@ -119,14 +120,14 @@ def deploy_flow(
     )
     f = f.add(
         name='encoder_clip',
-        uses=f'jinahub+docker://CLIPEncoder/v0.2.1',
+        uses=f'jinahub{"+sandbox" if sandbox else "+docker"}://CLIPEncoder/v0.2.1',
         uses_with={'pretrained_model_name_or_path': vision_model},
         env={'JINA_LOG_LEVEL': 'DEBUG'},
     )
     if finetuning:
         f = f.add(
             name='linear_head',
-            uses=f'jinahub+docker://{executor_name}',
+            uses=f'jinahub{"+sandbox" if sandbox else "+docker"}://{executor_name}',
             uses_with={
                 'final_layer_output_dim': final_layer_output_dim,
                 'embedding_size': embedding_size,
@@ -152,7 +153,13 @@ def deploy_flow(
         gateway_port,
         gateway_host_internal,
         gateway_port_internal,
-    ) = deploy_k8s(f, ns, 4 if finetuning else 3, tmpdir, kubectl_path=kubectl_path)
+    ) = deploy_k8s(
+        f,
+        ns,
+        2 + (2 if finetuning else 1) * (0 if sandbox else 1),
+        tmpdir,
+        kubectl_path=kubectl_path,
+    )
     print(
         f'▶ indexing {len(index)} documents - if it stays at 0% for a while, it is all good - just wait :)'
     )

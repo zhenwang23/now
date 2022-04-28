@@ -22,10 +22,12 @@ def test_backend(
     cluster: str,
     new_cluster_type: str,
 ):
+    sandbox = dataset == 'best-artworks'
     kwargs = {
         'output_modality': output_modality,
         'data': dataset,
         'quality': quality,
+        'sandbox': sandbox,
         'cluster': cluster,
         'new_cluster_type': new_cluster_type,
         'proceed': True,
