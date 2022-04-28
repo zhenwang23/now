@@ -216,13 +216,3 @@ jobs:
           context: now/frontend/.
           push: true
           tags: jinaai/now-frontend:${{ env.FRONTEND_TAG }}
-#      - name: Build, tag, and push image to Hub
-#        env:
-#          IMAGE_TAG: ${{ env.FRONTEND_TAG }}
-#          DOCKERHUB_USER: ${{ secrets.DOCKER_USERNAME }}
-#          DOCKERHUB_PWD: ${{ secrets.DOCKER_PASSWORD }}
-#        run: |
-#          docker login -u=$DOCKERHUB_USER -p=$DOCKERHUB_PWD
-#          docker build -t now-frontend  now/frontend/.
-#          docker tag now-frontend jinaai/now-frontend:$IMAGE_TAG
-#          docker push jinaai/now-frontend:$IMAGE_TAG
