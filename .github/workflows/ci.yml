@@ -219,7 +219,7 @@ jobs:
           push: true
           tags: |
             now-frontend
-            jinaaitmp/now-frontend:$FRONTEND_TAG
+            jinaaitmp/now-frontend:${{ env.FRONTEND_TAG }}
 #      - name: Build, tag, and push image to Hub
 #        env:
 #          IMAGE_TAG: ${{ env.FRONTEND_TAG }}
