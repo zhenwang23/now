@@ -211,15 +211,11 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push
-#        env:
-#          IMAGE_TAG: ${{ env.FRONTEND_TAG }}
         uses: docker/build-push-action@v2
         with:
           context: now/frontend/.
           push: true
-          tags: |
-#            now-frontend
-            jinaaitmp/now-frontend:${{ env.FRONTEND_TAG }}
+          tags: jinaaitmp/now-frontend:${{ env.FRONTEND_TAG }}
 #      - name: Build, tag, and push image to Hub
 #        env:
 #          IMAGE_TAG: ${{ env.FRONTEND_TAG }}
