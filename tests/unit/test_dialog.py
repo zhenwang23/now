@@ -10,7 +10,7 @@ from pytest_mock import MockerFixture
 
 from now.dialog import (
     IMAGE_MODEL_QUALITY_MAP,
-    Modality,
+    Modalities,
     UserInput,
     configure_user_input,
 )
@@ -27,7 +27,7 @@ class CmdPromptMock:
 MOCKED_DIALOGS_WITH_CONFIGS = [
     (
         {
-            'output_modality': Modality.MUSIC,
+            'output_modality': Modalities.MUSIC,
             'data': 'music-genres-small',
             'cluster': 'new',
             'sandbox': False,
@@ -41,7 +41,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.MUSIC,
+            'output_modality': Modalities.MUSIC,
             'data': 'music-genres-large',
             'cluster': 'new',
             'sandbox': False,
@@ -55,7 +55,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.IMAGE,
+            'output_modality': Modalities.IMAGE,
             'data': 'tll',
             'cluster': 'new',
             'sandbox': False,
@@ -71,7 +71,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.IMAGE,
+            'output_modality': Modalities.IMAGE,
             'data': 'nih-chest-xrays',
             'cluster': 'new',
             'sandbox': False,
@@ -87,7 +87,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.IMAGE,
+            'output_modality': Modalities.IMAGE,
             'data': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
@@ -105,7 +105,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.MUSIC,
+            'output_modality': Modalities.MUSIC,
             'data': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
@@ -121,7 +121,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.MUSIC,
+            'output_modality': Modalities.MUSIC,
             'data': 'custom',
             'custom_dataset_type': 'path',
             'dataset_path': 'xxx',
@@ -137,7 +137,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.MUSIC,
+            'output_modality': Modalities.MUSIC,
             'data': 'custom',
             'custom_dataset_type': 'url',
             'dataset_url': 'xxx',
@@ -153,7 +153,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.IMAGE,
+            'output_modality': Modalities.IMAGE,
             'data': 'custom',
             'custom_dataset_type': 'docarray',
             'dataset_secret': 'xxx',
@@ -171,7 +171,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.IMAGE,
+            'output_modality': Modalities.IMAGE,
             'data': 'tll',
             'cluster': 'new',
             'sandbox': False,
@@ -192,7 +192,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
             'sandbox': False,
             'new_cluster_type': 'local',
         },
-        {'output_modality': Modality.MUSIC},
+        {'output_modality': Modalities.MUSIC},
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
@@ -205,7 +205,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
             'sandbox': False,
             'new_cluster_type': 'local',
         },
-        {'output_modality': Modality.IMAGE, 'quality': 'good'},
+        {'output_modality': Modalities.IMAGE, 'quality': 'good'},
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
@@ -219,7 +219,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
             'sandbox': False,
             'new_cluster_type': 'local',
         },
-        {'output_modality': Modality.TEXT, 'quality': 'good'},
+        {'output_modality': Modalities.TEXT, 'quality': 'good'},
         UserInput(
             is_custom_dataset=False,
             create_new_cluster=True,
@@ -228,7 +228,7 @@ MOCKED_DIALOGS_WITH_CONFIGS = [
     ),
     (
         {
-            'output_modality': Modality.TEXT,
+            'output_modality': Modalities.TEXT,
         },
         {
             'data': 'pop-lyrics',

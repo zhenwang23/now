@@ -25,9 +25,9 @@ from yaspin import yaspin
 from now.constants import (
     AVAILABLE_DATASET,
     IMAGE_MODEL_QUALITY_MAP,
-    DatasetType,
-    Modality,
-    Quality,
+    DatasetTypes,
+    Modalities,
+    Qualities,
 )
 from now.deployment.deployment import cmd
 from now.thridparty.PyInquirer import Separator
@@ -41,19 +41,19 @@ AVAILABLE_SOON = 'will be available in upcoming versions'
 
 @dataclass
 class UserInput:
-    output_modality: Optional[Modality] = None
+    output_modality: Optional[Modalities] = None
 
     # data related
     data: Optional[str] = None
     is_custom_dataset: Optional[bool] = None
 
-    custom_dataset_type: Optional[DatasetType] = None
+    custom_dataset_type: Optional[DatasetTypes] = None
     dataset_secret: Optional[str] = None
     dataset_url: Optional[str] = None
     dataset_path: Optional[str] = None
 
     # model related
-    quality: Optional[Quality] = None
+    quality: Optional[Qualities] = None
     sandbox: bool = False
     model_variant: Optional[str] = None
 
@@ -117,11 +117,11 @@ def _configure_output_modality(user_input: UserInput, **kwargs) -> UserInput:
     modality = _prompt_value(
         name='output_modality',
         choices=[
-            {'name': '🏞 Image Search', 'value': Modality.IMAGE},
-            {'name': '📝 Text Search (experimental)', 'value': Modality.TEXT},
+            {'name': '🏞 Image Search', 'value': Modalities.IMAGE},
+            {'name': '📝 Text Search (experimental)', 'value': Modalities.TEXT},
             {
                 'name': '🥁 Music Search',
-                'value': Modality.MUSIC,
+                'value': Modalities.MUSIC,
                 # 'disabled': AVAILABLE_SOON,
             },
         ],
@@ -130,9 +130,9 @@ def _configure_output_modality(user_input: UserInput, **kwargs) -> UserInput:
         **kwargs,
     )
     user_input.output_modality = modality
-    if modality == Modality.IMAGE:
+    if modality == Modalities.IMAGE:
         return _configure_dataset_image(user_input, **kwargs)
-    elif modality == Modality.TEXT:
+    elif modality == Modalities.TEXT:
         return _configure_dataset_text(user_input, **kwargs)
     else:
         return _configure_dataset_music(user_input, **kwargs)
@@ -226,7 +226,7 @@ def _configure_dataset(user_input: UserInput, **kwargs) -> UserInput:
     dataset = user_input.data
     if dataset in AVAILABLE_DATASET[user_input.output_modality]:
         user_input.is_custom_dataset = False
-        if user_input.output_modality == Modality.MUSIC:
+        if user_input.output_modality == Modalities.MUSIC:
             return _configure_cluster(user_input, **kwargs)
         else:
             return _configure_quality(user_input, **kwargs)
@@ -236,7 +236,7 @@ def _configure_dataset(user_input: UserInput, **kwargs) -> UserInput:
             return _configure_custom_dataset(user_input, **kwargs)
         else:
             _parse_custom_data_from_cli(dataset, user_input)
-            if user_input.output_modality == Modality.MUSIC:
+            if user_input.output_modality == Modalities.MUSIC:
                 return _configure_cluster(user_input, **kwargs)
             else:
                 return _configure_quality(user_input, **kwargs)
@@ -250,7 +250,7 @@ def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
             prompt_type='password',
         )
         user_input.dataset_secret = dataset_secret
-        if user_input.output_modality == Modality.IMAGE:
+        if user_input.output_modality == Modalities.IMAGE:
             return _configure_quality(user_input, **kwargs)
         else:
             return _configure_cluster(user_input, **kwargs)
@@ -262,7 +262,7 @@ def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
             prompt_type='input',
         )
         user_input.dataset_url = dataset_url
-        if user_input.output_modality == Modality.IMAGE:
+        if user_input.output_modality == Modalities.IMAGE:
             return _configure_quality(user_input, **kwargs)
         else:
             return _configure_cluster(user_input, **kwargs)
@@ -274,7 +274,7 @@ def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
             prompt_type='input',
         )
         user_input.dataset_path = dataset_path
-        if user_input.output_modality == Modality.IMAGE:
+        if user_input.output_modality == Modalities.IMAGE:
             return _configure_quality(user_input, **kwargs)
         else:
             return _configure_cluster(user_input, **kwargs)
@@ -371,11 +371,11 @@ def _configure_quality(user_input: UserInput, **kwargs) -> UserInput:
     quality = _prompt_value(
         name='quality',
         choices=[
-            {'name': '🦊 medium (≈3GB mem, 15q/s)', 'value': Quality.MEDIUM},
-            {'name': '🐻 good (≈3GB mem, 2.5q/s)', 'value': Quality.GOOD},
+            {'name': '🦊 medium (≈3GB mem, 15q/s)', 'value': Qualities.MEDIUM},
+            {'name': '🐻 good (≈3GB mem, 2.5q/s)', 'value': Qualities.GOOD},
             {
                 'name': '🦄 excellent (≈4GB mem, 0.5q/s)',
-                'value': Quality.EXCELLENT,
+                'value': Qualities.EXCELLENT,
             },
         ],
         prompt_message='What quality do you expect?',
@@ -454,11 +454,11 @@ def _parse_custom_data_from_cli(data: str, user_input: UserInput):
     except Exception:
         pass
     if os.path.exists(data):
-        user_input.custom_dataset_type = DatasetType.PATH
+        user_input.custom_dataset_type = DatasetTypes.PATH
         user_input.dataset_path = data
     elif 'http' in data:
-        user_input.custom_dataset_type = DatasetType.URL
+        user_input.custom_dataset_type = DatasetTypes.URL
         user_input.dataset_url = data
     else:
-        user_input.custom_dataset_type = DatasetType.DOCARRAY
+        user_input.custom_dataset_type = DatasetTypes.DOCARRAY
         user_input.dataset_secret = data

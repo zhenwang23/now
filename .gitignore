@@ -18,5 +18,3 @@ build
 jina_now.egg-info
 dist
 docs/_build
-
-service_account.json

@@ -1,32 +1,35 @@
-import enum
+from typing import List
 
 
-class Modality(str, enum.Enum):
+class Modalities:
     IMAGE = 'image'
     MUSIC = 'music'
     TEXT = 'text'
 
-    def __str__(self):
-        return str(self.__str__())
+    @classmethod
+    def as_list(cls) -> List[str]:
+        return [cls.IMAGE, cls.MUSIC, cls.TEXT]
 
 
-class DatasetType(str, enum.Enum):
+class DatasetTypes:
     DEMO = 'demo'
     PATH = 'path'
     URL = 'url'
     DOCARRAY = 'docarray'
 
-    def __str__(self):
-        return str(self.__str__())
+    @classmethod
+    def as_list(cls) -> List[str]:
+        return [cls.DEMO, cls.PATH, cls.URL, cls.DOCARRAY]
 
 
-class Quality(str, enum.Enum):
+class Qualities:
     MEDIUM = 'medium'
     GOOD = 'good'
     EXCELLENT = 'excellent'
 
-    def __str__(self):
-        return str(self.__str__())
+    @classmethod
+    def as_list(cls) -> List[str]:
+        return [cls.MEDIUM, cls.GOOD, cls.EXCELLENT]
 
 
 BASE_STORAGE_URL = (
@@ -34,14 +37,14 @@ BASE_STORAGE_URL = (
 )
 
 IMAGE_MODEL_QUALITY_MAP = {
-    Quality.MEDIUM: ('ViT-B32', 'openai/clip-vit-base-patch32'),
-    Quality.GOOD: ('ViT-B16', 'openai/clip-vit-base-patch16'),
-    Quality.EXCELLENT: ('ViT-L14', 'openai/clip-vit-large-patch14'),
+    Qualities.MEDIUM: ('ViT-B32', 'openai/clip-vit-base-patch32'),
+    Qualities.GOOD: ('ViT-B16', 'openai/clip-vit-base-patch16'),
+    Qualities.EXCELLENT: ('ViT-L14', 'openai/clip-vit-large-patch14'),
 }
 
 
 AVAILABLE_DATASET = {
-    Modality.IMAGE: [
+    Modalities.IMAGE: [
         'best-artworks',
         'nft-monkey',
         'tll',
@@ -51,11 +54,11 @@ AVAILABLE_DATASET = {
         'nih-chest-xrays',
         'geolocation-geoguessr',
     ],
-    Modality.MUSIC: [
+    Modalities.MUSIC: [
         'music-genres-small',
         'music-genres-large',
     ],
-    Modality.TEXT: [
+    Modalities.TEXT: [
         'rock-lyrics',
         'pop-lyrics',
         'rap-lyrics',

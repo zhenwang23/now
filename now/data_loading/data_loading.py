@@ -12,9 +12,9 @@ from yaspin import yaspin
 from now.constants import (
     BASE_STORAGE_URL,
     IMAGE_MODEL_QUALITY_MAP,
-    DatasetType,
-    Modality,
-    Quality,
+    DatasetTypes,
+    Modalities,
+    Qualities,
 )
 from now.data_loading.convert_datasets_to_jpeg import to_thumbnail_jpg
 from now.data_loading.utils import load_mp3
@@ -42,13 +42,13 @@ def load_data(user_input: UserInput) -> DocumentArray:
         da = _fetch_da_from_url(url)
 
     else:
-        if user_input.custom_dataset_type == DatasetType.DOCARRAY:
+        if user_input.custom_dataset_type == DatasetTypes.DOCARRAY:
             print('⬇  Pull DocArray')
             da = _pull_docarray(user_input.dataset_secret)
-        elif user_input.custom_dataset_type == DatasetType.URL:
+        elif user_input.custom_dataset_type == DatasetTypes.URL:
             print('⬇  Pull DocArray')
             da = _fetch_da_from_url(user_input.dataset_url)
-        elif user_input.custom_dataset_type == DatasetType.PATH:
+        elif user_input.custom_dataset_type == DatasetTypes.PATH:
             print('💿  Loading DocArray from disk')
             da = _load_from_disk(user_input.dataset_path, user_input.output_modality)
 
@@ -99,7 +99,7 @@ def _folder_contains_only(path: str, extensions: Set) -> bool:
     return all(files)
 
 
-def _load_from_disk(dataset_path: str, modality: Modality) -> DocumentArray:
+def _load_from_disk(dataset_path: str, modality: Modalities) -> DocumentArray:
     if os.path.isfile(dataset_path):
         try:
             return DocumentArray.load_binary(dataset_path)
@@ -109,7 +109,7 @@ def _load_from_disk(dataset_path: str, modality: Modality) -> DocumentArray:
     elif os.path.isdir(dataset_path):
         da = DocumentArray.from_files(dataset_path + '/**')
         convert_fn = None
-        if modality == Modality.IMAGE:
+        if modality == Modalities.IMAGE:
             assert _folder_contains_only(dataset_path, IMAGE_EXTENSIONS)
 
             def convert_fn(d: Document):
@@ -119,7 +119,7 @@ def _load_from_disk(dataset_path: str, modality: Modality) -> DocumentArray:
                 except Exception as e:
                     return d
 
-        elif modality == Modality.MUSIC:
+        elif modality == Modalities.MUSIC:
             assert _folder_contains_only(dataset_path, MUSIC_EXTENSIONS)
 
             def convert_fn(d: Document):
@@ -133,9 +133,9 @@ def _load_from_disk(dataset_path: str, modality: Modality) -> DocumentArray:
                 sigmap=sigmap, text="Pre-processing data", color="green"
             ) as spinner:
                 da.apply(convert_fn)
-                if modality == Modality.IMAGE:
+                if modality == Modalities.IMAGE:
                     da = DocumentArray(d for d in da if d.blob != b'')
-                elif modality == Modality.MUSIC:
+                elif modality == Modalities.MUSIC:
                     da = DocumentArray(d for d in da if d.tensor is not None)
         spinner.ok('🏭')
 
@@ -148,14 +148,14 @@ def _load_from_disk(dataset_path: str, modality: Modality) -> DocumentArray:
 
 
 def get_dataset_url(
-    dataset: str, model_quality: Optional[Quality], output_modality: Modality
+    dataset: str, model_quality: Optional[Qualities], output_modality: Modalities
 ) -> str:
     data_folder = None
-    if output_modality == Modality.IMAGE:
+    if output_modality == Modalities.IMAGE:
         data_folder = 'jpeg'
-    elif output_modality == Modality.TEXT:
+    elif output_modality == Modalities.TEXT:
         data_folder = 'text'
-    elif output_modality == Modality.MUSIC:
+    elif output_modality == Modalities.MUSIC:
         data_folder = 'music'
 
     if model_quality is not None:
