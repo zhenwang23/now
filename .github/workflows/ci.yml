@@ -124,6 +124,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Prepare enviroment
         run: |
+          apt update && apt install ffmpeg
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install --no-cache-dir ".[test]"
