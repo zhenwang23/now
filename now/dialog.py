@@ -86,32 +86,14 @@ class UserInput:
 
 def configure_user_input(**kwargs) -> UserInput:
     print_headline()
-    user_input = _configure_output_modality(UserInput(), **kwargs)
+    user_input = UserInput()
+    _configure_output_modality(user_input, **kwargs)
+    _configure_dataset(user_input, **kwargs)
+    if user_input.output_modality != Modalities.MUSIC:
+        _configure_quality(user_input, **kwargs)
+    _configure_cluster(user_input, **kwargs)
     user_input = _configure_sandbox(user_input, **kwargs)
     return user_input
-
-
-def maybe_prompt_user(questions, attribute, **kwargs):
-    """
-    Checks the `kwargs` for the `attribute` name. If present, the value is returned directly.
-    If not, the user is prompted via the cmd-line using the `questions` argument.
-
-    :param questions: A dictionary that is passed to `PyInquirer.prompt`
-        See docs: https://github.com/CITGuru/PyInquirer#documentation
-    :param attribute: Name of the value to get. Make sure this matches the name in `kwargs`
-
-    :return: A single value of either from `kwargs` or the user cli input.
-    """
-    if kwargs and kwargs.get(attribute) is not None:
-        return kwargs[attribute]
-    else:
-        answer = prompt(questions)
-        if attribute in answer:
-            return answer[attribute]
-        else:
-            print("\n" * 10)
-            cowsay.cow('see you soon 👋')
-            exit(0)
 
 
 def print_headline():
@@ -134,8 +116,9 @@ def print_headline():
     print()
 
 
-def _configure_output_modality(user_input: UserInput, **kwargs) -> UserInput:
-    modality = _prompt_value(
+def _configure_output_modality(user_input: UserInput, **kwargs) -> None:
+    """Asks user questions to set output_modality in user_input"""
+    user_input.output_modality = _prompt_value(
         name='output_modality',
         choices=[
             {'name': '🏞 Image Search', 'value': Modalities.IMAGE},
@@ -150,17 +133,29 @@ def _configure_output_modality(user_input: UserInput, **kwargs) -> UserInput:
         prompt_type='list',
         **kwargs,
     )
-    user_input.output_modality = modality
-    if modality == Modalities.IMAGE:
-        return _configure_dataset_image(user_input, **kwargs)
-    elif modality == Modalities.TEXT:
-        return _configure_dataset_text(user_input, **kwargs)
+
+
+def _configure_dataset(user_input: UserInput, **kwargs) -> None:
+    """Asks user to set dataset attribute of user_input"""
+    if user_input.output_modality == Modalities.IMAGE:
+        _configure_dataset_image(user_input, **kwargs)
+    elif user_input.output_modality == Modalities.TEXT:
+        _configure_dataset_text(user_input, **kwargs)
     else:
-        return _configure_dataset_music(user_input, **kwargs)
+        _configure_dataset_music(user_input, **kwargs)
+
+    if user_input.data in AVAILABLE_DATASET[user_input.output_modality]:
+        user_input.is_custom_dataset = False
+    else:
+        user_input.is_custom_dataset = True
+        if user_input.data == 'custom':
+            _configure_custom_dataset(user_input, **kwargs)
+        else:
+            _parse_custom_data_from_cli(user_input)
 
 
-def _configure_dataset_image(user_input: UserInput, **kwargs) -> UserInput:
-    dataset = _prompt_value(
+def _configure_dataset_image(user_input: UserInput, **kwargs) -> None:
+    user_input.data = _prompt_value(
         name='data',
         prompt_message='What dataset do you want to use?',
         choices=[
@@ -189,12 +184,10 @@ def _configure_dataset_image(user_input: UserInput, **kwargs) -> UserInput:
         ],
         **kwargs,
     )
-    user_input.data = dataset
-    return _configure_dataset(user_input, **kwargs)
 
 
 def _configure_dataset_text(user_input: UserInput, **kwargs) -> UserInput:
-    dataset = _prompt_value(
+    user_input.data = _prompt_value(
         name='data',
         prompt_message='What dataset do you want to use?',
         choices=[
@@ -206,12 +199,10 @@ def _configure_dataset_text(user_input: UserInput, **kwargs) -> UserInput:
         ],
         **kwargs,
     )
-    user_input.data = dataset
-    return _configure_dataset(user_input, **kwargs)
 
 
 def _configure_dataset_music(user_input: UserInput, **kwargs):
-    dataset = _prompt_value(
+    user_input.data = _prompt_value(
         name='data',
         prompt_message='What dataset do you want to use?',
         choices=[
@@ -225,81 +216,10 @@ def _configure_dataset_music(user_input: UserInput, **kwargs):
         ],
         **kwargs,
     )
-    user_input.data = dataset
-    return _configure_dataset(user_input, **kwargs)
 
 
-def _configure_sandbox(user_input: UserInput, **kwargs):
-    sandbox = _prompt_value(
-        name='sandbox',
-        prompt_message='Use Sandbox to save memory? (process data on our servers)',
-        choices=[
-            {'name': '⛔ no', 'value': False},
-            {'name': '✅ yes', 'value': True},
-        ],
-        **kwargs,
-    )
-    user_input.sandbox = sandbox
-    return user_input
-
-
-def _configure_dataset(user_input: UserInput, **kwargs) -> UserInput:
-    dataset = user_input.data
-    if dataset in AVAILABLE_DATASET[user_input.output_modality]:
-        user_input.is_custom_dataset = False
-        if user_input.output_modality == Modalities.MUSIC:
-            return _configure_cluster(user_input, **kwargs)
-        else:
-            return _configure_quality(user_input, **kwargs)
-    else:
-        user_input.is_custom_dataset = True
-        if dataset == 'custom':
-            return _configure_custom_dataset(user_input, **kwargs)
-        else:
-            _parse_custom_data_from_cli(dataset, user_input)
-            if user_input.output_modality == Modalities.MUSIC:
-                return _configure_cluster(user_input, **kwargs)
-            else:
-                return _configure_quality(user_input, **kwargs)
-
-
-def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
-    def configure_docarray() -> UserInput:
-        dataset_secret = _prompt_value(
-            name='dataset_secret',
-            prompt_message='Please enter your docarray secret.',
-            prompt_type='password',
-        )
-        user_input.dataset_secret = dataset_secret
-        if user_input.output_modality == Modalities.IMAGE:
-            return _configure_quality(user_input, **kwargs)
-        else:
-            return _configure_cluster(user_input, **kwargs)
-
-    def configure_url() -> UserInput:
-        dataset_url = _prompt_value(
-            name='dataset_url',
-            prompt_message='Please paste in your url for the docarray.',
-            prompt_type='input',
-        )
-        user_input.dataset_url = dataset_url
-        if user_input.output_modality == Modalities.IMAGE:
-            return _configure_quality(user_input, **kwargs)
-        else:
-            return _configure_cluster(user_input, **kwargs)
-
-    def configure_path() -> UserInput:
-        dataset_path = _prompt_value(
-            name='dataset_path',
-            prompt_message='Please enter the path to the local folder.',
-            prompt_type='input',
-        )
-        user_input.dataset_path = dataset_path
-        if user_input.output_modality == Modalities.IMAGE:
-            return _configure_quality(user_input, **kwargs)
-        else:
-            return _configure_cluster(user_input, **kwargs)
-
+def _configure_custom_dataset(user_input: UserInput, **kwargs) -> None:
+    """Asks user questions to setup custom dataset in user_input."""
     custom_dataset_type = _prompt_value(
         name='custom_dataset_type',
         prompt_message='How do you want to provide input? (format: https://docarray.jina.ai/)',
@@ -319,18 +239,35 @@ def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
         ],
         **kwargs,
     )
-
     user_input.custom_dataset_type = custom_dataset_type
+
     if custom_dataset_type == 'docarray':
-        return configure_docarray()
-    if custom_dataset_type == 'url':
-        return configure_url()
-    if custom_dataset_type == 'path':
-        return configure_path()
+        dataset_secret = _prompt_value(
+            name='dataset_secret',
+            prompt_message='Please enter your docarray secret.',
+            prompt_type='password',
+        )
+        user_input.dataset_secret = dataset_secret
+    elif custom_dataset_type == 'url':
+        dataset_url = _prompt_value(
+            name='dataset_url',
+            prompt_message='Please paste in your url for the docarray.',
+            prompt_type='input',
+        )
+        user_input.dataset_url = dataset_url
+    elif custom_dataset_type == 'path':
+        dataset_path = _prompt_value(
+            name='dataset_path',
+            prompt_message='Please enter the path to the local folder.',
+            prompt_type='input',
+        )
+        user_input.dataset_path = dataset_path
 
 
-def _configure_cluster(user_input: UserInput, **kwargs) -> UserInput:
-    def configure_new_cluster() -> UserInput:
+def _configure_cluster(user_input: UserInput, **kwargs) -> None:
+    """Asks user question to determine cluster for user_input object"""
+
+    def configure_new_cluster() -> None:
         new_cluster_type = _prompt_value(
             name='new_cluster_type',
             choices=[
@@ -364,7 +301,6 @@ def _configure_cluster(user_input: UserInput, **kwargs) -> UserInput:
         user_input.new_cluster_type = new_cluster_type
         if user_input.new_cluster_type == 'gke':
             _maybe_install_gke(**kwargs)
-        return user_input
 
     choices = _construct_cluster_choices(
         active_context=kwargs.get('active_context'), contexts=kwargs.get('contexts')
@@ -378,18 +314,17 @@ def _configure_cluster(user_input: UserInput, **kwargs) -> UserInput:
     )
     if cluster == NEW_CLUSTER['value']:
         user_input.cluster = cluster
-        return configure_new_cluster()
+        configure_new_cluster()
     else:
         user_input.cluster = cluster
         if not _cluster_running(cluster):
             print(f'Cluster {cluster} is not running. Please select a different one.')
-            return _configure_cluster(user_input, **kwargs)
-        else:
-            return user_input
+            _configure_cluster(user_input, **kwargs)
 
 
-def _configure_quality(user_input: UserInput, **kwargs) -> UserInput:
-    quality = _prompt_value(
+def _configure_quality(user_input: UserInput, **kwargs) -> None:
+    """Asks users questions to set quality attribute of user_input"""
+    user_input.quality = _prompt_value(
         name='quality',
         choices=[
             {'name': '🦊 medium (≈3GB mem, 15q/s)', 'value': 'medium'},
@@ -403,16 +338,28 @@ def _configure_quality(user_input: UserInput, **kwargs) -> UserInput:
         prompt_type='list',
         **kwargs,
     )
-    if quality == 'medium':
+    if user_input.quality == 'medium':
         print('  🚀 you trade-off a bit of quality for having the best speed')
-    elif quality == 'good':
+    elif user_input.quality == 'good':
         print('  ⚖️ you have the best out of speed and quality')
-    elif quality == 'excellent':
+    elif user_input.quality == 'excellent':
         print('  ✨ you trade-off speed to having the best quality')
 
-    user_input.quality = quality
-    _, user_input.model_variant = QUALITY_MAP[quality]
-    return _configure_cluster(user_input, **kwargs)
+    _, user_input.model_variant = QUALITY_MAP[user_input.quality]
+
+
+def _configure_sandbox(user_input: UserInput, **kwargs):
+    sandbox = _prompt_value(
+        name='sandbox',
+        prompt_message='Use Sandbox to save memory? (process data on our servers)',
+        choices=[
+            {'name': '⛔ no', 'value': False},
+            {'name': '✅ yes', 'value': True},
+        ],
+        **kwargs,
+    )
+    user_input.sandbox = sandbox
+    return user_input
 
 
 def _construct_cluster_choices(active_context, contexts):
@@ -421,6 +368,29 @@ def _construct_cluster_choices(active_context, contexts):
     if len(context_names) > 0 and len(context_names[0]) > 0:
         choices = context_names + choices
     return choices
+
+
+def maybe_prompt_user(questions, attribute, **kwargs):
+    """
+    Checks the `kwargs` for the `attribute` name. If present, the value is returned directly.
+    If not, the user is prompted via the cmd-line using the `questions` argument.
+
+    :param questions: A dictionary that is passed to `PyInquirer.prompt`
+        See docs: https://github.com/CITGuru/PyInquirer#documentation
+    :param attribute: Name of the value to get. Make sure this matches the name in `kwargs`
+
+    :return: A single value of either from `kwargs` or the user cli input.
+    """
+    if kwargs and kwargs.get(attribute) is not None:
+        return kwargs[attribute]
+    else:
+        answer = prompt(questions)
+        if attribute in answer:
+            return answer[attribute]
+        else:
+            print("\n" * 10)
+            cowsay.cow('see you soon 👋')
+            exit(0)
 
 
 def _prompt_value(
@@ -469,7 +439,8 @@ def _maybe_install_gke(os_type: str, arch: str):
                 spinner.ok('🛠️')
 
 
-def _parse_custom_data_from_cli(data: str, user_input: UserInput):
+def _parse_custom_data_from_cli(user_input: UserInput):
+    data = user_input.data
     try:
         data = os.path.expanduser(data)
     except Exception:
