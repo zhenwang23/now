@@ -4,6 +4,7 @@ import cowsay
 from yaspin import yaspin
 
 from now import run_backend, run_frontend
+from now.cloud_manager import setup_cluster
 from now.deployment.deployment import cmd
 from now.dialog import _get_context_names, configure_user_input, maybe_prompt_user
 from now.system_information import get_system_state
@@ -59,7 +60,7 @@ def run_k8s(os_type: str = 'linux', arch: str = 'x86_64', **kwargs):
         with tempfile.TemporaryDirectory() as tmpdir:
             docker_frontend_tag = '0.0.4'
 
-            # setup_cluster(user_input.cluster, user_input.new_cluster_type, **kwargs)
+            setup_cluster(user_input.cluster, user_input.new_cluster_type, **kwargs)
             (
                 gateway_host,
                 gateway_port,
