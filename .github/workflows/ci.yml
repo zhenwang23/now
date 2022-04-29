@@ -164,8 +164,7 @@ jobs:
         run: echo "All Done"
 
   check-if-frontend-has-changed:
-#    needs: success-all-test
-#    needs: [commit-lint, lint-flake-8, check-black]
+    needs: [commit-lint, lint-flake-8, check-black]
     runs-on: ubuntu-latest
     outputs:
       frontend_changed: ${{ steps.check_frontend_changed.outputs.frontend_changed }}
