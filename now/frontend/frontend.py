@@ -52,7 +52,7 @@ def deploy_streamlit():
     # General
     TOP_K = 9
     DEBUG = os.getenv("DEBUG", False)
-    DATA_DIR = "../data/image/"
+    DATA_DIR = "../data/images/"
 
     if data in ds_set:
         if output_modality == 'image':
@@ -62,7 +62,7 @@ def deploy_streamlit():
                 data_dir + data + '.txt10.bin'
             )
         elif output_modality == 'text':
-            # for now deactivated sample image for text
+            # for now deactivated sample images for text
             output_modality_dir = 'text'
             data_dir = root_data_dir + output_modality_dir + '/'
             da_txt = load_data(data_dir + data + '.txt10.bin')

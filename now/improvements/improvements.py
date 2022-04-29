@@ -109,5 +109,5 @@ def show_improvement(
     ev = evaluator.evaluate()
     plot_metrics(ev, 'finetuned_m.png')
 
-    # saving all the before-after image side-by-side
+    # saving all the before-after images side-by-side
     save_before_after_image(path=f'preview-{data}-{quality}.png')
