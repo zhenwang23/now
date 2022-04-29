@@ -724,9 +724,8 @@ def main():
         'bird-species',
         'best-artworks',
     ]
-    # for name in datasets:
-    #     process_dataset(localdir, name, project, bucket, location)
-    localdir = '/Users/joschkabraun/dev/data'
+    for name in datasets:
+        process_dataset(localdir, name, project, bucket, location)
     location = 'data/one-line/datasets/text'
     datasets = [
         'rock-lyrics',
@@ -741,9 +740,4 @@ def main():
 
 
 if __name__ == '__main__':
-    import os
-
-    os.environ[
-        'GOOGLE_APPLICATION_CREDENTIALS'
-    ] = "/Users/joschkabraun/dev/jina-simpsons-florian-5410f2ea2373.json"
     main()
