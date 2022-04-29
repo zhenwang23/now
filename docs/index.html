@@ -324,14 +324,30 @@ Main features</p>
 </div>
 </section>
 <section id="quick-start">
-<h2>quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">#</a></h2>
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">#</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jina now start
 </pre></div>
 </div>
 </section>
 <section id="use-cli-parameters">
-<h2>use cli parameters<a class="headerlink" href="#use-cli-parameters" title="Permalink to this headline">#</a></h2>
+<h2>Use CLI Parameters<a class="headerlink" href="#use-cli-parameters" title="Permalink to this headline">#</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jina now start --quality medium --data /local/img/folder
+</pre></div>
+</div>
+</section>
+<section id="use-api">
+<h2>Use API<a class="headerlink" href="#use-api" title="Permalink to this headline">#</a></h2>
+<p>You can now send requests to the API using the jina client. This case shows a local deployment.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>from jina import Client    
+<span class="nv">client</span> <span class="o">=</span> Client<span class="o">(</span>
+        <span class="nv">host</span><span class="o">=</span><span class="s1">'localhost'</span>,
+        <span class="nv">protocol</span><span class="o">=</span><span class="s2">"grpc"</span>,
+        <span class="nv">port</span><span class="o">=</span><span class="m">31080</span>,
+<span class="o">)</span> 
+<span class="nv">response</span> <span class="o">=</span> client.search<span class="o">(</span>
+        Document<span class="o">(</span><span class="nv">text</span><span class="o">=</span>search_text<span class="o">)</span>, <span class="c1"># or in case you send an image: Document(url=image_path),</span>
+        <span class="nv">parameters</span><span class="o">={</span><span class="s2">"limit"</span>: <span class="m">9</span>, <span class="s2">"filter"</span>: <span class="o">{}}</span>,
+<span class="o">)</span>
 </pre></div>
 </div>
 </section>
@@ -344,7 +360,7 @@ Main features</p>
 <section id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">#</a></h2>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Python</span> <span class="pre">3.7</span></code>, <code class="docutils literal notranslate"><span class="pre">3.8</span></code> or <code class="docutils literal notranslate"><span class="pre">3.9</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Python</span> <span class="pre">3.7</span></code>, <code class="docutils literal notranslate"><span class="pre">3.8</span></code>, <code class="docutils literal notranslate"><span class="pre">3.9</span></code> or <code class="docutils literal notranslate"><span class="pre">3.10</span></code></p></li>
 </ul>
 <section id="local-execution">
 <h3>Local execution<a class="headerlink" href="#local-execution" title="Permalink to this headline">#</a></h3>
@@ -441,7 +457,7 @@ Main features</p>
                             <a href="https://jina.ai">Copyright &#169; Jina AI Limited. All rights reserved.</a>
                         </div>
                         <div class="last-updated">
-                            Last updated on Apr 28, 2022.
+                            Last updated on Apr 29, 2022.
                         </div>
                     </div>
                     <div class="right-details">
@@ -481,8 +497,9 @@ Main features</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
-<li><a class="reference internal" href="#quick-start">quick start</a></li>
-<li><a class="reference internal" href="#use-cli-parameters">use cli parameters</a></li>
+<li><a class="reference internal" href="#quick-start">Quick Start</a></li>
+<li><a class="reference internal" href="#use-cli-parameters">Use CLI Parameters</a></li>
+<li><a class="reference internal" href="#use-api">Use API</a></li>
 <li><a class="reference internal" href="#cleanup">Cleanup</a></li>
 <li><a class="reference internal" href="#requirements">Requirements</a><ul>
 <li><a class="reference internal" href="#local-execution">Local execution</a></li>
