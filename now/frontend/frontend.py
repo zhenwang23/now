@@ -53,7 +53,6 @@ def deploy_streamlit():
     TOP_K = 9
     DEBUG = os.getenv("DEBUG", False)
     DATA_DIR = "../data/images/"
-    print(DATA_DIR)
 
     if data in ds_set:
         if output_modality == 'image':
