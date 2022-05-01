@@ -34,22 +34,6 @@ def _fetch_da_from_url(
 
 
 def remove_duplicates(da: DocumentArray):
-    """Some da"""
-    # known_set = set()
-    # unique_dataset = DocumentArray()
-    # for i, d in enumerate(da):
-    #     d.id = str(uuid.uuid4())
-    #     l = d.tags['finetuner_label']
-    #     if d.text and l in known_set:
-    #         continue
-    #     unique_dataset.append(d)
-    #     known_set.add(l)
-    # return unique_dataset
-    # da_text = DocumentArray(d for d in da if d.text)
-    # da_img = DocumentArray(d for d in da if not d.text)
-    # da_text.embeddings = da_text.embeddings - da_text.embeddings.mean(0)
-    # da_img.embeddings = da_img.embeddings - da_img.embeddings.mean(0)
-
     new_da = DocumentArray()
     for i, d in enumerate(da):
         new_doc = deepcopy(d)
