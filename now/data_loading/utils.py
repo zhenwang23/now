@@ -25,6 +25,7 @@ def upload_to_gcloud_bucket(project: str, bucket: str, location: str, fname: str
 
 
 def load_mp3(path_to_mp3: str) -> Tuple[np.ndarray, int]:
+    # TODO: store mp3 as binary blob on the doc and load in executor accordingly
     sound = AudioSegment.from_mp3(file=path_to_mp3)
     left, right = sound.split_to_mono()
 

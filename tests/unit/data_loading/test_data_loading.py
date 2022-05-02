@@ -114,7 +114,7 @@ def test_da_local_path_music_folder(music_resource_path: str):
         f' Check the tests/resources/music folder'
     )
     for doc in loaded_da:
-        assert doc.tensor is not None
+        assert doc.blob != b''
 
 
 def test_da_custom_ds(da: DocumentArray):

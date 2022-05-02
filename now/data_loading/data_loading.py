@@ -1,12 +1,12 @@
 import base64
-import glob
 import os
 import uuid
 from copy import deepcopy
 from os.path import join as osp
-from typing import Optional, Set
+from typing import Optional
 
 from docarray import Document, DocumentArray
+from pydub import AudioSegment
 from yaspin import yaspin
 
 from now.constants import (
@@ -17,12 +17,8 @@ from now.constants import (
     Qualities,
 )
 from now.data_loading.convert_datasets_to_jpeg import to_thumbnail_jpg
-from now.data_loading.utils import load_mp3
 from now.dialog import UserInput
 from now.utils import download, sigmap
-
-IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif'}
-MUSIC_EXTENSIONS = {'.mp3'}
 
 
 def load_data(user_input: UserInput) -> DocumentArray:
@@ -56,7 +52,7 @@ def load_data(user_input: UserInput) -> DocumentArray:
         raise ValueError(
             f'Could not load DocArray. Please check your configuration: {user_input}.'
         )
-    da = da.shuffle(seed=42)  # TODO: why?
+    da = da.shuffle(seed=42)
     da = _deep_copy_da(da)
     return da
 
@@ -90,15 +86,6 @@ def _pull_docarray(dataset_secret: str):
         exit(1)
 
 
-def _folder_contains_only(path: str, extensions: Set) -> bool:
-    def valid_file(filename: str) -> bool:
-        return filename.endswith(tuple(extensions))
-
-    files = glob.glob(os.path.join(path, '/**'))
-    map(valid_file, files)
-    return all(files)
-
-
 def _load_from_disk(dataset_path: str, modality: Modalities) -> DocumentArray:
     if os.path.isfile(dataset_path):
         try:
@@ -110,7 +97,6 @@ def _load_from_disk(dataset_path: str, modality: Modalities) -> DocumentArray:
         da = DocumentArray.from_files(dataset_path + '/**')
         convert_fn = None
         if modality == Modalities.IMAGE:
-            assert _folder_contains_only(dataset_path, IMAGE_EXTENSIONS)
 
             def convert_fn(d: Document):
                 try:
@@ -120,24 +106,23 @@ def _load_from_disk(dataset_path: str, modality: Modalities) -> DocumentArray:
                     return d
 
         elif modality == Modalities.MUSIC:
-            assert _folder_contains_only(dataset_path, MUSIC_EXTENSIONS)
 
             def convert_fn(d: Document):
-                arr, sr = load_mp3(d.uri)
-                d.tensor = arr
-                d.tags['sr'] = sr
-                return d
+                try:
+                    AudioSegment.from_file(d.uri)  # checks if file is valid
+                    with open(d.uri, 'rb') as fh:
+                        d.blob = fh.read()
+                    return d
+                except Exception as e:
+                    return d
 
         if convert_fn is not None:
             with yaspin(
                 sigmap=sigmap, text="Pre-processing data", color="green"
             ) as spinner:
                 da.apply(convert_fn)
-                if modality == Modalities.IMAGE:
-                    da = DocumentArray(d for d in da if d.blob != b'')
-                elif modality == Modalities.MUSIC:
-                    da = DocumentArray(d for d in da if d.tensor is not None)
-        spinner.ok('🏭')
+                da = DocumentArray(d for d in da if d.blob != b'')
+                spinner.ok('🏭')
 
         return da
     else:
