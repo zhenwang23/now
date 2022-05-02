@@ -42,9 +42,7 @@ jobs:
             :broken_heart: Unfortunately, this PR has one ore more **bad commit messages**, it can not be merged. To fix this problem, please refer to:
             - [Commit Message Guideline for the First Time Contributor](https://github.com/jina-ai/jina/issues/553)
             - [Contributing Guideline](https://github.com/jina-ai/jina/blob/master/CONTRIBUTING.md)
-
             Note, other CI tests will *not* *start* until the commit messages get fixed.
-
             This message will be deleted automatically when the commit messages get fixed.
           reaction-type: "eyes"
 
@@ -63,6 +61,7 @@ jobs:
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude .git,__pycache__,docs/source/conf.py,old,build,dist,tests/,jina/resources/
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude .git,__pycache__,docs/source/conf.py,old,build,dist,tests/,jina/resources/
+
   check-black:
     runs-on: ubuntu-latest
     steps:
@@ -125,6 +124,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Prepare enviroment
         run: |
+          sudo apt update && sudo apt install ffmpeg
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install --no-cache-dir ".[test]"
