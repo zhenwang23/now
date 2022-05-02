@@ -292,7 +292,7 @@ def _configure_custom_dataset(user_input: UserInput, **kwargs) -> UserInput:
                 'value': 'url',
             },
             {
-                'name': 'local mounted path',
+                'name': 'local path',
                 'value': 'path',
             },
         ],
