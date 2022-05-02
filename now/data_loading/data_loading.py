@@ -6,7 +6,6 @@ from os.path import join as osp
 from typing import Optional
 
 from docarray import Document, DocumentArray
-from pydub import AudioSegment
 from yaspin import yaspin
 
 from now.constants import (
@@ -106,6 +105,7 @@ def _load_from_disk(dataset_path: str, modality: Modalities) -> DocumentArray:
                     return d
 
         elif modality == Modalities.MUSIC:
+            from pydub import AudioSegment
 
             def convert_fn(d: Document):
                 try:
